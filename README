@@ -1,0 +1,14 @@
+Linux PREEMPT-RT kernel
+=======================
+
+This is the development tree of the Preempt-RT patchset. For more information
+about Preempt-RT please visit
+	https://wiki.linuxfoundation.org/realtime/start
+
+This tree usually has only one set of branches that are updated (the current
+one) and the old development branches are left stale. Those branches are
+maintained in the "stable RT" tree which is located at
+	https://git.kernel.org/pub/scm/linux/kernel/git/rt/linux-stable-rt.git/
+
+A list of maintained and no longer maintained kernel tree is available in RT wiki:
+	https://wiki.linuxfoundation.org/realtime/preempt_rt_versions
