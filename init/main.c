@@ -1522,12 +1522,6 @@ void __init console_on_rootfs(void)
 	fput(file);
 }
 
-#ifdef CONFIG_PROVE_RCU
-void rcu_tasks_initiate_self_tests(void);
-#else
-static inline void rcu_tasks_initiate_self_tests(void) {}
-#endif
-
 static noinline void __init kernel_init_freeable(void)
 {
 	/*
