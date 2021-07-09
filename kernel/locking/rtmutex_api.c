@@ -490,7 +490,7 @@ int __sched rwsem_rt_mutex_lock_state(struct rt_mutex *lock, unsigned int state)
 }
 
 /**
- * rwsem_rt_mutex_try_lock_nolockdep - Try to lock a rt_mutex
+ * rwsem_rt_mutex_trylock - Try to lock a rt_mutex
  * @lock:      The rt_mutex to be locked
  *
  * The function does no lockdep operations on @lock. The lockdep state
