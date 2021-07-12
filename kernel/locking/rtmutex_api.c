@@ -519,7 +519,7 @@ int __sched rwsem_rt_mutex_trylock(struct rt_mutex *lock)
  */
 void rwsem_rt_mutex_unlock(struct rt_mutex *lock)
 {
-	if (likely(rt_mutex_cmpxchg_acquire(lock, current, NULL)))
+	if (likely(rt_mutex_cmpxchg_release(lock, current, NULL)))
 		return;
 
 	rt_mutex_slowunlock(lock);
