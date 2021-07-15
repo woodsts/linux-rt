@@ -3459,6 +3459,7 @@ EXPORT_SYMBOL_GPL(kmsg_dump_rewind);
 
 #endif
 
+#ifdef CONFIG_SMP
 struct prb_cpulock {
 	atomic_t owner;
 	unsigned long __percpu *irqflags;
@@ -3563,21 +3564,39 @@ void console_atomic_lock(unsigned int *flags)
 {
 	prb_lock(&printk_cpulock, flags);
 }
-EXPORT_SYMBOL(console_atomic_lock);
 
 void console_atomic_unlock(unsigned int flags)
 {
 	prb_unlock(&printk_cpulock, flags);
 }
+#else
+static unsigned long printk_cpulock_irqflags;
+
+void console_atomic_lock(unsigned int *flags)
+{
+	*flags = 0;
+	local_irq_save(printk_cpulock_irqflags);
+}
+
+void console_atomic_unlock(unsigned int flags)
+{
+	local_irq_restore(printk_cpulock_irqflags);
+}
+#endif /* CONFIG_SMP */
+EXPORT_SYMBOL(console_atomic_lock);
 EXPORT_SYMBOL(console_atomic_unlock);
 
 bool console_atomic_kgdb_cpu_delay(unsigned int cpu)
 {
+#ifdef CONFIG_SMP
 	if (cpu != atomic_read(&printk_cpulock.owner))
 		return false;
 
 	kgdb_cpu = cpu;
 	return true;
+#else
+	return false;
+#endif
 }
 EXPORT_SYMBOL(console_atomic_kgdb_cpu_delay);
 
