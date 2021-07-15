@@ -2338,14 +2338,6 @@ static void console_try_thread(struct console *con)
 	if (console_may_sync(con))
 		print_sync_until(con, prb_next_seq(prb), true);
 }
-
-#else /* CONFIG_PRINTK */
-
-#define prb_first_valid_seq(rb)		0
-#define prb_next_seq(rb)		0
-
-#define console_try_thread(con)
-
 #endif /* CONFIG_PRINTK */
 
 #ifdef CONFIG_EARLY_PRINTK
@@ -2662,17 +2654,19 @@ void console_unblank(void)
  */
 void console_flush_on_panic(enum con_flush_mode mode)
 {
-	struct console *c;
-	u64 seq;
-
 	if (!console_trylock())
 		return;
 
+#ifdef CONFIG_PRINTK
 	if (mode == CONSOLE_REPLAY_ALL) {
+		struct console *c;
+		u64 seq;
+
 		seq = prb_first_valid_seq(prb);
 		for_each_console(c)
 			latched_seq_write(&c->printk_seq, seq);
 	}
+#endif
 
 	console_unlock();
 }
@@ -2809,7 +2803,7 @@ static int try_enable_new_console(struct console *newcon, bool user_specified)
 void register_console(struct console *newcon)
 {
 	struct console *bcon = NULL;
-	u64 seq = 0;
+	u64 __maybe_unused seq = 0;
 	int err;
 
 	for_each_console(bcon) {
@@ -2900,6 +2894,7 @@ void register_console(struct console *newcon)
 	if (newcon->flags & CON_EXTENDED)
 		nr_ext_console_drivers++;
 
+#ifdef CONFIG_PRINTK
 	if (!(newcon->flags & CON_PRINTBUFFER))
 		seq = prb_next_seq(prb);
 
@@ -2913,6 +2908,7 @@ void register_console(struct console *newcon)
 #endif
 
 	console_try_thread(newcon);
+#endif /* CONFIG_PRINTK */
 	console_unlock();
 	console_sysfs_notify();
 
@@ -3585,6 +3581,7 @@ bool console_atomic_kgdb_cpu_delay(unsigned int cpu)
 }
 EXPORT_SYMBOL(console_atomic_kgdb_cpu_delay);
 
+#ifdef CONFIG_PRINTK
 static void pr_msleep(bool may_sleep, int ms)
 {
 	if (may_sleep) {
@@ -3656,4 +3653,10 @@ bool pr_flush(int timeout_ms, bool reset_on_progress)
 
 	return (diff == 0);
 }
+#else
+bool pr_flush(int timeout_ms, bool reset_on_progress)
+{
+	return true;
+}
+#endif /* CONFIG_PRINTK */
 EXPORT_SYMBOL(pr_flush);

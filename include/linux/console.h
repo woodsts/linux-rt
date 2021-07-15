@@ -166,9 +166,9 @@ struct console {
 	int	cflag;
 #ifdef CONFIG_PRINTK
 	char	sync_buf[CONSOLE_LOG_MAX];
-#endif
 	struct latched_seq printk_seq;
 	struct latched_seq printk_sync_seq[PRINTK_CTX_NUM];
+#endif
 
 	struct task_struct *thread;
 	void	*data;
