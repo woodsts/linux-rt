@@ -2294,6 +2294,7 @@ static int printk_kthread_func(void *data)
 
 		console_unlock();
 	}
+	ret = 0;
 out:
 	kfree(dropped_text);
 	kfree(text);
