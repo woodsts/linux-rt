@@ -339,7 +339,7 @@ enum log_flags {
 
 #ifdef CONFIG_PRINTK
 /* syslog_lock protects syslog_* variables and write access to clear_seq. */
-static DEFINE_SPINLOCK(syslog_lock);
+static DEFINE_MUTEX(syslog_lock);
 
 /* Set to enable sync mode. Once set, it is never cleared. */
 static bool sync_mode;
@@ -1038,8 +1038,10 @@ void __init setup_log_buf(int early)
 	struct prb_desc *new_descs;
 	struct printk_info info;
 	struct printk_record r;
+	unsigned int text_size;
 	size_t new_descs_size;
 	size_t new_infos_size;
+	unsigned long flags;
 	char *new_log_buf;
 	unsigned int free;
 	u64 seq;
@@ -1097,20 +1099,37 @@ void __init setup_log_buf(int early)
 		 new_descs, ilog2(new_descs_count),
 		 new_infos);
 
+	local_irq_save(flags);
+
 	log_buf_len = new_log_buf_len;
 	log_buf = new_log_buf;
 	new_log_buf_len = 0;
 
 	free = __LOG_BUF_LEN;
-	prb_for_each_record(0, &printk_rb_static, seq, &r)
-		free -= add_to_rb(&printk_rb_dynamic, &r);
+	prb_for_each_record(0, &printk_rb_static, seq, &r) {
+		text_size = add_to_rb(&printk_rb_dynamic, &r);
+		if (text_size > free)
+			free = 0;
+		else
+			free -= text_size;
+	}
+
+	prb = &printk_rb_dynamic;
+
+	local_irq_restore(flags);
 
 	/*
-	 * This is early enough that everything is still running on the
-	 * boot CPU and interrupts are disabled. So no new messages will
-	 * appear during the transition to the dynamic buffer.
+	 * Copy any remaining messages that might have appeared from
+	 * NMI context after copying but before switching to the
+	 * dynamic buffer.
 	 */
-	prb = &printk_rb_dynamic;
+	prb_for_each_record(seq, &printk_rb_static, seq, &r) {
+		text_size = add_to_rb(&printk_rb_dynamic, &r);
+		if (text_size > free)
+			free = 0;
+		else
+			free -= text_size;
+	}
 
 	if (seq != prb_next_seq(&printk_rb_static)) {
 		pr_err("dropped %llu messages\n",
@@ -1432,12 +1451,14 @@ static u64 find_first_fitting_seq(u64 start_seq, u64 max_seq, size_t size,
 	return seq;
 }
 
+/* The caller is responsible for making sure @size is greater than 0. */
 static int syslog_print(char __user *buf, int size)
 {
 	struct printk_info info;
 	struct printk_record r;
 	char *text;
 	int len = 0;
+	u64 seq;
 
 	text = kmalloc(CONSOLE_LOG_MAX, GFP_KERNEL);
 	if (!text)
@@ -1445,15 +1466,35 @@ static int syslog_print(char __user *buf, int size)
 
 	prb_rec_init_rd(&r, &info, text, CONSOLE_LOG_MAX);
 
-	while (size > 0) {
+	mutex_lock(&syslog_lock);
+
+	/*
+	 * Wait for the @syslog_seq record to be available. @syslog_seq may
+	 * change while waiting.
+	 */
+	do {
+		seq = syslog_seq;
+
+		mutex_unlock(&syslog_lock);
+		len = wait_event_interruptible(log_wait, prb_read_valid(prb, seq, NULL));
+		mutex_lock(&syslog_lock);
+
+		if (len)
+			goto out;
+	} while (syslog_seq != seq);
+
+	/*
+	 * Copy records that fit into the buffer. The above cycle makes sure
+	 * that the first record is always available.
+	 */
+	do {
 		size_t n;
 		size_t skip;
+		int err;
 
-		spin_lock_irq(&syslog_lock);
-		if (!prb_read_valid(prb, syslog_seq, &r)) {
-			spin_unlock_irq(&syslog_lock);
+		if (!prb_read_valid(prb, syslog_seq, &r))
 			break;
-		}
+
 		if (r.info->seq != syslog_seq) {
 			/* message is gone, move to next valid one */
 			syslog_seq = r.info->seq;
@@ -1480,12 +1521,15 @@ static int syslog_print(char __user *buf, int size)
 			syslog_partial += n;
 		} else
 			n = 0;
-		spin_unlock_irq(&syslog_lock);
 
 		if (!n)
 			break;
 
-		if (copy_to_user(buf, text + skip, n)) {
+		mutex_unlock(&syslog_lock);
+		err = copy_to_user(buf, text + skip, n);
+		mutex_lock(&syslog_lock);
+
+		if (err) {
 			if (!len)
 				len = -EFAULT;
 			break;
@@ -1494,8 +1538,9 @@ static int syslog_print(char __user *buf, int size)
 		len += n;
 		size -= n;
 		buf += n;
-	}
-
+	} while (size);
+out:
+	mutex_unlock(&syslog_lock);
 	kfree(text);
 	return len;
 }
@@ -1544,9 +1589,9 @@ static int syslog_print_all(char __user *buf, int size, bool clear)
 	}
 
 	if (clear) {
-		spin_lock_irq(&syslog_lock);
+		mutex_lock(&syslog_lock);
 		latched_seq_write(&clear_seq, seq);
-		spin_unlock_irq(&syslog_lock);
+		mutex_unlock(&syslog_lock);
 	}
 
 	kfree(text);
@@ -1555,21 +1600,9 @@ static int syslog_print_all(char __user *buf, int size, bool clear)
 
 static void syslog_clear(void)
 {
-	spin_lock_irq(&syslog_lock);
+	mutex_lock(&syslog_lock);
 	latched_seq_write(&clear_seq, prb_next_seq(prb));
-	spin_unlock_irq(&syslog_lock);
-}
-
-/* Return a consistent copy of @syslog_seq. */
-static u64 read_syslog_seq_irq(void)
-{
-	u64 seq;
-
-	spin_lock_irq(&syslog_lock);
-	seq = syslog_seq;
-	spin_unlock_irq(&syslog_lock);
-
-	return seq;
+	mutex_unlock(&syslog_lock);
 }
 
 int do_syslog(int type, char __user *buf, int len, int source)
@@ -1595,11 +1628,6 @@ int do_syslog(int type, char __user *buf, int len, int source)
 			return 0;
 		if (!access_ok(buf, len))
 			return -EFAULT;
-
-		error = wait_event_interruptible(log_wait,
-				prb_read_valid(prb, read_syslog_seq_irq(), NULL));
-		if (error)
-			return error;
 		error = syslog_print(buf, len);
 		break;
 	/* Read/clear last kernel messages */
@@ -1645,10 +1673,10 @@ int do_syslog(int type, char __user *buf, int len, int source)
 		break;
 	/* Number of chars in the log buffer */
 	case SYSLOG_ACTION_SIZE_UNREAD:
-		spin_lock_irq(&syslog_lock);
+		mutex_lock(&syslog_lock);
 		if (!prb_read_valid_info(prb, syslog_seq, &info, NULL)) {
 			/* No unread messages. */
-			spin_unlock_irq(&syslog_lock);
+			mutex_unlock(&syslog_lock);
 			return 0;
 		}
 		if (info.seq != syslog_seq) {
@@ -1676,7 +1704,7 @@ int do_syslog(int type, char __user *buf, int len, int source)
 			}
 			error -= syslog_partial;
 		}
-		spin_unlock_irq(&syslog_lock);
+		mutex_unlock(&syslog_lock);
 		break;
 	/* Size of the log buffer */
 	case SYSLOG_ACTION_SIZE_BUFFER:
@@ -1805,11 +1833,11 @@ static u64 read_console_seq(struct console *con)
 	u64 seq;
 
 	seq = latched_seq_read_nolock(&con->printk_seq);
-	seq2 = latched_seq_read_nolock(&con->printk_sync_seq[0]);
+	seq2 = latched_seq_read_nolock(&con->printk_sync_seq);
 	if (seq2 > seq)
 		seq = seq2;
-#if PRINTK_CTX_NUM > 1
-	seq2 = latched_seq_read_nolock(&con->printk_sync_seq[1]);
+#ifdef CONFIG_HAVE_NMI
+	seq2 = latched_seq_read_nolock(&con->printk_sync_nmi_seq);
 	if (seq2 > seq)
 		seq = seq2;
 #endif
@@ -1818,10 +1846,11 @@ static u64 read_console_seq(struct console *con)
 
 static void print_sync_until(struct console *con, u64 seq, bool is_locked)
 {
-	unsigned int flags;
 	u64 printk_seq;
 
-	console_atomic_lock(&flags);
+	while (!__printk_cpu_trylock())
+		cpu_relax();
+
 	for (;;) {
 		printk_seq = read_console_seq(con);
 		if (printk_seq >= seq)
@@ -1829,19 +1858,17 @@ static void print_sync_until(struct console *con, u64 seq, bool is_locked)
 		if (!print_sync(con, &printk_seq))
 			break;
 
-		if (is_locked) {
+		if (is_locked)
 			latched_seq_write(&con->printk_seq, printk_seq + 1);
-		} else {
-			int ctx = 0;
-
 #ifdef CONFIG_PRINTK_NMI
-			if (in_nmi())
-				ctx = 1;
+		else if (in_nmi())
+			latched_seq_write(&con->printk_sync_nmi_seq, printk_seq + 1);
 #endif
-			latched_seq_write(&con->printk_sync_seq[ctx], printk_seq + 1);
-		}
+		else
+			latched_seq_write(&con->printk_sync_seq, printk_seq + 1);
 	}
-	console_atomic_unlock(flags);
+
+	__printk_cpu_unlock();
 }
 
 /*
@@ -1849,8 +1876,12 @@ static void print_sync_until(struct console *con, u64 seq, bool is_locked)
  * additional NMI context per CPU is also separately tracked. Until per-CPU
  * is available, a separate "early tracking" is performed.
  */
-static DEFINE_PER_CPU(char [PRINTK_CTX_NUM], printk_count);
-static char printk_count_early[PRINTK_CTX_NUM];
+static DEFINE_PER_CPU(u8, printk_count);
+static u8 printk_count_early;
+#ifdef CONFIG_HAVE_NMI
+static DEFINE_PER_CPU(u8, printk_count_nmi);
+static u8 printk_count_nmi_early;
+#endif
 
 /*
  * Recursion is limited to keep the output sane. printk() should not require
@@ -1860,49 +1891,55 @@ static char printk_count_early[PRINTK_CTX_NUM];
  */
 #define PRINTK_MAX_RECURSION 3
 
-/* Return a pointer to the dedicated counter for the CPU+context of the caller. */
-static char *printk_recursion_counter(void)
+/*
+ * Return a pointer to the dedicated counter for the CPU+context of the
+ * caller.
+ */
+static u8 *__printk_recursion_counter(void)
 {
-	int ctx = 0;
-
-#ifdef CONFIG_PRINTK_NMI
-	if (in_nmi())
-		ctx = 1;
+#ifdef CONFIG_HAVE_NMI
+	if (in_nmi()) {
+		if (printk_percpu_data_ready())
+			return this_cpu_ptr(&printk_count_nmi);
+		return &printk_count_nmi_early;
+	}
 #endif
-	if (!printk_percpu_data_ready())
-		return &printk_count_early[ctx];
-	return &((*this_cpu_ptr(&printk_count))[ctx]);
+	if (printk_percpu_data_ready())
+		return this_cpu_ptr(&printk_count);
+	return &printk_count_early;
 }
 
 /*
  * Enter recursion tracking. Interrupts are disabled to simplify tracking.
- * The caller must check the return value to see if the recursion is allowed.
- * On failure, interrupts are not disabled.
+ * The caller must check the boolean return value to see if the recursion is
+ * allowed. On failure, interrupts are not disabled.
+ *
+ * @recursion_ptr must be a variable of type (u8 *) and is the same variable
+ * that is passed to printk_exit_irqrestore().
  */
-static bool printk_enter_irqsave(unsigned long *flags)
-{
-	char *count;
-
-	local_irq_save(*flags);
-	count = printk_recursion_counter();
-	if (*count > PRINTK_MAX_RECURSION) {
-		local_irq_restore(*flags);
-		return false;
-	}
-	(*count)++;
-
-	return true;
-}
+#define printk_enter_irqsave(recursion_ptr, flags)	\
+({							\
+	bool success = true;				\
+							\
+	typecheck(u8 *, recursion_ptr);			\
+	local_irq_save(flags);				\
+	(recursion_ptr) = __printk_recursion_counter();	\
+	if (*(recursion_ptr) > PRINTK_MAX_RECURSION) {	\
+		local_irq_restore(flags);		\
+		success = false;			\
+	} else {					\
+		(*(recursion_ptr))++;			\
+	}						\
+	success;					\
+})
 
 /* Exit recursion tracking, restoring interrupts. */
-static void printk_exit_irqrestore(unsigned long flags)
-{
-	char *count;
-
-	count = printk_recursion_counter();
-	(*count)--;
-	local_irq_restore(flags);
-}
+#define printk_exit_irqrestore(recursion_ptr, flags)	\
+	do {						\
+		typecheck(u8 *, recursion_ptr);		\
+		(*(recursion_ptr))--;			\
+		local_irq_restore(flags);		\
+	} while (0)
 
 static inline u32 printk_caller_id(void)
 {
@@ -1994,6 +2031,7 @@ static int vprintk_store(int facility, int level,
 	unsigned long irqflags;
 	u16 trunc_msg_len = 0;
 	char prefix_buf[8];
+	u8 *recursion_ptr;
 	u16 reserve_size;
 	va_list args2;
 	u16 text_len;
@@ -2009,7 +2047,7 @@ static int vprintk_store(int facility, int level,
 	 */
 	ts_nsec = local_clock();
 
-	if (!printk_enter_irqsave(&irqflags))
+	if (!printk_enter_irqsave(recursion_ptr, irqflags))
 		return 0;
 
 	/*
@@ -2106,7 +2144,7 @@ out:
 		}
 	}
 
-	printk_exit_irqrestore(irqflags);
+	printk_exit_irqrestore(recursion_ptr, irqflags);
 	return ret;
 }
 
@@ -2336,8 +2374,13 @@ static void console_try_thread(struct console *con)
 	 * The printing threads have not been started yet. If this console
 	 * can print synchronously, print all unprinted messages.
 	 */
-	if (console_may_sync(con))
+	if (console_may_sync(con)) {
+		unsigned long flags;
+
+		local_irq_save(flags);
 		print_sync_until(con, prb_next_seq(prb), true);
+		local_irq_restore(flags);
+	}
 }
 #endif /* CONFIG_PRINTK */
 
@@ -2604,7 +2647,6 @@ void console_unlock(void)
 	}
 
 	console_locked = 0;
-
 	up_console_sem();
 }
 EXPORT_SYMBOL(console_unlock);
@@ -2901,11 +2943,11 @@ void register_console(struct console *newcon)
 
 	seqcount_latch_init(&newcon->printk_seq.latch);
 	latched_seq_write(&newcon->printk_seq, seq);
-	seqcount_latch_init(&newcon->printk_sync_seq[0].latch);
-	latched_seq_write(&newcon->printk_sync_seq[0], seq);
-#if PRINTK_CTX_NUM > 1
-	seqcount_latch_init(&newcon->printk_sync_seq[1].latch);
-	latched_seq_write(&newcon->printk_sync_seq[1], seq);
+	seqcount_latch_init(&newcon->printk_sync_seq.latch);
+	latched_seq_write(&newcon->printk_sync_seq, seq);
+#ifdef CONFIG_HAVE_NMI
+	seqcount_latch_init(&newcon->printk_sync_nmi_seq.latch);
+	latched_seq_write(&newcon->printk_sync_nmi_seq, seq);
 #endif
 
 	console_try_thread(newcon);
@@ -3117,24 +3159,6 @@ void wake_up_klogd(void)
 		irq_work_queue(this_cpu_ptr(&wake_up_klogd_work));
 	}
 	preempt_enable();
-}
-
-__printf(1, 0)
-static int vprintk_deferred(const char *fmt, va_list args)
-{
-	return vprintk_emit(0, LOGLEVEL_DEFAULT, NULL, fmt, args);
-}
-
-int printk_deferred(const char *fmt, ...)
-{
-	va_list args;
-	int r;
-
-	va_start(args, fmt);
-	r = vprintk_deferred(fmt, args);
-	va_end(args);
-
-	return r;
 }
 
 /*
@@ -3461,145 +3485,145 @@ EXPORT_SYMBOL_GPL(kmsg_dump_rewind);
 #endif
 
 #ifdef CONFIG_SMP
-struct prb_cpulock {
-	atomic_t owner;
-	unsigned long __percpu *irqflags;
-};
-
-#define DECLARE_STATIC_PRINTKRB_CPULOCK(name)				\
-static DEFINE_PER_CPU(unsigned long, _##name##_percpu_irqflags);	\
-static struct prb_cpulock name = {					\
-	.owner = ATOMIC_INIT(-1),					\
-	.irqflags = &_##name##_percpu_irqflags,				\
-}
-
+static atomic_t printk_cpulock_owner = ATOMIC_INIT(-1);
+static atomic_t printk_cpulock_nested = ATOMIC_INIT(0);
 static unsigned int kgdb_cpu = -1;
 
-static bool __prb_trylock(struct prb_cpulock *cpu_lock,
-			  unsigned int *cpu_store)
+/**
+ * __printk_wait_on_cpu_lock() - Busy wait until the printk cpu-reentrant
+ *                               spinning lock is not owned by any CPU.
+ *
+ * Context: Any context.
+ */
+void __printk_wait_on_cpu_lock(void)
 {
-	unsigned long *flags;
-	unsigned int cpu;
-
-	cpu = get_cpu();
-
-	*cpu_store = atomic_read(&cpu_lock->owner);
-	/* memory barrier to ensure the current lock owner is visible */
-	smp_rmb();
-	if (*cpu_store == -1) {
-		flags = per_cpu_ptr(cpu_lock->irqflags, cpu);
-		local_irq_save(*flags);
-		if (atomic_try_cmpxchg_acquire(&cpu_lock->owner,
-					       cpu_store, cpu)) {
-			return true;
-		}
-		local_irq_restore(*flags);
-	} else if (*cpu_store == cpu) {
-		return true;
-	}
-
-	put_cpu();
-	return false;
+	do {
+		cpu_relax();
+	} while (atomic_read(&printk_cpulock_owner) != -1);
 }
+EXPORT_SYMBOL(__printk_wait_on_cpu_lock);
 
-/*
- * prb_lock: Perform a processor-reentrant spin lock.
- * @cpu_lock: A pointer to the lock object.
- * @cpu_store: A "flags" pointer to store lock status information.
+/**
+ * __printk_cpu_trylock() - Try to acquire the printk cpu-reentrant
+ *                          spinning lock.
  *
  * If no processor has the lock, the calling processor takes the lock and
  * becomes the owner. If the calling processor is already the owner of the
- * lock, this function succeeds immediately. If lock is locked by another
- * processor, this function spins until the calling processor becomes the
- * owner.
+ * lock, this function succeeds immediately.
  *
- * It is safe to call this function from any context and state.
+ * Context: Any context. Expects interrupts to be disabled.
+ * Return: 1 on success, otherwise 0.
  */
-static void prb_lock(struct prb_cpulock *cpu_lock, unsigned int *cpu_store)
+int __printk_cpu_trylock(void)
 {
-	for (;;) {
-		if (__prb_trylock(cpu_lock, cpu_store))
-			break;
-		cpu_relax();
-	}
-}
+	int cpu;
+	int old;
 
-/*
- * prb_unlock: Perform a processor-reentrant spin unlock.
- * @cpu_lock: A pointer to the lock object.
- * @cpu_store: A "flags" object storing lock status information.
+	cpu = smp_processor_id();
+
+	/*
+	 * Guarantee loads and stores from this CPU when it is the lock owner
+	 * are _not_ visible to the previous lock owner. This pairs with
+	 * __printk_cpu_unlock:B.
+	 *
+	 * Memory barrier involvement:
+	 *
+	 * If __printk_cpu_trylock:A reads from __printk_cpu_unlock:B, then
+	 * __printk_cpu_unlock:A can never read from __printk_cpu_trylock:B.
+	 *
+	 * Relies on:
+	 *
+	 * RELEASE from __printk_cpu_unlock:A to __printk_cpu_unlock:B
+	 * of the previous CPU
+	 *    matching
+	 * ACQUIRE from __printk_cpu_trylock:A to __printk_cpu_trylock:B
+	 * of this CPU
+	 */
+	old = atomic_cmpxchg_acquire(&printk_cpulock_owner, -1,
+				     cpu); /* LMM(__printk_cpu_trylock:A) */
+	if (old == -1) {
+		/*
+		 * This CPU is now the owner and begins loading/storing
+		 * data: LMM(__printk_cpu_trylock:B)
+		 */
+		return 1;
+
+	} else if (old == cpu) {
+		/* This CPU is already the owner. */
+		atomic_inc(&printk_cpulock_nested);
+		return 1;
+	}
+
+	return 0;
+}
+EXPORT_SYMBOL(__printk_cpu_trylock);
+
+/**
+ * __printk_cpu_unlock() - Release the printk cpu-reentrant spinning lock.
  *
- * Release the lock. The calling processor must be the owner of the lock.
+ * The calling processor must be the owner of the lock.
  *
- * It is safe to call this function from any context and state.
+ * Context: Any context. Expects interrupts to be disabled.
  */
-static void prb_unlock(struct prb_cpulock *cpu_lock, unsigned int cpu_store)
+void __printk_cpu_unlock(void)
 {
 	bool trigger_kgdb = false;
-	unsigned long *flags;
 	unsigned int cpu;
 
-	cpu = atomic_read(&cpu_lock->owner);
-	if (cpu == kgdb_cpu && cpu_store == -1) {
+	if (atomic_read(&printk_cpulock_nested)) {
+		atomic_dec(&printk_cpulock_nested);
+		return;
+	}
+
+	/*
+	 * This CPU is finished loading/storing data:
+	 * LMM(__printk_cpu_unlock:A)
+	 */
+
+	cpu = smp_processor_id();
+	if (kgdb_cpu == cpu) {
 		trigger_kgdb = true;
 		kgdb_cpu = -1;
 	}
-	atomic_set_release(&cpu_lock->owner, cpu_store);
 
-	if (cpu_store == -1) {
-		flags = per_cpu_ptr(cpu_lock->irqflags, cpu);
-		local_irq_restore(*flags);
-	}
-
-	put_cpu();
+	/*
+	 * Guarantee loads and stores from this CPU when it was the
+	 * lock owner are visible to the next lock owner. This pairs
+	 * with __printk_cpu_trylock:A.
+	 *
+	 * Memory barrier involvement:
+	 *
+	 * If __printk_cpu_trylock:A reads from __printk_cpu_unlock:B,
+	 * then __printk_cpu_trylock:B reads from __printk_cpu_unlock:A.
+	 *
+	 * Relies on:
+	 *
+	 * RELEASE from __printk_cpu_unlock:A to __printk_cpu_unlock:B
+	 * of this CPU
+	 *    matching
+	 * ACQUIRE from __printk_cpu_trylock:A to __printk_cpu_trylock:B
+	 * of the next CPU
+	 */
+	atomic_set_release(&printk_cpulock_owner,
+			   -1); /* LMM(__printk_cpu_unlock:B) */
 
 	if (trigger_kgdb) {
 		pr_warn("re-triggering kgdb roundup for CPU#%d\n", cpu);
 		kgdb_roundup_cpu(cpu);
 	}
 }
+EXPORT_SYMBOL(__printk_cpu_unlock);
 
-DECLARE_STATIC_PRINTKRB_CPULOCK(printk_cpulock);
-
-void console_atomic_lock(unsigned int *flags)
+bool kgdb_roundup_delay(unsigned int cpu)
 {
-	prb_lock(&printk_cpulock, flags);
-}
-
-void console_atomic_unlock(unsigned int flags)
-{
-	prb_unlock(&printk_cpulock, flags);
-}
-#else
-static unsigned long printk_cpulock_irqflags;
-
-void console_atomic_lock(unsigned int *flags)
-{
-	*flags = 0;
-	local_irq_save(printk_cpulock_irqflags);
-}
-
-void console_atomic_unlock(unsigned int flags)
-{
-	local_irq_restore(printk_cpulock_irqflags);
-}
-#endif /* CONFIG_SMP */
-EXPORT_SYMBOL(console_atomic_lock);
-EXPORT_SYMBOL(console_atomic_unlock);
-
-bool console_atomic_kgdb_cpu_delay(unsigned int cpu)
-{
-#ifdef CONFIG_SMP
-	if (cpu != atomic_read(&printk_cpulock.owner))
+	if (cpu != atomic_read(&printk_cpulock_owner))
 		return false;
 
 	kgdb_cpu = cpu;
 	return true;
-#else
-	return false;
-#endif
 }
-EXPORT_SYMBOL(console_atomic_kgdb_cpu_delay);
+EXPORT_SYMBOL(kgdb_roundup_delay);
+#endif /* CONFIG_SMP */
 
 #ifdef CONFIG_PRINTK
 static void pr_msleep(bool may_sleep, int ms)
@@ -3673,10 +3697,5 @@ bool pr_flush(int timeout_ms, bool reset_on_progress)
 
 	return (diff == 0);
 }
-#else
-bool pr_flush(int timeout_ms, bool reset_on_progress)
-{
-	return true;
-}
-#endif /* CONFIG_PRINTK */
 EXPORT_SYMBOL(pr_flush);
+#endif /* CONFIG_PRINTK */

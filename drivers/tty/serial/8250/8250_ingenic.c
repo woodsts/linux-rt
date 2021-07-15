@@ -146,7 +146,7 @@ OF_EARLYCON_DECLARE(x1000_uart, "ingenic,x1000-uart",
 
 static void ingenic_uart_serial_out(struct uart_port *p, int offset, int value)
 {
-	unsigned int flags;
+	unsigned long flags;
 	bool is_console;
 	int ier;
 
@@ -171,7 +171,7 @@ static void ingenic_uart_serial_out(struct uart_port *p, int offset, int value)
 		 */
 		is_console = uart_console(p);
 		if (is_console)
-			console_atomic_lock(&flags);
+			console_atomic_lock(flags);
 		ier = p->serial_in(p, UART_IER);
 		if (is_console)
 			console_atomic_unlock(flags);

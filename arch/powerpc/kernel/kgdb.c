@@ -20,7 +20,6 @@
 #include <linux/signal.h>
 #include <linux/ptrace.h>
 #include <linux/kdebug.h>
-#include <linux/console.h>
 #include <asm/current.h>
 #include <asm/processor.h>
 #include <asm/machdep.h>
@@ -123,7 +122,7 @@ static int kgdb_debugger_ipi(struct pt_regs *regs)
 {
 	int cpu = raw_smp_processor_id();
 
-	if (!console_atomic_kgdb_cpu_delay(cpu))
+	if (!kgdb_roundup_delay(cpu))
 		kgdb_nmicallback(cpu, regs);
 	return 0;
 }

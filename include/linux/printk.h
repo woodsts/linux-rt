@@ -169,10 +169,7 @@ int vprintk(const char *fmt, va_list args);
 asmlinkage __printf(1, 2) __cold
 int printk(const char *fmt, ...);
 
-/*
- * Special printk facility for scheduler/timekeeping use only, _DO_NOT_USE_ !
- */
-__printf(1, 2) __cold int printk_deferred(const char *fmt, ...);
+bool pr_flush(int timeout_ms, bool reset_on_progress);
 
 /*
  * Please don't use printk_ratelimit(), because it shares ratelimiting state
@@ -212,11 +209,12 @@ int printk(const char *s, ...)
 {
 	return 0;
 }
-static inline __printf(1, 2) __cold
-int printk_deferred(const char *s, ...)
+
+static inline bool pr_flush(int timeout_ms, bool reset_on_progress)
 {
-	return 0;
+	return true;
 }
+
 static inline int printk_ratelimit(void)
 {
 	return 0;
@@ -265,6 +263,68 @@ static inline void dump_stack(void)
 {
 }
 #endif
+
+#ifdef CONFIG_SMP
+extern int __printk_cpu_trylock(void);
+extern void __printk_wait_on_cpu_lock(void);
+extern void __printk_cpu_unlock(void);
+extern bool kgdb_roundup_delay(unsigned int cpu);
+
+#else
+
+#define __printk_cpu_trylock()		1
+#define __printk_wait_on_cpu_lock()
+#define __printk_cpu_unlock()
+
+static inline bool kgdb_roundup_delay(unsigned int cpu)
+{
+	return false;
+}
+#endif /* CONFIG_SMP */
+
+/**
+ * raw_printk_cpu_lock_irqsave() - Acquire the printk cpu-reentrant spinning
+ *                                 lock and disable interrupts.
+ * @flags: Stack-allocated storage for saving local interrupt state,
+ *         to be passed to raw_printk_cpu_unlock_irqrestore().
+ *
+ * If the lock is owned by another CPU, spin until it becomes available.
+ * Interrupts are restored while spinning.
+ */
+#define raw_printk_cpu_lock_irqsave(flags)	\
+	for (;;) {				\
+		local_irq_save(flags);		\
+		if (__printk_cpu_trylock())	\
+			break;			\
+		local_irq_restore(flags);	\
+		__printk_wait_on_cpu_lock();	\
+	}
+
+/**
+ * raw_printk_cpu_unlock_irqrestore() - Release the printk cpu-reentrant
+ *                                      spinning lock and restore interrupts.
+ * @flags: Caller's saved interrupt state from raw_printk_cpu_lock_irqsave().
+ */
+#define raw_printk_cpu_unlock_irqrestore(flags)	\
+	do {					\
+		__printk_cpu_unlock();		\
+		local_irq_restore(flags);	\
+	} while (0)
+
+/*
+ * Used to synchronize atomic consoles.
+ *
+ * The same as raw_printk_cpu_lock_irqsave() except that hardware interrupts
+ * are _not_ restored while spinning.
+ */
+#define console_atomic_lock(flags)		\
+	do {					\
+		local_irq_save(flags);		\
+		while (!__printk_cpu_trylock())	\
+			cpu_relax();		\
+	} while (0)
+
+#define console_atomic_unlock raw_printk_cpu_unlock_irqrestore
 
 extern int kptr_restrict;
 
@@ -430,21 +490,8 @@ extern int kptr_restrict;
 	}							\
 	unlikely(__ret_print_once);				\
 })
-#define printk_deferred_once(fmt, ...)				\
-({								\
-	static bool __section(".data.once") __print_once;	\
-	bool __ret_print_once = !__print_once;			\
-								\
-	if (!__print_once) {					\
-		__print_once = true;				\
-		printk_deferred(fmt, ##__VA_ARGS__);		\
-	}							\
-	unlikely(__ret_print_once);				\
-})
 #else
 #define printk_once(fmt, ...)					\
-	no_printk(fmt, ##__VA_ARGS__)
-#define printk_deferred_once(fmt, ...)				\
 	no_printk(fmt, ##__VA_ARGS__)
 #endif
 
@@ -480,8 +527,6 @@ extern int kptr_restrict;
 #define pr_debug_once(fmt, ...)					\
 	no_printk(KERN_DEBUG pr_fmt(fmt), ##__VA_ARGS__)
 #endif
-
-bool pr_flush(int timeout_ms, bool reset_on_progress);
 
 /*
  * ratelimited messages with local ratelimit_state,

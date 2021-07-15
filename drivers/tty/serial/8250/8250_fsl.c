@@ -59,17 +59,17 @@ int fsl8250_handle_irq(struct uart_port *port)
 
 	/* Stop processing interrupts on input overrun */
 	if ((orig_lsr & UART_LSR_OE) && (up->overrun_backoff_time_ms > 0)) {
-		unsigned int ca_flags;
+		unsigned long flags;
 		unsigned long delay;
 		bool is_console;
 
 		is_console = uart_console(port);
 
 		if (is_console)
-			console_atomic_lock(&ca_flags);
+			console_atomic_lock(flags);
 		up->ier = port->serial_in(port, UART_IER);
 		if (is_console)
-			console_atomic_unlock(ca_flags);
+			console_atomic_unlock(flags);
 
 		if (up->ier & (UART_IER_RLSI | UART_IER_RDI)) {
 			port->ops->stop_rx(port);

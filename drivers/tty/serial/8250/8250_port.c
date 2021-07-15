@@ -3247,11 +3247,11 @@ static void serial8250_console_putchar_locked(struct uart_port *port, int ch)
 static void serial8250_console_putchar(struct uart_port *port, int ch)
 {
 	struct uart_8250_port *up = up_to_u8250p(port);
-	unsigned int flags;
+	unsigned long flags;
 
 	wait_for_xmitr(up, UART_LSR_THRE);
 
-	console_atomic_lock(&flags);
+	console_atomic_lock(flags);
 	serial8250_console_putchar_locked(port, ch);
 	console_atomic_unlock(flags);
 }
@@ -3281,10 +3281,10 @@ void serial8250_console_write_atomic(struct uart_8250_port *up,
 				     const char *s, unsigned int count)
 {
 	struct uart_port *port = &up->port;
-	unsigned int flags;
+	unsigned long flags;
 	unsigned int ier;
 
-	console_atomic_lock(&flags);
+	console_atomic_lock(flags);
 
 	touch_nmi_watchdog();
 

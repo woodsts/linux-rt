@@ -19,12 +19,6 @@
 #include <linux/printk.h>
 #include <linux/seqlock.h>
 
-#ifdef CONFIG_PRINTK_NMI
-#define PRINTK_CTX_NUM 2
-#else
-#define PRINTK_CTX_NUM 1
-#endif
-
 struct latched_seq {
 	seqcount_latch_t	latch;
 	u64			val[2];
@@ -167,8 +161,11 @@ struct console {
 #ifdef CONFIG_PRINTK
 	char	sync_buf[CONSOLE_LOG_MAX];
 	struct latched_seq printk_seq;
-	struct latched_seq printk_sync_seq[PRINTK_CTX_NUM];
+	struct latched_seq printk_sync_seq;
+#ifdef CONFIG_HAVE_NMI
+	struct latched_seq printk_sync_nmi_seq;
 #endif
+#endif /* CONFIG_PRINTK */
 
 	struct task_struct *thread;
 	void	*data;
@@ -250,9 +247,5 @@ extern void console_init(void);
 /* For deferred console takeover */
 void dummycon_register_output_notifier(struct notifier_block *nb);
 void dummycon_unregister_output_notifier(struct notifier_block *nb);
-
-extern void console_atomic_lock(unsigned int *flags);
-extern void console_atomic_unlock(unsigned int flags);
-extern bool console_atomic_kgdb_cpu_delay(unsigned int cpu);
 
 #endif /* _LINUX_CONSOLE_H */

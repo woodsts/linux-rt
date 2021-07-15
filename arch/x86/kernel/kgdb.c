@@ -32,7 +32,6 @@
 #include <linux/kgdb.h>
 #include <linux/smp.h>
 #include <linux/nmi.h>
-#include <linux/console.h>
 #include <linux/hw_breakpoint.h>
 #include <linux/uaccess.h>
 #include <linux/memory.h>
@@ -504,7 +503,7 @@ static int kgdb_nmi_handler(unsigned int cmd, struct pt_regs *regs)
 			/* KGDB CPU roundup */
 			cpu = raw_smp_processor_id();
 
-			if (!console_atomic_kgdb_cpu_delay(cpu)) {
+			if (!kgdb_roundup_delay(cpu)) {
 				kgdb_nmicallback(cpu, regs);
 				set_bit(cpu, was_in_debug_nmi);
 				touch_nmi_watchdog();
