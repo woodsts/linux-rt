@@ -18,7 +18,7 @@
 #include <linux/gen_stats.h>
 #include <net/netlink.h>
 #include <net/gen_stats.h>
-
+#include <net/sch_generic.h>
 
 static inline int
 gnet_stats_copy(struct gnet_dump *d, int type, void *buf, int size, int padattr)
@@ -114,6 +114,17 @@ gnet_stats_start_copy(struct sk_buff *skb, int type, spinlock_t *lock,
 }
 EXPORT_SYMBOL(gnet_stats_start_copy);
 
+#ifdef CONFIG_LOCKDEP
+/* Must not be inlined, due to u64_stats seqcount_t lockdep key */
+void gnet_stats_basic_packed_init(struct gnet_stats_basic_packed *b)
+{
+	b->bytes = 0;
+	b->packets = 0;
+	u64_stats_init(&b->syncp);
+}
+EXPORT_SYMBOL(gnet_stats_basic_packed_init);
+#endif
+
 static void
 __gnet_stats_copy_basic_cpu(struct gnet_stats_basic_packed *bstats,
 			    struct gnet_stats_basic_cpu __percpu *cpu)
@@ -169,8 +180,9 @@ ___gnet_stats_copy_basic(const seqcount_t *running,
 			 struct gnet_stats_basic_packed *b,
 			 int type)
 {
-	struct gnet_stats_basic_packed bstats = {0};
+	struct gnet_stats_basic_packed bstats;
 
+	gnet_stats_basic_packed_init(&bstats);
 	__gnet_stats_copy_basic(running, &bstats, cpu, b);
 
 	if (d->compat_tc_stats && type == TCA_STATS_BASIC) {

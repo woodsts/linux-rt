@@ -11,12 +11,26 @@
 struct gnet_stats_basic_packed {
 	__u64	bytes;
 	__u64	packets;
+	struct u64_stats_sync syncp;
 };
 
 struct gnet_stats_basic_cpu {
 	struct gnet_stats_basic_packed bstats;
 	struct u64_stats_sync syncp;
 } __aligned(2 * sizeof(u64));
+
+#ifdef CONFIG_LOCKDEP
+void gnet_stats_basic_packed_init(struct gnet_stats_basic_packed *b);
+
+#else
+
+static inline void gnet_stats_basic_packed_init(struct gnet_stats_basic_packed *b)
+{
+	b->bytes = 0;
+	b->packets = 0;
+	u64_stats_init(&b->syncp);
+}
+#endif
 
 struct net_rate_estimator;
 

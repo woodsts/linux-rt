@@ -133,7 +133,7 @@ static int mq_dump(struct Qdisc *sch, struct sk_buff *skb)
 	__u32 qlen = 0;
 
 	sch->q.qlen = 0;
-	memset(&sch->bstats, 0, sizeof(sch->bstats));
+	gnet_stats_basic_packed_init(&sch->bstats);
 	memset(&sch->qstats, 0, sizeof(sch->qstats));
 
 	/* MQ supports lockless qdiscs. However, statistics accounting needs
