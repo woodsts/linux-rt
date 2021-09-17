@@ -662,6 +662,7 @@ static int ets_qdisc_change(struct Qdisc *sch, struct nlattr *opt,
 	q->nbands = nbands;
 	for (i = nstrict; i < q->nstrict; i++) {
 		INIT_LIST_HEAD(&q->classes[i].alist);
+		gnet_stats_basic_packed_init(&q->classes[i].bstats);
 		if (q->classes[i].qdisc->q.qlen) {
 			list_add_tail(&q->classes[i].alist, &q->active);
 			q->classes[i].deficit = quanta[i];
