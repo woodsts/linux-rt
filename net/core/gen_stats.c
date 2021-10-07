@@ -143,6 +143,8 @@ __gnet_stats_copy_basic(const seqcount_t *running,
 			struct gnet_stats_basic_packed *b)
 {
 	unsigned int seq;
+	__u64 bytes = 0;
+	__u64 packets = 0;
 
 	if (cpu) {
 		__gnet_stats_copy_basic_cpu(bstats, cpu);
@@ -151,9 +153,12 @@ __gnet_stats_copy_basic(const seqcount_t *running,
 	do {
 		if (running)
 			seq = read_seqcount_begin(running);
-		bstats->bytes = b->bytes;
-		bstats->packets = b->packets;
+		bytes = b->bytes;
+		packets = b->packets;
 	} while (running && read_seqcount_retry(running, seq));
+
+	bstats->bytes += bytes;
+	bstats->packets += packets;
 }
 EXPORT_SYMBOL(__gnet_stats_copy_basic);
 
