@@ -312,14 +312,14 @@ void __gnet_stats_copy_queue(struct gnet_stats_queue *qstats,
 	if (cpu) {
 		__gnet_stats_copy_queue_cpu(qstats, cpu);
 	} else {
-		qstats->qlen = q->qlen;
-		qstats->backlog = q->backlog;
-		qstats->drops = q->drops;
-		qstats->requeues = q->requeues;
-		qstats->overlimits = q->overlimits;
+		qstats->qlen += q->qlen;
+		qstats->backlog += q->backlog;
+		qstats->drops += q->drops;
+		qstats->requeues += q->requeues;
+		qstats->overlimits += q->overlimits;
 	}
 
-	qstats->qlen = qlen;
+	qstats->qlen += qlen;
 }
 EXPORT_SYMBOL(__gnet_stats_copy_queue);
 
