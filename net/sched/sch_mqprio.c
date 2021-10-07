@@ -399,28 +399,18 @@ static int mqprio_dump(struct Qdisc *sch, struct sk_buff *skb)
 	 * qdisc totals are added at end.
 	 */
 	for (ntx = 0; ntx < dev->num_tx_queues; ntx++) {
+		u32 qlen = qdisc_qlen_sum(qdisc);
+
 		qdisc = netdev_get_tx_queue(dev, ntx)->qdisc_sleeping;
 		spin_lock_bh(qdisc_lock(qdisc));
 
-		if (qdisc_is_percpu_stats(qdisc)) {
-			__u32 qlen = qdisc_qlen_sum(qdisc);
-
-			__gnet_stats_copy_basic(NULL, &sch->bstats,
-						qdisc->cpu_bstats,
-						&qdisc->bstats);
-			__gnet_stats_copy_queue(&sch->qstats,
-						qdisc->cpu_qstats,
-						&qdisc->qstats, qlen);
-			sch->q.qlen		+= qlen;
-		} else {
-			sch->q.qlen		+= qdisc->q.qlen;
-			sch->bstats.bytes	+= qdisc->bstats.bytes;
-			sch->bstats.packets	+= qdisc->bstats.packets;
-			sch->qstats.backlog	+= qdisc->qstats.backlog;
-			sch->qstats.drops	+= qdisc->qstats.drops;
-			sch->qstats.requeues	+= qdisc->qstats.requeues;
-			sch->qstats.overlimits	+= qdisc->qstats.overlimits;
-		}
+		__gnet_stats_copy_basic(NULL, &sch->bstats,
+					qdisc->cpu_bstats,
+					&qdisc->bstats);
+		__gnet_stats_copy_queue(&sch->qstats,
+					qdisc->cpu_qstats,
+					&qdisc->qstats, qlen);
+		sch->q.qlen		+= qlen;
 
 		spin_unlock_bh(qdisc_lock(qdisc));
 	}
@@ -532,25 +522,14 @@ static int mqprio_dump_class_stats(struct Qdisc *sch, unsigned long cl,
 
 			spin_lock_bh(qdisc_lock(qdisc));
 
-			if (qdisc_is_percpu_stats(qdisc)) {
-				qlen = qdisc_qlen_sum(qdisc);
-
-				__gnet_stats_copy_basic(NULL, &bstats,
-							qdisc->cpu_bstats,
-							&qdisc->bstats);
-				__gnet_stats_copy_queue(&qstats,
-							qdisc->cpu_qstats,
-							&qdisc->qstats,
-							qlen);
-			} else {
-				qlen		+= qdisc->q.qlen;
-				bstats.bytes	+= qdisc->bstats.bytes;
-				bstats.packets	+= qdisc->bstats.packets;
-				qstats.backlog	+= qdisc->qstats.backlog;
-				qstats.drops	+= qdisc->qstats.drops;
-				qstats.requeues	+= qdisc->qstats.requeues;
-				qstats.overlimits += qdisc->qstats.overlimits;
-			}
+			qlen = qdisc_qlen_sum(qdisc);
+			__gnet_stats_copy_basic(NULL, &bstats,
+						qdisc->cpu_bstats,
+						&qdisc->bstats);
+			__gnet_stats_copy_queue(&qstats,
+						qdisc->cpu_qstats,
+						&qdisc->qstats,
+						qlen);
 			spin_unlock_bh(qdisc_lock(qdisc));
 		}
 
