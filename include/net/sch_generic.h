@@ -849,6 +849,22 @@ static inline void _bstats_update(struct gnet_stats_basic_sync *bstats,
 	u64_stats_update_end(&bstats->syncp);
 }
 
+static inline void bstats_read_add(struct gnet_stats_basic_sync *bstats,
+				   __u64 *bytes, __u64 *packets)
+{
+	u64 t_bytes, t_packets;
+	unsigned int start;
+
+	do {
+		start = u64_stats_fetch_begin_irq(&bstats->syncp);
+		t_bytes = u64_stats_read(&bstats->bytes);
+		t_packets = u64_stats_read(&bstats->packets);
+	} while (u64_stats_fetch_retry_irq(&bstats->syncp, start));
+
+	*bytes = t_bytes;
+	*packets = t_packets;
+}
+
 static inline void bstats_update(struct gnet_stats_basic_sync *bstats,
 				 const struct sk_buff *skb)
 {
