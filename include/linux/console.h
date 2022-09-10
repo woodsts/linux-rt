@@ -465,8 +465,19 @@ static inline bool console_is_registered(const struct console *con)
 	lockdep_assert_console_list_lock_held();			\
 	hlist_for_each_entry(con, &console_list, node)
 
+#ifdef CONFIG_PRINTK
+extern bool console_can_proceed(struct cons_write_context *wctxt);
+extern bool console_enter_unsafe(struct cons_write_context *wctxt);
+extern bool console_exit_unsafe(struct cons_write_context *wctxt);
 extern bool console_try_acquire(struct cons_write_context *wctxt);
 extern bool console_release(struct cons_write_context *wctxt);
+#else
+static inline bool console_can_proceed(struct cons_write_context *wctxt) { return false; }
+static inline bool console_enter_unsafe(struct cons_write_context *wctxt) { return false; }
+static inline bool console_exit_unsafe(struct cons_write_context *wctxt) { return false; }
+static inline bool console_try_acquire(struct cons_write_context *wctxt) { return false; }
+static inline bool console_release(struct cons_write_context *wctxt) { return false; }
+#endif
 
 extern int console_set_on_cmdline;
 extern struct console *early_console;
