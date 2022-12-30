@@ -318,6 +318,10 @@ static int __down_trylock_console_sem(unsigned long ip)
 	int lock_failed;
 	unsigned long flags;
 
+	/* Semaphores are not NMI-safe. */
+	if (in_nmi())
+		return 1;
+
 	/*
 	 * Here and in __up_console_sem() we need to be in safe mode,
 	 * because spindump/WARN/etc from under console ->lock will
