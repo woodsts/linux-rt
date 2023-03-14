@@ -60,14 +60,12 @@ bool printk_percpu_data_ready(void);
 
 #define printk_safe_enter_irqsave(flags)	\
 	do {					\
-		local_irq_save(flags);		\
-		__printk_safe_enter();		\
+		__printk_safe_enter(&flags);	\
 	} while (0)
 
 #define printk_safe_exit_irqrestore(flags)	\
 	do {					\
-		__printk_safe_exit();		\
-		local_irq_restore(flags);	\
+		__printk_safe_exit(&flags);	\
 	} while (0)
 
 void defer_console_output(void);
