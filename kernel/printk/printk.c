@@ -3153,6 +3153,8 @@ void console_flush_on_panic(enum con_flush_mode mode)
 		console_srcu_read_unlock(cookie);
 	}
 
+	nbcon_atomic_flush_all();
+
 	console_flush_all(false, &next_seq, &handover);
 }
 
@@ -3898,6 +3900,10 @@ void defer_console_output(void)
 
 void printk_trigger_flush(void)
 {
+	preempt_disable();
+	nbcon_atomic_flush_all();
+	preempt_enable();
+
 	defer_console_output();
 }
 
