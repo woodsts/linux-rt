@@ -3394,21 +3394,14 @@ static void serial8250_console_fifo_write(struct uart_8250_port *up,
  *	Doing runtime PM is really a bad idea for the kernel console.
  *	Thus, we assume the function is called when device is powered up.
  */
-void serial8250_console_write(struct uart_8250_port *up, const char *s,
-			      unsigned int count)
+static void __serial8250_console_write(struct uart_8250_port *up, const char *s,
+				       unsigned int count)
 {
 	struct uart_8250_em485 *em485 = up->em485;
 	struct uart_port *port = &up->port;
-	unsigned long flags;
 	unsigned int ier, use_fifo;
-	int locked = 1;
 
 	touch_nmi_watchdog();
-
-	if (oops_in_progress)
-		locked = uart_port_trylock_irqsave(port, &flags);
-	else
-		uart_port_lock_irqsave(port, &flags);
 
 	/*
 	 *	First save the IER then disable the interrupts
@@ -3476,9 +3469,30 @@ void serial8250_console_write(struct uart_8250_port *up, const char *s,
 	 */
 	if (up->msr_saved_flags)
 		serial8250_modem_status(up);
+}
 
-	if (locked)
-		uart_port_unlock_irqrestore(port, flags);
+void serial8250_console_write(struct uart_8250_port *up, const char *s,
+			      unsigned int count)
+{
+	struct uart_port *port = &up->port;
+	unsigned long flags;
+
+	uart_port_lock_irqsave(port, &flags);
+
+	__serial8250_console_write(up, s, count);
+
+	uart_port_unlock_irqrestore(port, flags);
+}
+
+bool serial8250_console_write_atomic(struct uart_8250_port *up,
+				     struct nbcon_write_context *wctxt)
+{
+	if (!nbcon_enter_unsafe(wctxt))
+		return false;
+
+	__serial8250_console_write(up, wctxt->outbuf, wctxt->len);
+
+	return nbcon_exit_unsafe(wctxt);
 }
 
 static unsigned int probe_baud(struct uart_port *port)
