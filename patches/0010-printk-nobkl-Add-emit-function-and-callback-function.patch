@@ -69,11 +69,10 @@ Signed-off-by: Sebastian Andrzej Siewior <bigeasy@linutronix.de>
  
 --- a/kernel/printk/internal.h
 +++ b/kernel/printk/internal.h
-@@ -133,3 +133,13 @@ struct printk_message {
- struct cons_context_data {
- 	struct printk_buffers		pbufs;
+@@ -134,4 +134,14 @@ struct cons_context_data {
+ 	struct printk_buffers	pbufs;
  };
-+
+ 
 +bool printk_get_next_message(struct printk_message *pmsg, u64 seq,
 +			     bool is_extended, bool may_supress);
 +
@@ -83,6 +82,8 @@ Signed-off-by: Sebastian Andrzej Siewior <bigeasy@linutronix.de>
 +			     unsigned long dropped);
 +
 +#endif
++
+ bool other_cpu_in_panic(void);
 --- a/kernel/printk/printk.c
 +++ b/kernel/printk/printk.c
 @@ -713,9 +713,6 @@ static ssize_t msg_print_ext_body(char *
@@ -95,7 +96,7 @@ Signed-off-by: Sebastian Andrzej Siewior <bigeasy@linutronix.de>
  /* /dev/kmsg - userspace message inject/listen interface */
  struct devkmsg_user {
  	atomic64_t seq;
-@@ -2773,7 +2770,7 @@ static void __console_unlock(void)
+@@ -2769,7 +2766,7 @@ static void __console_unlock(void)
   * If @pmsg->pbufs->outbuf is modified, @pmsg->outbuf_len is updated.
   */
  #ifdef CONFIG_PRINTK
@@ -104,7 +105,7 @@ Signed-off-by: Sebastian Andrzej Siewior <bigeasy@linutronix.de>
  {
  	struct printk_buffers *pbufs = pmsg->pbufs;
  	const size_t scratchbuf_sz = sizeof(pbufs->scratchbuf);
-@@ -2805,7 +2802,8 @@ static void console_prepend_dropped(stru
+@@ -2801,7 +2798,8 @@ static void console_prepend_dropped(stru
  	pmsg->outbuf_len += len;
  }
  #else
@@ -114,7 +115,7 @@ Signed-off-by: Sebastian Andrzej Siewior <bigeasy@linutronix.de>
  #endif /* CONFIG_PRINTK */
  
  /*
-@@ -2827,8 +2825,8 @@ static void console_prepend_dropped(stru
+@@ -2823,8 +2821,8 @@ static void console_prepend_dropped(stru
   * of @pmsg are valid. (See the documentation of struct printk_message
   * for information about the @pmsg fields.)
   */

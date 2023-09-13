@@ -3,8 +3,6 @@
 ###########################################################################
 # Posted and applied
 ###########################################################################
-0001-kernel-fork-beware-of-__put_task_struct-calling-cont.patch
-0002-sched-avoid-false-lockdep-splat-in-put_task_struct.patch
 
 # signal_x86__Delay_calling_signals_in_atomic.patch
 
@@ -24,9 +22,7 @@ locking-rtmutex-Acquire-the-hb-lock-via-trylock-afte.patch
 0002-signal-Don-t-disable-preemption-in-ptrace_stop-on-PR.patch
 
 seqlock-Do-the-lockdep-annotation-before-locking-in-.patch
-mm-page_alloc-Use-write_seqlock_irqsave-instead-writ.patch
 
-tick-rcu-fix-false-positive-softirq-work-is-pending-.patch
 ###########################################################################
 # Post
 ###########################################################################
@@ -43,8 +39,6 @@ x86__Enable_RT_also_on_32bit.patch
 ###########################################################################
 # Posted
 sched-rt-Don-t-try-push-tasks-if-there-are-none.patch
-x86-microcode-Remove-microcode_mutex.patch
-ASoC-mediatek-mt8186-Remove-unused-mutex.patch
 
 # Needs discussion first.
 softirq-Use-a-dedicated-thread-for-timer-wakeups.patch
@@ -62,10 +56,6 @@ preempt-Put-preempt_enable-within-an-instrumentation.patch
 ###########################################################################
 # John's printk queue
 ###########################################################################
-0001-kdb-do-not-assume-write-callback-available.patch
-0002-printk-Add-NMI-check-to-console_flush_on_panic-and-c.patch
-0003-printk-Consolidate-console-deferred-printing.patch
-0004-printk-Add-per-console-suspended-state.patch
 0005-printk-Add-non-BKL-console-basic-infrastructure.patch
 0006-printk-nobkl-Add-acquire-release-logic.patch
 0007-printk-nobkl-Add-buffer-management.patch
@@ -121,9 +111,10 @@ ARM__enable_irq_in_translation_section_permission_fault_handlers.patch
 # arm64-signal-Use-ARCH_RT_DELAYS_SIGNAL_SEND.patch
 tty_serial_omap__Make_the_locking_RT_aware.patch
 tty_serial_pl011__Make_the_locking_work_on_RT.patch
-0003-ARM-vfp-Provide-vfp_lock-for-VFP-locking.patch
-0004-ARM-vfp-Use-vfp_lock-in-vfp_sync_hwstate.patch
-0005-ARM-vfp-Use-vfp_lock-in-vfp_entry.patch
+0001-ARM-vfp-Provide-vfp_lock-for-VFP-locking.patch
+0002-ARM-vfp-Use-vfp_lock-in-vfp_sync_hwstate.patch
+0003-ARM-vfp-Use-vfp_lock-in-vfp_support_entry.patch
+0004-ARM-vfp-Move-sending-signals-outside-of-vfp_lock-ed-.patch
 ARM__Allow_to_enable_RT.patch
 ARM64__Allow_to_enable_RT.patch
 

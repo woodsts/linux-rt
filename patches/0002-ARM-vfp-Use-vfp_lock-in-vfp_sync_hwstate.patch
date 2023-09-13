@@ -1,6 +1,6 @@
 From: Sebastian Andrzej Siewior <bigeasy@linutronix.de>
 Date: Fri, 19 May 2023 16:57:30 +0200
-Subject: [PATCH 4/5] ARM: vfp: Use vfp_lock() in vfp_sync_hwstate().
+Subject: [PATCH 2/4] ARM: vfp: Use vfp_lock() in vfp_sync_hwstate().
 
 vfp_sync_hwstate() uses preempt_disable() followed by local_bh_disable()
 to ensure that it won't get interrupted while checking the VFP state.
@@ -10,7 +10,6 @@ which does not work with disabled preemption.
 
 Use the vfp_lock() to synchronize the access.
 
-Link: https://lore.kernel.org/r/20230519145731.574867-3-bigeasy@linutronix.de
 Signed-off-by: Sebastian Andrzej Siewior <bigeasy@linutronix.de>
 ---
  arch/arm/vfp/vfpmodule.c |    9 +++------
@@ -18,7 +17,7 @@ Signed-off-by: Sebastian Andrzej Siewior <bigeasy@linutronix.de>
 
 --- a/arch/arm/vfp/vfpmodule.c
 +++ b/arch/arm/vfp/vfpmodule.c
-@@ -543,11 +543,9 @@ static inline void vfp_pm_init(void) { }
+@@ -540,11 +540,9 @@ static inline void vfp_pm_init(void) { }
   */
  void vfp_sync_hwstate(struct thread_info *thread)
  {
@@ -32,7 +31,7 @@ Signed-off-by: Sebastian Andrzej Siewior <bigeasy@linutronix.de>
  		u32 fpexc = fmrx(FPEXC);
  
  		/*
-@@ -558,8 +556,7 @@ void vfp_sync_hwstate(struct thread_info
+@@ -555,8 +553,7 @@ void vfp_sync_hwstate(struct thread_info
  		fmxr(FPEXC, fpexc);
  	}
  

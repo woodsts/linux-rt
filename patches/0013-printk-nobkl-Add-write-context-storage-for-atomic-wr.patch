@@ -55,6 +55,6 @@ Signed-off-by: Sebastian Andrzej Siewior <bigeasy@linutronix.de>
   */
  struct cons_context_data {
 +	struct cons_write_context	wctxt[CONS_PRIO_MAX];
- 	struct printk_buffers		pbufs;
+ 	struct printk_buffers	pbufs;
  };
  

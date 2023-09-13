@@ -15,9 +15,9 @@ Signed-off-by: John Ogness <john.ogness@linutronix.de>
 Signed-off-by: Sebastian Andrzej Siewior <bigeasy@linutronix.de>
 ---
  kernel/printk/internal.h     |    2 ++
- kernel/printk/printk.c       |   28 ++++++++++++++++++++++------
+ kernel/printk/printk.c       |   27 +++++++++++++++++++++------
  kernel/printk/printk_nobkl.c |   24 ++++++++++++++++++++++++
- 3 files changed, 48 insertions(+), 6 deletions(-)
+ 3 files changed, 47 insertions(+), 6 deletions(-)
 
 --- a/kernel/printk/internal.h
 +++ b/kernel/printk/internal.h
@@ -39,11 +39,13 @@ Signed-off-by: Sebastian Andrzej Siewior <bigeasy@linutronix.de>
  
 --- a/kernel/printk/printk.c
 +++ b/kernel/printk/printk.c
-@@ -3151,6 +3151,28 @@ void console_unblank(void)
+@@ -3166,8 +3166,29 @@ void console_unblank(void)
   */
  void console_flush_on_panic(enum con_flush_mode mode)
  {
 +	struct console *c;
+ 	bool handover;
+ 	u64 next_seq;
 +	short flags;
 +	int cookie;
 +	u64 seq;
@@ -64,11 +66,10 @@ Signed-off-by: Sebastian Andrzej Siewior <bigeasy@linutronix.de>
 +		console_srcu_read_unlock(cookie);
 +	}
 +	cons_atomic_flush(NULL, true);
-+
+ 
  	if (!have_bkl_console)
  		return;
- 
-@@ -3169,12 +3191,6 @@ void console_flush_on_panic(enum con_flu
+@@ -3190,12 +3211,6 @@ void console_flush_on_panic(enum con_flu
  	console_may_schedule = 0;
  
  	if (mode == CONSOLE_REPLAY_ALL) {

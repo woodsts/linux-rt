@@ -8,9 +8,9 @@ Signed-off-by: John Ogness <john.ogness@linutronix.de>
 Signed-off-by: Sebastian Andrzej Siewior <bigeasy@linutronix.de>
 ---
  kernel/printk/internal.h     |    4 +
- kernel/printk/printk.c       |  170 ++++++++++++++++++++++++++++++++++++-------
+ kernel/printk/printk.c       |  157 +++++++++++++++++++++++++++++++++++++------
  kernel/printk/printk_nobkl.c |    4 -
- 3 files changed, 152 insertions(+), 26 deletions(-)
+ 3 files changed, 144 insertions(+), 21 deletions(-)
 
 --- a/kernel/printk/internal.h
 +++ b/kernel/printk/internal.h
@@ -59,7 +59,7 @@ Signed-off-by: Sebastian Andrzej Siewior <bigeasy@linutronix.de>
  		/*
  		 * Try to acquire and then immediately release the console
  		 * semaphore. The release will print out buffers. With the
-@@ -2643,6 +2643,9 @@ void resume_console(void)
+@@ -2637,6 +2637,9 @@ void resume_console(void)
  	}
  	console_srcu_read_unlock(cookie);
  
@@ -69,7 +69,7 @@ Signed-off-by: Sebastian Andrzej Siewior <bigeasy@linutronix.de>
  	pr_flush(1000, true);
  }
  
-@@ -3023,30 +3026,13 @@ static bool console_flush_all(bool do_co
+@@ -3019,19 +3022,7 @@ static bool console_flush_all(bool do_co
  	return false;
  }
  
@@ -90,18 +90,7 @@ Signed-off-by: Sebastian Andrzej Siewior <bigeasy@linutronix.de>
  {
  	bool do_cond_resched;
  	bool handover;
- 	bool flushed;
- 	u64 next_seq;
- 
--	if (console_suspended) {
--		up_console_sem();
--		return;
--	}
--
- 	/*
- 	 * Console drivers are called with interrupts disabled, so
- 	 * @console_may_schedule should be cleared before; however, we may
-@@ -3083,6 +3069,39 @@ void console_unlock(void)
+@@ -3074,6 +3065,34 @@ void console_unlock(void)
  		 * fails, another context is already handling the printing.
  		 */
  	} while (prb_read_valid(prb, next_seq, NULL) && console_trylock());
@@ -123,11 +112,6 @@ Signed-off-by: Sebastian Andrzej Siewior <bigeasy@linutronix.de>
 + */
 +void console_unlock(void)
 +{
-+	if (console_suspended) {
-+		up_console_sem();
-+		return;
-+	}
-+
 +	/*
 +	 * PREEMPT_RT relies on kthread and atomic consoles for printing.
 +	 * It never attempts to print from console_unlock().
@@ -141,7 +125,7 @@ Signed-off-by: Sebastian Andrzej Siewior <bigeasy@linutronix.de>
  }
  EXPORT_SYMBOL(console_unlock);
  
-@@ -3276,11 +3295,102 @@ void console_start(struct console *conso
+@@ -3295,11 +3314,99 @@ void console_start(struct console *conso
  
  	if (flags & CON_NO_BKL)
  		cons_kthread_wake(console);
@@ -200,10 +184,7 @@ Signed-off-by: Sebastian Andrzej Siewior <bigeasy@linutronix.de>
 +			continue;
 +
 +		console_lock();
-+		if (console_suspended)
-+			up_console_sem();
-+		else
-+			seq = console_flush_and_unlock();
++		seq = console_flush_and_unlock();
 +	}
 +	return 0;
 +}
@@ -244,7 +225,7 @@ Signed-off-by: Sebastian Andrzej Siewior <bigeasy@linutronix.de>
  static int __read_mostly keep_bootcon;
  
  static int __init keep_bootcon_setup(char *str)
-@@ -3519,10 +3629,12 @@ void register_console(struct console *ne
+@@ -3538,10 +3645,12 @@ void register_console(struct console *ne
  	newcon->dropped = 0;
  	console_init_seq(newcon, bootcon_registered);
  
@@ -259,7 +240,7 @@ Signed-off-by: Sebastian Andrzej Siewior <bigeasy@linutronix.de>
  
  	if (newcon->flags & CON_BOOT)
  		have_boot_console = true;
-@@ -3889,9 +4001,17 @@ static void wake_up_klogd_work_func(stru
+@@ -3914,9 +4023,17 @@ static void wake_up_klogd_work_func(stru
  	int pending = this_cpu_xchg(printk_pending, 0);
  
  	if (pending & PRINTK_PENDING_OUTPUT) {
