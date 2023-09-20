@@ -25,7 +25,7 @@ Signed-off-by: Thomas Gleixner <tglx@linutronix.de>
 ---
 --- a/arch/arm64/Kconfig
 +++ b/arch/arm64/Kconfig
-@@ -221,6 +221,7 @@ config ARM64
+@@ -223,6 +223,7 @@ config ARM64
  	select HAVE_PERF_USER_STACK_DUMP
  	select HAVE_PREEMPT_DYNAMIC_KEY
  	select HAVE_REGS_AND_STACK_ACCESS_API

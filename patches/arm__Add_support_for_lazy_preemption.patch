@@ -29,7 +29,7 @@ Signed-off-by: Thomas Gleixner <tglx@linutronix.de>
  	select HAVE_RSEQ
 --- a/arch/arm/include/asm/thread_info.h
 +++ b/arch/arm/include/asm/thread_info.h
-@@ -62,6 +62,7 @@ struct cpu_context_save {
+@@ -63,6 +63,7 @@ struct cpu_context_save {
  struct thread_info {
  	unsigned long		flags;		/* low level flags */
  	int			preempt_count;	/* 0 => preemptable, <0 => bug */
@@ -37,7 +37,7 @@ Signed-off-by: Thomas Gleixner <tglx@linutronix.de>
  	__u32			cpu;		/* cpu */
  	__u32			cpu_domain;	/* cpu domain */
  	struct cpu_context_save	cpu_context;	/* cpu context */
-@@ -129,6 +130,7 @@ extern int vfp_restore_user_hwstate(stru
+@@ -144,6 +145,7 @@ extern int vfp_restore_user_hwstate(stru
  #define TIF_NOTIFY_RESUME	2	/* callback before returning to user */
  #define TIF_UPROBE		3	/* breakpointed or singlestepping */
  #define TIF_NOTIFY_SIGNAL	4	/* signal notifications exist */
@@ -45,7 +45,7 @@ Signed-off-by: Thomas Gleixner <tglx@linutronix.de>
  
  #define TIF_USING_IWMMXT	17
  #define TIF_MEMDIE		18	/* is terminating due to OOM killer */
-@@ -148,6 +150,7 @@ extern int vfp_restore_user_hwstate(stru
+@@ -163,6 +165,7 @@ extern int vfp_restore_user_hwstate(stru
  #define _TIF_SYSCALL_TRACEPOINT	(1 << TIF_SYSCALL_TRACEPOINT)
  #define _TIF_SECCOMP		(1 << TIF_SECCOMP)
  #define _TIF_NOTIFY_SIGNAL	(1 << TIF_NOTIFY_SIGNAL)
@@ -53,7 +53,7 @@ Signed-off-by: Thomas Gleixner <tglx@linutronix.de>
  #define _TIF_USING_IWMMXT	(1 << TIF_USING_IWMMXT)
  
  /* Checks for any syscall work in entry-common.S */
-@@ -157,7 +160,8 @@ extern int vfp_restore_user_hwstate(stru
+@@ -172,7 +175,8 @@ extern int vfp_restore_user_hwstate(stru
  /*
   * Change these and you break ASM code in entry-common.S
   */

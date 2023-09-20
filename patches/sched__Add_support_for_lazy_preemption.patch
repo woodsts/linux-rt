@@ -540,7 +540,7 @@ Signed-off-by: Thomas Gleixner <tglx@linutronix.de>
  			return;
  		}
  		hrtick_start(rq, delta);
-@@ -8072,7 +8072,7 @@ static void check_preempt_wakeup(struct
+@@ -8073,7 +8073,7 @@ static void check_preempt_wakeup(struct
  	return;
  
  preempt:
@@ -549,7 +549,7 @@ Signed-off-by: Thomas Gleixner <tglx@linutronix.de>
  }
  
  #ifdef CONFIG_SMP
-@@ -12368,7 +12368,7 @@ prio_changed_fair(struct rq *rq, struct
+@@ -12389,7 +12389,7 @@ prio_changed_fair(struct rq *rq, struct
  	 */
  	if (task_current(rq, p)) {
  		if (p->prio > oldprio)

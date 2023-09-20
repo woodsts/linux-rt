@@ -15,7 +15,7 @@
 0004-sched-Provide-rt_mutex-specific-scheduler-helpers.patch
 0005-locking-rtmutex-Use-rt_mutex-specific-scheduler-help.patch
 0006-locking-rtmutex-Add-a-lockdep-assert-to-catch-potent.patch
-locking-rtmutex-Acquire-the-hb-lock-via-trylock-afte.patch
+0007-futex-pi-Fix-recursive-rt_mutex-waiter-state.patch
 
 # Hacks to get ptrace to work.
 0001-signal-Add-proper-comment-about-the-preempt-disable-.patch
@@ -98,7 +98,6 @@ Revert-drm-i915-Depend-on-PREEMPT_RT.patch
 sched__Add_support_for_lazy_preemption.patch
 x86_entry__Use_should_resched_in_idtentry_exit_cond_resched.patch
 x86__Support_for_lazy_preemption.patch
-entry--Fix-the-preempt-lazy-fallout.patch
 arm__Add_support_for_lazy_preemption.patch
 powerpc__Add_support_for_lazy_preemption.patch
 arch_arm64__Add_lazy_preempt_support.patch

@@ -12,14 +12,14 @@ Signed-off-by: Thomas Gleixner <tglx@linutronix.de>
 ---
  arch/x86/Kconfig                   |    1 +
  arch/x86/include/asm/preempt.h     |   33 ++++++++++++++++++++++++++++++++-
- arch/x86/include/asm/thread_info.h |    7 +++++++
- include/linux/entry-common.h       |    2 +-
+ arch/x86/include/asm/thread_info.h |    5 +++++
+ include/linux/entry-common.h       |    8 +++++++-
  kernel/entry/common.c              |    2 +-
- 5 files changed, 42 insertions(+), 3 deletions(-)
+ 5 files changed, 46 insertions(+), 3 deletions(-)
 ---
 --- a/arch/x86/Kconfig
 +++ b/arch/x86/Kconfig
-@@ -257,6 +257,7 @@ config X86
+@@ -259,6 +259,7 @@ config X86
  	select HAVE_PCI
  	select HAVE_PERF_REGS
  	select HAVE_PERF_USER_STACK_DUMP
@@ -115,19 +115,18 @@ Signed-off-by: Thomas Gleixner <tglx@linutronix.de>
  #define _TIF_POLLING_NRFLAG	(1 << TIF_POLLING_NRFLAG)
  #define _TIF_IO_BITMAP		(1 << TIF_IO_BITMAP)
  #define _TIF_SPEC_FORCE_UPDATE	(1 << TIF_SPEC_FORCE_UPDATE)
-@@ -146,6 +151,8 @@ struct thread_info {
- 
- #define _TIF_WORK_CTXSW_NEXT	(_TIF_WORK_CTXSW)
- 
-+#define _TIF_NEED_RESCHED_MASK	(_TIF_NEED_RESCHED | _TIF_NEED_RESCHED_LAZY)
-+
- #define STACK_WARN		(THREAD_SIZE/8)
- 
- /*
 --- a/include/linux/entry-common.h
 +++ b/include/linux/entry-common.h
-@@ -59,7 +59,7 @@
+@@ -57,9 +57,15 @@
+ # define ARCH_EXIT_TO_USER_MODE_WORK		(0)
+ #endif
  
++#ifdef CONFIG_PREEMPT_LAZY
++# define _TIF_NEED_RESCHED_MASK	(_TIF_NEED_RESCHED | _TIF_NEED_RESCHED_LAZY)
++#else
++# define _TIF_NEED_RESCHED_MASK	(_TIF_NEED_RESCHED)
++#endif
++
  #define EXIT_TO_USER_MODE_WORK						\
  	(_TIF_SIGPENDING | _TIF_NOTIFY_RESUME | _TIF_UPROBE |		\
 -	 _TIF_NEED_RESCHED | _TIF_PATCH_PENDING | _TIF_NOTIFY_SIGNAL |	\

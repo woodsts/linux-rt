@@ -136,7 +136,7 @@ Signed-off-by: Sebastian Andrzej Siewior <bigeasy@linutronix.de>
  	cons_wake_threads();
  	if (in_sched)
  		defer_console_output();
-@@ -3939,6 +3950,12 @@ void defer_console_output(void)
+@@ -3968,6 +3979,12 @@ void defer_console_output(void)
  
  void printk_trigger_flush(void)
  {

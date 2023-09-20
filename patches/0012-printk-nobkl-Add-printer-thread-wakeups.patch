@@ -69,7 +69,7 @@ Signed-off-by: Sebastian Andrzej Siewior <bigeasy@linutronix.de>
  	if (in_sched)
  		defer_console_output();
  	else
-@@ -2602,6 +2603,8 @@ void suspend_console(void)
+@@ -2599,6 +2600,8 @@ void suspend_console(void)
  void resume_console(void)
  {
  	struct console *con;
@@ -78,7 +78,7 @@ Signed-off-by: Sebastian Andrzej Siewior <bigeasy@linutronix.de>
  
  	if (!console_suspend_enabled)
  		return;
-@@ -2621,6 +2624,14 @@ void resume_console(void)
+@@ -2615,6 +2618,14 @@ void resume_console(void)
  	 */
  	synchronize_srcu(&console_srcu);
  
@@ -93,7 +93,7 @@ Signed-off-by: Sebastian Andrzej Siewior <bigeasy@linutronix.de>
  	pr_flush(1000, true);
  }
  
-@@ -3222,9 +3233,23 @@ EXPORT_SYMBOL(console_stop);
+@@ -3242,9 +3253,23 @@ EXPORT_SYMBOL(console_stop);
  
  void console_start(struct console *console)
  {
@@ -117,7 +117,7 @@ Signed-off-by: Sebastian Andrzej Siewior <bigeasy@linutronix.de>
  	__pr_flush(console, 1000, true);
  }
  EXPORT_SYMBOL(console_start);
-@@ -3914,6 +3939,7 @@ void defer_console_output(void)
+@@ -3943,6 +3968,7 @@ void defer_console_output(void)
  
  void printk_trigger_flush(void)
  {
