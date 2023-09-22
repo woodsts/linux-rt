@@ -23,6 +23,13 @@
 
 seqlock-Do-the-lockdep-annotation-before-locking-in-.patch
 
+# DRM AMD GPU
+0001-drm-amd-display-Remove-migrate_en-dis-from-dc_fpu_be.patch
+0002-drm-amd-display-Simplify-the-per-CPU-usage.patch
+0003-drm-amd-display-Add-a-warning-if-the-FPU-is-used-out.patch
+0004-drm-amd-display-Move-the-memory-allocation-out-of-dc.patch
+0005-drm-amd-display-Move-the-memory-allocation-out-of-dc.patch
+
 ###########################################################################
 # Post
 ###########################################################################
