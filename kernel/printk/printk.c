@@ -458,6 +458,9 @@ bool have_boot_console;
 static int __read_mostly suppress_panic_printk;
 
 DECLARE_WAIT_QUEUE_HEAD(log_wait);
+
+DECLARE_WAIT_QUEUE_HEAD(legacy_wait);
+
 /* All 3 protected by @syslog_lock. */
 /* the next printk record to read by syslog(READ) or /proc/kmsg */
 static u64 syslog_seq;
@@ -2276,8 +2279,8 @@ asmlinkage int vprintk_emit(int facility, int level,
 			    const struct dev_printk_info *dev_info,
 			    const char *fmt, va_list args)
 {
+	bool print_direct = serialized_printing && !IS_ENABLED(CONFIG_PREEMPT_RT);
 	int printed_len;
-	bool in_sched = false;
 
 	/* Suppress unimportant messages after panic happens */
 	if (unlikely(suppress_printk))
@@ -2289,7 +2292,8 @@ asmlinkage int vprintk_emit(int facility, int level,
 
 	if (level == LOGLEVEL_SCHED) {
 		level = LOGLEVEL_DEFAULT;
-		in_sched = true;
+		/* If called from the scheduler, we can not call up(). */
+		print_direct = false;
 	}
 
 	printk_delay(level);
@@ -2298,8 +2302,7 @@ asmlinkage int vprintk_emit(int facility, int level,
 
 	nbcon_wake_threads();
 
-	/* If called from the scheduler, we can not call up(). */
-	if (serialized_printing && !in_sched) {
+	if (print_direct) {
 		/*
 		 * The caller may be holding system-critical or
 		 * timing-sensitive locks. Disable preemption during
@@ -2317,12 +2320,10 @@ asmlinkage int vprintk_emit(int facility, int level,
 		if (console_trylock_spinning())
 			console_unlock();
 		preempt_enable();
-	}
 
-	if (in_sched)
+	} else {
 		defer_console_output();
-	else
-		wake_up_klogd();
+	}
 
 	return printed_len;
 }
@@ -2350,6 +2351,14 @@ EXPORT_SYMBOL(_printk);
 static bool pr_flush(int timeout_ms, bool reset_on_progress);
 static bool __pr_flush(struct console *con, int timeout_ms, bool reset_on_progress);
 
+static struct task_struct *nbcon_legacy_kthread;
+
+static inline void wake_up_legacy_kthread(void)
+{
+	if (nbcon_legacy_kthread)
+		wake_up_interruptible(&legacy_wait);
+}
+
 #else /* CONFIG_PRINTK */
 
 #define printk_time		false
@@ -2362,7 +2371,8 @@ static u64 syslog_seq;
 
 static bool pr_flush(int timeout_ms, bool reset_on_progress) { return true; }
 static bool __pr_flush(struct console *con, int timeout_ms, bool reset_on_progress) { return true; }
-
+static inline void nbcon_legacy_kthread_create(void) { }
+static inline void wake_up_legacy_kthread(void) { }
 #endif /* CONFIG_PRINTK */
 
 #ifdef CONFIG_EARLY_PRINTK
@@ -2601,6 +2611,8 @@ void resume_console(void)
 	}
 	console_srcu_read_unlock(cookie);
 
+	wake_up_legacy_kthread();
+
 	pr_flush(1000, true);
 }
 
@@ -2615,7 +2627,8 @@ void resume_console(void)
  */
 static int console_cpu_notify(unsigned int cpu)
 {
-	if (!cpuhp_tasks_frozen && serialized_printing) {
+	if (!cpuhp_tasks_frozen && serialized_printing &&
+	    !IS_ENABLED(CONFIG_PREEMPT_RT)) {
 		/* If trylock fails, someone else is doing the printing */
 		if (console_trylock())
 			console_unlock();
@@ -2873,31 +2886,38 @@ static bool console_emit_next_record(struct console *con, bool *handover, int co
 		con->dropped = 0;
 	}
 
-	/*
-	 * While actively printing out messages, if another printk()
-	 * were to occur on another CPU, it may wait for this one to
-	 * finish. This task can not be preempted if there is a
-	 * waiter waiting to take over.
-	 *
-	 * Interrupts are disabled because the hand over to a waiter
-	 * must not be interrupted until the hand over is completed
-	 * (@console_waiter is cleared).
-	 */
-	printk_safe_enter_irqsave(flags);
-	console_lock_spinning_enable();
+	if (!IS_ENABLED(CONFIG_PREEMPT_RT)) {
+		/*
+		 * While actively printing out messages, if another printk()
+		 * were to occur on another CPU, it may wait for this one to
+		 * finish. This task can not be preempted if there is a
+		 * waiter waiting to take over.
+		 *
+		 * Interrupts are disabled because the hand over to a waiter
+		 * must not be interrupted until the hand over is completed
+		 * (@console_waiter is cleared).
+		 */
+		printk_safe_enter_irqsave(flags);
+		console_lock_spinning_enable();
 
-	/* Do not trace print latency. */
-	stop_critical_timings();
+		/* Do not trace print latency. */
+		stop_critical_timings();
+	}
 
 	/* Write everything out to the hardware. */
 	con->write(con, outbuf, pmsg.outbuf_len);
 
-	start_critical_timings();
-
 	con->seq = pmsg.seq + 1;
 
-	*handover = console_lock_spinning_disable_and_check(cookie);
-	printk_safe_exit_irqrestore(flags);
+	if (IS_ENABLED(CONFIG_PREEMPT_RT)) {
+		*handover = false;
+	} else {
+		start_critical_timings();
+
+		*handover = console_lock_spinning_disable_and_check(cookie);
+
+		printk_safe_exit_irqrestore(flags);
+	}
 skip:
 	return true;
 }
@@ -3287,10 +3307,92 @@ void console_start(struct console *console)
 
 	if (flags & CON_NBCON)
 		nbcon_kthread_wake(console);
+	else
+		wake_up_legacy_kthread();
 
 	__pr_flush(console, 1000, true);
 }
 EXPORT_SYMBOL(console_start);
+
+#ifdef CONFIG_PRINTK
+static bool printer_should_wake(u64 seq)
+{
+	bool available = false;
+	struct console *con;
+	int cookie;
+
+	if (kthread_should_stop())
+		return true;
+
+	cookie = console_srcu_read_lock();
+	for_each_console_srcu(con) {
+		short flags = console_srcu_read_flags(con);
+
+		if (flags & CON_NBCON)
+			continue;
+		if (!console_is_usable(con, flags, true))
+			continue;
+		/*
+		 * It is safe to read @seq because only this
+		 * thread context updates @seq.
+		 */
+		if (prb_read_valid(prb, con->seq, NULL)) {
+			available = true;
+			break;
+		}
+	}
+	console_srcu_read_unlock(cookie);
+
+	return available;
+}
+
+static int nbcon_legacy_kthread_func(void *unused)
+{
+	u64 seq = 0;
+	int error;
+
+	for (;;) {
+		error = wait_event_interruptible(legacy_wait, printer_should_wake(seq));
+
+		if (kthread_should_stop())
+			break;
+
+		if (error)
+			continue;
+
+		console_lock();
+		seq = console_flush_and_unlock();
+	}
+	return 0;
+}
+
+void nbcon_legacy_kthread_create(void)
+{
+	struct task_struct *kt;
+
+	lockdep_assert_held(&console_mutex);
+
+	if (!IS_ENABLED(CONFIG_PREEMPT_RT))
+		return;
+
+	if (!printk_threads_enabled || nbcon_legacy_kthread)
+		return;
+
+	kt = kthread_run(nbcon_legacy_kthread_func, NULL, "pr/legacy");
+	if (IS_ERR(kt)) {
+		pr_err("unable to start legacy printing thread\n");
+		return;
+	}
+
+	nbcon_legacy_kthread = kt;
+
+	/*
+	 * It is important that console printing threads are scheduled
+	 * shortly after a printk call and with generous runtime budgets.
+	 */
+	sched_set_normal(nbcon_legacy_kthread, -20);
+}
+#endif /* CONFIG_PRINTK */
 
 static int __read_mostly keep_bootcon;
 
@@ -3548,6 +3650,7 @@ void register_console(struct console *newcon)
 		nbcon_init(newcon);
 	} else {
 		have_legacy_console = true;
+		nbcon_legacy_kthread_create();
 	}
 
 	if (newcon->flags & CON_BOOT)
@@ -3683,6 +3786,13 @@ static int unregister_console_locked(struct console *console)
 		for_each_console(c)
 			nbcon_kthread_create(c);
 	}
+
+#ifdef CONFIG_PRINTK
+	if (!serialized_printing && nbcon_legacy_kthread) {
+		kthread_stop(nbcon_legacy_kthread);
+		nbcon_legacy_kthread = NULL;
+	}
+#endif
 
 	return res;
 }
@@ -3842,8 +3952,12 @@ static bool __pr_flush(struct console *con, int timeout_ms, bool reset_on_progre
 
 	seq = prb_next_seq(prb);
 
-	/* Flush the consoles so that records up to @seq are printed. */
-	if (serialized_printing) {
+	/*
+	 * Flush the consoles so that records up to @seq are printed.
+	 * Otherwise this function will just wait for the threaded printers
+	 * to print up to @seq.
+	 */
+	if (serialized_printing && !IS_ENABLED(CONFIG_PREEMPT_RT)) {
 		console_lock();
 		console_unlock();
 	}
@@ -3948,7 +4062,7 @@ static void wake_up_klogd_work_func(struct irq_work *irq_work)
 
 	if (pending & PRINTK_PENDING_OUTPUT) {
 		if (IS_ENABLED(CONFIG_PREEMPT_RT)) {
-			;
+			wake_up_interruptible(&legacy_wait);
 		} else {
 			/*
 			 * If trylock fails, some other context

@@ -91,6 +91,7 @@ void nbcon_free(struct console *con);
 bool nbcon_console_emit_next_record(struct console *con);
 void nbcon_kthread_create(struct console *con);
 void nbcon_wake_threads(void);
+void nbcon_legacy_kthread_create(void);
 
 /*
  * Check if the given console is currently capable and allowed to print
