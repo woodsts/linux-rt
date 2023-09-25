@@ -21,8 +21,6 @@
 0001-signal-Add-proper-comment-about-the-preempt-disable-.patch
 0002-signal-Don-t-disable-preemption-in-ptrace_stop-on-PR.patch
 
-seqlock-Do-the-lockdep-annotation-before-locking-in-.patch
-
 # DRM AMD GPU
 0001-drm-amd-display-Remove-migrate_en-dis-from-dc_fpu_be.patch
 0002-drm-amd-display-Simplify-the-per-CPU-usage.patch
