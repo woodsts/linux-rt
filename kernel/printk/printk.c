@@ -2360,6 +2360,8 @@ asmlinkage int vprintk_emit(int facility, int level,
 
 	printed_len = vprintk_store(facility, level, dev_info, fmt, args);
 
+	nbcon_wake_threads();
+
 	/* If called from the scheduler, we can not call up(). */
 	if (!in_sched) {
 		/*
@@ -2660,6 +2662,11 @@ void resume_console(void)
 	 * that they are guaranteed to wake up and resume printing.
 	 */
 	synchronize_srcu(&console_srcu);
+
+	/*
+	 * Since this runs in task context, wake the threaded printers
+	 * directly rather than scheduling irq_work to do it.
+	 */
 
 	cookie = console_srcu_read_lock();
 	for_each_console_srcu(con) {
@@ -4033,6 +4040,7 @@ void printk_trigger_flush(void)
 		preempt_enable();
 	}
 
+	nbcon_wake_threads();
 	defer_console_output();
 }
 
