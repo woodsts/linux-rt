@@ -997,7 +997,7 @@ static bool nbcon_kthread_should_wakeup(struct console *con, struct nbcon_contex
 
 	cookie = console_srcu_read_lock();
 	flags = console_srcu_read_flags(con);
-	is_usable = console_is_usable(con, flags);
+	is_usable = console_is_usable(con, flags, false);
 	console_srcu_read_unlock(cookie);
 
 	if (!is_usable)
@@ -1069,7 +1069,7 @@ wait_for_event:
 
 		con_flags = console_srcu_read_flags(con);
 
-		if (console_is_usable(con, con_flags)) {
+		if (console_is_usable(con, con_flags, false)) {
 			/*
 			 * Ensure this stays on the CPU to make handover and
 			 * takeover possible.
@@ -1246,7 +1246,7 @@ static void __nbcon_atomic_flush_all(bool allow_unsafe_takeover)
 			if (!(flags & CON_NBCON))
 				continue;
 
-			if (!console_is_usable(con, flags))
+			if (!console_is_usable(con, flags, true))
 				continue;
 
 			memset(ctxt, 0, sizeof(*ctxt));
