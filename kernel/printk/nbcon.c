@@ -1432,7 +1432,6 @@ static void nbcon_kthread_stop(struct console *con)
 void nbcon_kthread_create(struct console *con)
 {
 	struct task_struct *kt;
-	struct console *c;
 
 	lockdep_assert_console_list_lock_held();
 
@@ -1447,10 +1446,8 @@ void nbcon_kthread_create(struct console *con)
 	 * registered because there is no way to synchronize the hardware
 	 * registers between boot console code and regular console code.
 	 */
-	for_each_console(c) {
-		if (c->flags & CON_BOOT)
-			return;
-	}
+	if (have_boot_console)
+		return;
 
 	kt = kthread_run(nbcon_kthread_func, con, "pr/%s%d", con->name, con->index);
 	if (IS_ERR(kt)) {
