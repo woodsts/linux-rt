@@ -86,7 +86,7 @@ void nbcon_kthread_create(struct console *con);
  * which can also play a role in deciding if @con can be used to print
  * records.
  */
-static inline bool console_is_usable(struct console *con, short flags)
+static inline bool console_is_usable(struct console *con, short flags, bool use_atomic)
 {
 	if (!(flags & CON_ENABLED))
 		return false;
@@ -95,10 +95,13 @@ static inline bool console_is_usable(struct console *con, short flags)
 		return false;
 
 	if (flags & CON_NBCON) {
-		if (!con->write_atomic)
-			return false;
-		if (!con->write_thread || !con->kthread)
-			return false;
+		if (use_atomic) {
+			if (!con->write_atomic)
+				return false;
+		} else {
+			if (!con->write_thread || !con->kthread)
+				return false;
+		}
 	} else {
 		if (!con->write)
 			return false;
@@ -161,7 +164,7 @@ static inline void nbcon_init(struct console *con) { }
 static inline void nbcon_free(struct console *con) { }
 static bool nbcon_console_emit_next_record(struct console *con) { return false; }
 
-static inline bool console_is_usable(struct console *con, short flags) { return false; }
+static inline bool console_is_usable(struct console *con, short flags, bool use_atomic) { return false; }
 
 #endif /* CONFIG_PRINTK */
 
