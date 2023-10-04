@@ -34,7 +34,7 @@ Signed-off-by: Sebastian Andrzej Siewior <bigeasy@linutronix.de>
 
 --- a/include/linux/interrupt.h
 +++ b/include/linux/interrupt.h
-@@ -606,6 +606,7 @@ extern void raise_softirq_irqoff(unsigne
+@@ -610,6 +610,7 @@ extern void raise_softirq_irqoff(unsigne
  extern void raise_softirq(unsigned int nr);
  
  #ifdef CONFIG_PREEMPT_RT
