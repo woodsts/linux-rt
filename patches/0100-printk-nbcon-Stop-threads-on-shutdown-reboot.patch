@@ -15,7 +15,7 @@ Signed-off-by: Sebastian Andrzej Siewior <bigeasy@linutronix.de>
 
 --- a/kernel/printk/nbcon.c
 +++ b/kernel/printk/nbcon.c
-@@ -1627,3 +1627,33 @@ void nbcon_handle_port_unlock(struct uar
+@@ -1628,3 +1628,33 @@ void nbcon_handle_port_unlock(struct uar
  	con->locked_port = false;
  }
  EXPORT_SYMBOL_GPL(nbcon_handle_port_unlock);

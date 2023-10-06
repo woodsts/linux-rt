@@ -29,7 +29,7 @@ Signed-off-by: Thomas Gleixner <tglx@linutronix.de>
 +		locked = uart_port_trylock_irqsave(&uap->port, &flags);
  	else
 -		uart_port_lock(&uap->port);
-+		uart_port_trylock_irqsave(&uap->port, &flags);
++		uart_port_lock_irqsave(&uap->port, &flags);
  
  	/*
  	 *	First save the CR then disable the interrupts

@@ -58,7 +58,7 @@ Signed-off-by: Sebastian Andrzej Siewior <bigeasy@linutronix.de>
  
 --- a/kernel/printk/nbcon.c
 +++ b/kernel/printk/nbcon.c
-@@ -996,7 +996,7 @@ static bool nbcon_kthread_should_wakeup(
+@@ -997,7 +997,7 @@ static bool nbcon_kthread_should_wakeup(
  
  	cookie = console_srcu_read_lock();
  	flags = console_srcu_read_flags(con);
@@ -67,7 +67,7 @@ Signed-off-by: Sebastian Andrzej Siewior <bigeasy@linutronix.de>
  	console_srcu_read_unlock(cookie);
  
  	if (!is_usable)
-@@ -1068,7 +1068,7 @@ static int nbcon_kthread_func(void *__co
+@@ -1069,7 +1069,7 @@ static int nbcon_kthread_func(void *__co
  
  		con_flags = console_srcu_read_flags(con);
  
@@ -76,7 +76,7 @@ Signed-off-by: Sebastian Andrzej Siewior <bigeasy@linutronix.de>
  			/*
  			 * Ensure this stays on the CPU to make handover and
  			 * takeover possible.
-@@ -1245,7 +1245,7 @@ static void __nbcon_atomic_flush_all(boo
+@@ -1246,7 +1246,7 @@ static void __nbcon_atomic_flush_all(boo
  			if (!(flags & CON_NBCON))
  				continue;
  

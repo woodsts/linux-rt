@@ -55,7 +55,7 @@ Signed-off-by: Sebastian Andrzej Siewior <bigeasy@linutronix.de>
   * In !PRINTK builds we still export console_sem
 --- a/kernel/printk/nbcon.c
 +++ b/kernel/printk/nbcon.c
-@@ -1431,7 +1431,6 @@ static void nbcon_kthread_stop(struct co
+@@ -1432,7 +1432,6 @@ static void nbcon_kthread_stop(struct co
  void nbcon_kthread_create(struct console *con)
  {
  	struct task_struct *kt;
@@ -63,7 +63,7 @@ Signed-off-by: Sebastian Andrzej Siewior <bigeasy@linutronix.de>
  
  	lockdep_assert_console_list_lock_held();
  
-@@ -1446,10 +1445,8 @@ void nbcon_kthread_create(struct console
+@@ -1447,10 +1446,8 @@ void nbcon_kthread_create(struct console
  	 * registered because there is no way to synchronize the hardware
  	 * registers between boot console code and regular console code.
  	 */

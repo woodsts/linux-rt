@@ -33,7 +33,7 @@ Signed-off-by: Sebastian Andrzej Siewior <bigeasy@linutronix.de>
   * Check if the given console is currently capable and allowed to print
 --- a/kernel/printk/nbcon.c
 +++ b/kernel/printk/nbcon.c
-@@ -1235,8 +1235,21 @@ static bool nbcon_atomic_emit_one(struct
+@@ -1236,8 +1236,21 @@ static bool nbcon_atomic_emit_one(struct
   */
  bool nbcon_console_emit_next_record(struct console *con)
  {
@@ -55,7 +55,7 @@ Signed-off-by: Sebastian Andrzej Siewior <bigeasy@linutronix.de>
  
  	cpu_state = nbcon_get_cpu_state();
  
-@@ -1257,6 +1270,11 @@ bool nbcon_console_emit_next_record(stru
+@@ -1258,6 +1271,11 @@ bool nbcon_console_emit_next_record(stru
  		progress = nbcon_atomic_emit_one(&wctxt);
  	}
  
@@ -67,7 +67,7 @@ Signed-off-by: Sebastian Andrzej Siewior <bigeasy@linutronix.de>
  	return progress;
  }
  
-@@ -1471,6 +1489,8 @@ static int __init printk_setup_threads(v
+@@ -1472,6 +1490,8 @@ static int __init printk_setup_threads(v
  	printk_threads_enabled = true;
  	for_each_console(con)
  		nbcon_kthread_create(con);

@@ -12,9 +12,9 @@ Signed-off-by: Sebastian Andrzej Siewior <bigeasy@linutronix.de>
 ---
  include/linux/console.h  |   10 ++
  kernel/printk/internal.h |   27 +++++
- kernel/printk/nbcon.c    |  226 ++++++++++++++++++++++++++++++++++++++++++++++-
+ kernel/printk/nbcon.c    |  227 ++++++++++++++++++++++++++++++++++++++++++++++-
  kernel/printk/printk.c   |   89 ++++++++++++++----
- 4 files changed, 332 insertions(+), 20 deletions(-)
+ 4 files changed, 333 insertions(+), 20 deletions(-)
 
 --- a/include/linux/console.h
 +++ b/include/linux/console.h
@@ -148,7 +148,15 @@ Signed-off-by: Sebastian Andrzej Siewior <bigeasy@linutronix.de>
  /**
   * nbcon_context_try_acquire_direct - Try to acquire directly
   * @ctxt:	The context of the caller
-@@ -873,7 +883,7 @@ EXPORT_SYMBOL_GPL(nbcon_exit_unsafe);
+@@ -860,6 +870,7 @@ EXPORT_SYMBOL_GPL(nbcon_exit_unsafe);
+ /**
+  * nbcon_emit_next_record - Emit a record in the acquired context
+  * @wctxt:	The write context that will be handed to the write function
++ * @in_kthread:	True if called from kthread printer context.
+  *
+  * Return:	True if this context still owns the console. False if
+  *		ownership was handed over or taken.
+@@ -873,7 +884,7 @@ EXPORT_SYMBOL_GPL(nbcon_exit_unsafe);
   * When true is returned, @wctxt->ctxt.backlog indicates whether there are
   * still records pending in the ringbuffer,
   */
@@ -157,7 +165,7 @@ Signed-off-by: Sebastian Andrzej Siewior <bigeasy@linutronix.de>
  {
  	struct nbcon_context *ctxt = &ACCESS_PRIVATE(wctxt, ctxt);
  	struct console *con = ctxt->console;
-@@ -923,8 +933,10 @@ static bool nbcon_emit_next_record(struc
+@@ -923,8 +934,10 @@ static bool nbcon_emit_next_record(struc
  	nbcon_state_read(con, &cur);
  	wctxt->unsafe_takeover = cur.unsafe_takeover;
  
@@ -169,7 +177,7 @@ Signed-off-by: Sebastian Andrzej Siewior <bigeasy@linutronix.de>
  	} else {
  		nbcon_context_release(ctxt);
  		WARN_ON_ONCE(1);
-@@ -961,6 +973,138 @@ static bool nbcon_emit_next_record(struc
+@@ -961,6 +974,138 @@ static bool nbcon_emit_next_record(struc
  }
  
  /**
@@ -308,7 +316,7 @@ Signed-off-by: Sebastian Andrzej Siewior <bigeasy@linutronix.de>
   * struct nbcon_cpu_state - Per CPU printk context state
   * @prio:	The current context priority level
   * @nesting:	Per priority nest counter
-@@ -1010,7 +1154,7 @@ static bool nbcon_atomic_emit_one(struct
+@@ -1010,7 +1155,7 @@ static bool nbcon_atomic_emit_one(struct
  	 * handed over or taken over. In both cases the context is no
  	 * longer valid.
  	 */
@@ -317,7 +325,7 @@ Signed-off-by: Sebastian Andrzej Siewior <bigeasy@linutronix.de>
  		return false;
  
  	nbcon_context_release(ctxt);
-@@ -1202,6 +1346,79 @@ void nbcon_atomic_exit(enum nbcon_prio p
+@@ -1202,6 +1347,79 @@ void nbcon_atomic_exit(enum nbcon_prio p
  }
  
  /**
@@ -397,7 +405,7 @@ Signed-off-by: Sebastian Andrzej Siewior <bigeasy@linutronix.de>
   * nbcon_alloc - Allocate buffers needed by the nbcon console
   * @con:	Console to allocate buffers for
   *
-@@ -1247,8 +1464,10 @@ void nbcon_init(struct console *con)
+@@ -1247,8 +1465,10 @@ void nbcon_init(struct console *con)
  	/* nbcon_alloc() must have been called and successful! */
  	BUG_ON(!con->pbufs);
  
@@ -408,7 +416,7 @@ Signed-off-by: Sebastian Andrzej Siewior <bigeasy@linutronix.de>
  }
  
  /**
-@@ -1259,6 +1478,7 @@ void nbcon_free(struct console *con)
+@@ -1259,6 +1479,7 @@ void nbcon_free(struct console *con)
  {
  	struct nbcon_state state = { };
  

@@ -170,7 +170,6 @@ preempt-Put-preempt_enable-within-an-instrumentation.patch
 0104-serial-8250-implement-nbcon-console.patch
 0105-printk-check-printk_deferred_enter-_exit-usage.patch
 0106-printk-Add-kthread-for-all-legacy-consoles.patch
-0107-serial-8250-revert-drop-lockdep-annotation-from-seri.patch
 
 ###########################################################################
 # DRM:
