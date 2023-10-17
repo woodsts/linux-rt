@@ -29,9 +29,9 @@ Converted with coccinelle. No functional change.
 Signed-off-by: Thomas Gleixner <tglx@linutronix.de>
 Signed-off-by: Sebastian Andrzej Siewior <bigeasy@linutronix.de>
 ---
- drivers/tty/serial/serial_core.c |   88 +++++++++++++++++++--------------------
+ drivers/tty/serial/serial_core.c |   92 +++++++++++++++++++--------------------
  drivers/tty/serial/serial_port.c |    4 -
- 2 files changed, 46 insertions(+), 46 deletions(-)
+ 2 files changed, 48 insertions(+), 48 deletions(-)
 
 --- a/drivers/tty/serial/serial_core.c
 +++ b/drivers/tty/serial/serial_core.c
@@ -145,7 +145,19 @@ Signed-off-by: Sebastian Andrzej Siewior <bigeasy@linutronix.de>
  	uart_port_deref(uport);
  
  	icount->cts         = cnow.cts;
-@@ -1422,9 +1422,9 @@ static int uart_get_rs485_config(struct
+@@ -1413,9 +1413,9 @@ static int uart_rs485_config(struct uart
+ 	uart_sanitize_serial_rs485(port, rs485);
+ 	uart_set_rs485_termination(port, rs485);
+ 
+-	spin_lock_irqsave(&port->lock, flags);
++	uart_port_lock_irqsave(port, &flags);
+ 	ret = port->rs485_config(port, NULL, rs485);
+-	spin_unlock_irqrestore(&port->lock, flags);
++	uart_port_unlock_irqrestore(port, flags);
+ 	if (ret)
+ 		memset(rs485, 0, sizeof(*rs485));
+ 
+@@ -1428,9 +1428,9 @@ static int uart_get_rs485_config(struct
  	unsigned long flags;
  	struct serial_rs485 aux;
  
@@ -157,7 +169,7 @@ Signed-off-by: Sebastian Andrzej Siewior <bigeasy@linutronix.de>
  
  	if (copy_to_user(rs485, &aux, sizeof(aux)))
  		return -EFAULT;
-@@ -1451,7 +1451,7 @@ static int uart_set_rs485_config(struct
+@@ -1457,7 +1457,7 @@ static int uart_set_rs485_config(struct
  	uart_sanitize_serial_rs485(port, &rs485);
  	uart_set_rs485_termination(port, &rs485);
  
@@ -166,7 +178,7 @@ Signed-off-by: Sebastian Andrzej Siewior <bigeasy@linutronix.de>
  	ret = port->rs485_config(port, &tty->termios, &rs485);
  	if (!ret) {
  		port->rs485 = rs485;
-@@ -1460,7 +1460,7 @@ static int uart_set_rs485_config(struct
+@@ -1466,7 +1466,7 @@ static int uart_set_rs485_config(struct
  		if (!(rs485.flags & SER_RS485_ENABLED))
  			port->ops->set_mctrl(port, port->mctrl);
  	}
@@ -175,7 +187,7 @@ Signed-off-by: Sebastian Andrzej Siewior <bigeasy@linutronix.de>
  	if (ret)
  		return ret;
  
-@@ -1479,9 +1479,9 @@ static int uart_get_iso7816_config(struc
+@@ -1485,9 +1485,9 @@ static int uart_get_iso7816_config(struc
  	if (!port->iso7816_config)
  		return -ENOTTY;
  
@@ -187,7 +199,7 @@ Signed-off-by: Sebastian Andrzej Siewior <bigeasy@linutronix.de>
  
  	if (copy_to_user(iso7816, &aux, sizeof(aux)))
  		return -EFAULT;
-@@ -1510,9 +1510,9 @@ static int uart_set_iso7816_config(struc
+@@ -1516,9 +1516,9 @@ static int uart_set_iso7816_config(struc
  		if (iso7816.reserved[i])
  			return -EINVAL;
  
@@ -199,7 +211,7 @@ Signed-off-by: Sebastian Andrzej Siewior <bigeasy@linutronix.de>
  	if (ret)
  		return ret;
  
-@@ -1729,9 +1729,9 @@ static void uart_tty_port_shutdown(struc
+@@ -1735,9 +1735,9 @@ static void uart_tty_port_shutdown(struc
  	if (WARN(!uport, "detached port still initialized!\n"))
  		return;
  
@@ -211,7 +223,7 @@ Signed-off-by: Sebastian Andrzej Siewior <bigeasy@linutronix.de>
  
  	uart_port_shutdown(port);
  
-@@ -1745,10 +1745,10 @@ static void uart_tty_port_shutdown(struc
+@@ -1751,10 +1751,10 @@ static void uart_tty_port_shutdown(struc
  	/*
  	 * Free the transmit buffer.
  	 */
@@ -224,7 +236,7 @@ Signed-off-by: Sebastian Andrzej Siewior <bigeasy@linutronix.de>
  
  	free_page((unsigned long)buf);
  
-@@ -1891,10 +1891,10 @@ static bool uart_carrier_raised(struct t
+@@ -1897,10 +1897,10 @@ static bool uart_carrier_raised(struct t
  	 */
  	if (WARN_ON(!uport))
  		return true;
@@ -237,7 +249,7 @@ Signed-off-by: Sebastian Andrzej Siewior <bigeasy@linutronix.de>
  	uart_port_deref(uport);
  
  	return mctrl & TIOCM_CAR;
-@@ -2011,9 +2011,9 @@ static void uart_line_info(struct seq_fi
+@@ -2017,9 +2017,9 @@ static void uart_line_info(struct seq_fi
  		pm_state = state->pm_state;
  		if (pm_state != UART_PM_STATE_ON)
  			uart_change_pm(state, UART_PM_STATE_ON);
@@ -249,7 +261,7 @@ Signed-off-by: Sebastian Andrzej Siewior <bigeasy@linutronix.de>
  		if (pm_state != UART_PM_STATE_ON)
  			uart_change_pm(state, pm_state);
  
-@@ -2352,9 +2352,9 @@ int uart_suspend_port(struct uart_driver
+@@ -2358,9 +2358,9 @@ int uart_suspend_port(struct uart_driver
  	 */
  	if (!console_suspend_enabled && uart_console(uport)) {
  		if (uport->ops->start_rx) {
@@ -261,7 +273,7 @@ Signed-off-by: Sebastian Andrzej Siewior <bigeasy@linutronix.de>
  		}
  		goto unlock;
  	}
-@@ -2369,7 +2369,7 @@ int uart_suspend_port(struct uart_driver
+@@ -2375,7 +2375,7 @@ int uart_suspend_port(struct uart_driver
  		tty_port_set_suspended(port, true);
  		tty_port_set_initialized(port, false);
  
@@ -270,7 +282,7 @@ Signed-off-by: Sebastian Andrzej Siewior <bigeasy@linutronix.de>
  		ops->stop_tx(uport);
  		if (!(uport->rs485.flags & SER_RS485_ENABLED))
  			ops->set_mctrl(uport, 0);
-@@ -2377,7 +2377,7 @@ int uart_suspend_port(struct uart_driver
+@@ -2383,7 +2383,7 @@ int uart_suspend_port(struct uart_driver
  		mctrl = uport->mctrl;
  		uport->mctrl = 0;
  		ops->stop_rx(uport);
@@ -279,7 +291,7 @@ Signed-off-by: Sebastian Andrzej Siewior <bigeasy@linutronix.de>
  
  		/*
  		 * Wait for the transmitter to empty.
-@@ -2449,9 +2449,9 @@ int uart_resume_port(struct uart_driver
+@@ -2455,9 +2455,9 @@ int uart_resume_port(struct uart_driver
  			uart_change_pm(state, UART_PM_STATE_ON);
  		uport->ops->set_termios(uport, &termios, NULL);
  		if (!console_suspend_enabled && uport->ops->start_rx) {
@@ -291,7 +303,7 @@ Signed-off-by: Sebastian Andrzej Siewior <bigeasy@linutronix.de>
  		}
  		if (console_suspend_enabled)
  			console_start(uport->cons);
-@@ -2462,10 +2462,10 @@ int uart_resume_port(struct uart_driver
+@@ -2468,10 +2468,10 @@ int uart_resume_port(struct uart_driver
  		int ret;
  
  		uart_change_pm(state, UART_PM_STATE_ON);
@@ -304,23 +316,21 @@ Signed-off-by: Sebastian Andrzej Siewior <bigeasy@linutronix.de>
  		if (console_suspend_enabled || !uart_console(uport)) {
  			/* Protected by port mutex for now */
  			struct tty_struct *tty = port->tty;
-@@ -2474,13 +2474,13 @@ int uart_resume_port(struct uart_driver
- 			if (ret == 0) {
+@@ -2481,11 +2481,11 @@ int uart_resume_port(struct uart_driver
  				if (tty)
  					uart_change_line_settings(tty, state, NULL);
+ 				uart_rs485_config(uport);
 -				spin_lock_irq(&uport->lock);
 +				uart_port_lock_irq(uport);
  				if (!(uport->rs485.flags & SER_RS485_ENABLED))
  					ops->set_mctrl(uport, uport->mctrl);
- 				else
- 					uart_rs485_config(uport);
  				ops->start_tx(uport);
 -				spin_unlock_irq(&uport->lock);
 +				uart_port_unlock_irq(uport);
  				tty_port_set_initialized(port, true);
  			} else {
  				/*
-@@ -2583,13 +2583,13 @@ uart_configure_port(struct uart_driver *
+@@ -2588,11 +2588,11 @@ uart_configure_port(struct uart_driver *
  		 * keep the DTR setting that is set in uart_set_options()
  		 * We probably don't need a spinlock around this, but
  		 */
@@ -329,13 +339,11 @@ Signed-off-by: Sebastian Andrzej Siewior <bigeasy@linutronix.de>
  		port->mctrl &= TIOCM_DTR;
  		if (!(port->rs485.flags & SER_RS485_ENABLED))
  			port->ops->set_mctrl(port, port->mctrl);
- 		else
- 			uart_rs485_config(port);
 -		spin_unlock_irqrestore(&port->lock, flags);
 +		uart_port_unlock_irqrestore(port, flags);
  
- 		/*
- 		 * If this driver supports console, and it hasn't been
+ 		uart_rs485_config(port);
+ 
 --- a/drivers/tty/serial/serial_port.c
 +++ b/drivers/tty/serial/serial_port.c
 @@ -35,10 +35,10 @@ static int serial_port_runtime_resume(st

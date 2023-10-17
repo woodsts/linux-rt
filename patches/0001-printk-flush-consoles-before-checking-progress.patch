@@ -28,32 +28,12 @@ Reviewed-by: Petr Mladek <pmladek@suse.com>
 Tested-by: Todd Brandt <todd.e.brandt@linux.intel.com>
 Signed-off-by: Sebastian Andrzej Siewior <bigeasy@linutronix.de>
 ---
- kernel/printk/printk.c |   23 ++++++++++++-----------
- 1 file changed, 12 insertions(+), 11 deletions(-)
+ kernel/printk/printk.c |   15 +++++----------
+ 1 file changed, 5 insertions(+), 10 deletions(-)
 
 --- a/kernel/printk/printk.c
 +++ b/kernel/printk/printk.c
-@@ -3740,12 +3740,18 @@ static bool __pr_flush(struct console *c
- 
- 	seq = prb_next_seq(prb);
- 
-+	/* Flush the consoles so that records up to @seq are printed. */
-+	console_lock();
-+	console_unlock();
-+
- 	for (;;) {
- 		diff = 0;
- 
- 		/*
- 		 * Hold the console_lock to guarantee safe access to
--		 * console->seq.
-+		 * console->seq. Releasing console_lock flushes more
-+		 * records in case @seq is still not printed on all
-+		 * usable consoles.
- 		 */
- 		console_lock();
- 
-@@ -3775,16 +3781,11 @@ static bool __pr_flush(struct console *c
+@@ -3781,16 +3781,11 @@ static bool __pr_flush(struct console *c
  		if (diff == 0 || remaining == 0)
  			break;
  
