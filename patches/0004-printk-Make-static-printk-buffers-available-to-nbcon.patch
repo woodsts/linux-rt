@@ -1,6 +1,6 @@
 From: John Ogness <john.ogness@linutronix.de>
 Date: Sat, 16 Sep 2023 21:26:02 +0206
-Subject: [PATCH 004/107] printk: Make static printk buffers available to nbcon
+Subject: [PATCH 004/108] printk: Make static printk buffers available to nbcon
 
 The nbcon boot consoles also need printk buffers that are available
 very early. Since the nbcon boot consoles will also be serialized

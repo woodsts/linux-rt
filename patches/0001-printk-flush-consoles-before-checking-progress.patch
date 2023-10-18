@@ -1,6 +1,6 @@
 From: John Ogness <john.ogness@linutronix.de>
 Date: Fri, 29 Sep 2023 11:07:38 +0000
-Subject: [PATCH 001/107] printk: flush consoles before checking progress
+Subject: [PATCH 001/108] printk: flush consoles before checking progress
 
 Commit 9e70a5e109a4 ("printk: Add per-console suspended state")
 removed console lock usage during resume and replaced it with

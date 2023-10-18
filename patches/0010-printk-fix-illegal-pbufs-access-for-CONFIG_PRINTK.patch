@@ -1,6 +1,6 @@
 From: John Ogness <john.ogness@linutronix.de>
 Date: Wed, 20 Sep 2023 15:05:50 +0000
-Subject: [PATCH 010/107] printk: fix illegal pbufs access for !CONFIG_PRINTK
+Subject: [PATCH 010/108] printk: fix illegal pbufs access for !CONFIG_PRINTK
 
 When CONFIG_PRINTK is not set, PRINTK_MESSAGE_MAX is 0. This
 leads to a zero-sized array @outbuf in @printk_shared_pbufs. In

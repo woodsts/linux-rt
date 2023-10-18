@@ -1,6 +1,6 @@
 From: Thomas Gleixner <tglx@linutronix.de>
 Date: Sat, 16 Sep 2023 21:26:03 +0206
-Subject: [PATCH 005/107] printk: nbcon: Add buffer management
+Subject: [PATCH 005/108] printk: nbcon: Add buffer management
 
 In case of hostile takeovers it must be ensured that the previous
 owner cannot scribble over the output buffer of the emergency/panic

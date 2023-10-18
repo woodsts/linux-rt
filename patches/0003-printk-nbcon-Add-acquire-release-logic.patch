@@ -1,6 +1,6 @@
 From: Thomas Gleixner <tglx@linutronix.de>
 Date: Sat, 16 Sep 2023 21:26:01 +0206
-Subject: [PATCH 003/107] printk: nbcon: Add acquire/release logic
+Subject: [PATCH 003/108] printk: nbcon: Add acquire/release logic
 
 Add per console acquire/release functionality.
 

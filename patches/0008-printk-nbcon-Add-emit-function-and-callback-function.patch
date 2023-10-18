@@ -1,6 +1,6 @@
 From: Thomas Gleixner <tglx@linutronix.de>
 Date: Sat, 16 Sep 2023 21:26:06 +0206
-Subject: [PATCH 008/107] printk: nbcon: Add emit function and callback
+Subject: [PATCH 008/108] printk: nbcon: Add emit function and callback
  function for atomic printing
 
 Implement an emit function for nbcon consoles to output printk
