@@ -233,6 +233,13 @@ powerpc_kvm__Disable_in-kernel_MPIC_emulation_for_PREEMPT_RT.patch
 powerpc_stackprotector__work_around_stack-guard_init_from_atomic.patch
 POWERPC__Allow_to_enable_RT.patch
 
+###########################################################################
+# RISC-V
+###########################################################################
+RISC-V-Probe-misaligned-access-speed-in-parallel.patch
+riscv-add-PREEMPT_AUTO-support.patch
+riscv-allow-to-enable-RT.patch
+
 # Sysfs file vs uname() -v
 sysfs__Add__sys_kernel_realtime_entry.patch
 
