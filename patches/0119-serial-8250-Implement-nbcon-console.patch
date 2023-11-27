@@ -88,7 +88,7 @@ Signed-off-by: Sebastian Andrzej Siewior <bigeasy@linutronix.de>
  };
 --- a/drivers/tty/serial/8250/8250_port.c
 +++ b/drivers/tty/serial/8250/8250_port.c
-@@ -557,6 +557,11 @@ static int serial8250_em485_init(struct
+@@ -550,6 +550,11 @@ static int serial8250_em485_init(struct
  	if (!p->em485)
  		return -ENOMEM;
  
@@ -100,7 +100,7 @@ Signed-off-by: Sebastian Andrzej Siewior <bigeasy@linutronix.de>
  	hrtimer_init(&p->em485->stop_tx_timer, CLOCK_MONOTONIC,
  		     HRTIMER_MODE_REL);
  	hrtimer_init(&p->em485->start_tx_timer, CLOCK_MONOTONIC,
-@@ -709,7 +714,11 @@ static void serial8250_set_sleep(struct
+@@ -702,7 +707,11 @@ static void serial8250_set_sleep(struct
  	serial8250_rpm_put(p);
  }
  
@@ -113,7 +113,7 @@ Signed-off-by: Sebastian Andrzej Siewior <bigeasy@linutronix.de>
  {
  	if (up->capabilities & UART_CAP_UUE)
  		serial_out(up, UART_IER, UART_IER_UUE);
-@@ -717,6 +726,11 @@ static void serial8250_clear_IER(struct
+@@ -710,6 +719,11 @@ static void serial8250_clear_IER(struct
  		serial_out(up, UART_IER, 0);
  }
  
@@ -125,7 +125,7 @@ Signed-off-by: Sebastian Andrzej Siewior <bigeasy@linutronix.de>
  #ifdef CONFIG_SERIAL_8250_RSA
  /*
   * Attempts to turn on the RSA FIFO.  Returns zero on failure.
-@@ -3328,6 +3342,11 @@ static void serial8250_console_putchar(s
+@@ -3320,6 +3334,11 @@ static void serial8250_console_putchar(s
  
  	wait_for_xmitr(up, UART_LSR_THRE);
  	serial_port_out(port, UART_TX, ch);
@@ -137,7 +137,7 @@ Signed-off-by: Sebastian Andrzej Siewior <bigeasy@linutronix.de>
  }
  
  /*
-@@ -3356,6 +3375,7 @@ static void serial8250_console_restore(s
+@@ -3348,6 +3367,7 @@ static void serial8250_console_restore(s
  	serial8250_out_MCR(up, up->mcr | UART_MCR_DTR | UART_MCR_RTS);
  }
  
@@ -145,7 +145,7 @@ Signed-off-by: Sebastian Andrzej Siewior <bigeasy@linutronix.de>
  /*
   * Print a string to the serial port using the device FIFO
   *
-@@ -3414,7 +3434,7 @@ void serial8250_console_write(struct uar
+@@ -3406,7 +3426,7 @@ void serial8250_console_write(struct uar
  	 *	First save the IER then disable the interrupts
  	 */
  	ier = serial_port_in(port, UART_IER);
@@ -154,7 +154,7 @@ Signed-off-by: Sebastian Andrzej Siewior <bigeasy@linutronix.de>
  
  	/* check scratch reg to see if port powered off during system sleep */
  	if (up->canary && (up->canary != serial_port_in(port, UART_SCR))) {
-@@ -3480,6 +3500,143 @@ void serial8250_console_write(struct uar
+@@ -3472,6 +3492,143 @@ void serial8250_console_write(struct uar
  	if (locked)
  		uart_port_unlock_irqrestore(port, flags);
  }
@@ -298,7 +298,7 @@ Signed-off-by: Sebastian Andrzej Siewior <bigeasy@linutronix.de>
  
  static unsigned int probe_baud(struct uart_port *port)
  {
-@@ -3498,6 +3655,7 @@ static unsigned int probe_baud(struct ua
+@@ -3490,6 +3647,7 @@ static unsigned int probe_baud(struct ua
  
  int serial8250_console_setup(struct uart_port *port, char *options, bool probe)
  {
@@ -306,7 +306,7 @@ Signed-off-by: Sebastian Andrzej Siewior <bigeasy@linutronix.de>
  	int baud = 9600;
  	int bits = 8;
  	int parity = 'n';
-@@ -3507,6 +3665,8 @@ int serial8250_console_setup(struct uart
+@@ -3499,6 +3657,8 @@ int serial8250_console_setup(struct uart
  	if (!port->iobase && !port->membase)
  		return -ENODEV;
  

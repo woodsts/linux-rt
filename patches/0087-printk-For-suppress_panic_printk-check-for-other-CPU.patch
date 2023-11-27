@@ -21,7 +21,7 @@ Signed-off-by: Sebastian Andrzej Siewior <bigeasy@linutronix.de>
 
 --- a/kernel/printk/printk.c
 +++ b/kernel/printk/printk.c
-@@ -2271,8 +2271,7 @@ asmlinkage int vprintk_emit(int facility
+@@ -2270,8 +2270,7 @@ asmlinkage int vprintk_emit(int facility
  	if (unlikely(suppress_printk))
  		return 0;
  

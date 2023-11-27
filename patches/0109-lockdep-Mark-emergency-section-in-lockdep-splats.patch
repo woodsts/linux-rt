@@ -24,7 +24,7 @@ Signed-off-by: Sebastian Andrzej Siewior <bigeasy@linutronix.de>
  
  #include <asm/sections.h>
  
-@@ -3970,6 +3971,8 @@ print_usage_bug(struct task_struct *curr
+@@ -3971,6 +3972,8 @@ print_usage_bug(struct task_struct *curr
  	if (!debug_locks_off() || debug_locks_silent)
  		return;
  
@@ -33,7 +33,7 @@ Signed-off-by: Sebastian Andrzej Siewior <bigeasy@linutronix.de>
  	pr_warn("\n");
  	pr_warn("================================\n");
  	pr_warn("WARNING: inconsistent lock state\n");
-@@ -3998,6 +4001,8 @@ print_usage_bug(struct task_struct *curr
+@@ -3999,6 +4002,8 @@ print_usage_bug(struct task_struct *curr
  
  	pr_warn("\nstack backtrace:\n");
  	dump_stack();

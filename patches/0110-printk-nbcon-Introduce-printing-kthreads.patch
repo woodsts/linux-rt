@@ -27,7 +27,7 @@ Signed-off-by: Sebastian Andrzej Siewior <bigeasy@linutronix.de>
  #include <linux/types.h>
  
  struct vc_data;
-@@ -296,10 +297,14 @@ struct nbcon_write_context {
+@@ -303,10 +304,14 @@ struct nbcon_write_context {
   * @node:		hlist node for the console list
   *
   * @write_atomic:	Write callback for atomic context
@@ -42,7 +42,7 @@ Signed-off-by: Sebastian Andrzej Siewior <bigeasy@linutronix.de>
   */
  struct console {
  	char			name[16];
-@@ -323,10 +328,15 @@ struct console {
+@@ -330,10 +335,15 @@ struct console {
  	/* nbcon console specific members */
  	bool			(*write_atomic)(struct console *con,
  						struct nbcon_write_context *wctxt);
@@ -441,7 +441,7 @@ Signed-off-by: Sebastian Andrzej Siewior <bigeasy@linutronix.de>
  	/* Boot consoles share global printk buffers. */
 --- a/kernel/printk/printk.c
 +++ b/kernel/printk/printk.c
-@@ -2636,6 +2636,8 @@ void suspend_console(void)
+@@ -2643,6 +2643,8 @@ void suspend_console(void)
  void resume_console(void)
  {
  	struct console *con;
@@ -450,7 +450,7 @@ Signed-off-by: Sebastian Andrzej Siewior <bigeasy@linutronix.de>
  
  	if (!console_suspend_enabled)
  		return;
-@@ -2652,6 +2654,14 @@ void resume_console(void)
+@@ -2659,6 +2661,14 @@ void resume_console(void)
  	 */
  	synchronize_srcu(&console_srcu);
  
@@ -465,7 +465,7 @@ Signed-off-by: Sebastian Andrzej Siewior <bigeasy@linutronix.de>
  	pr_flush(1000, true);
  }
  
-@@ -2972,6 +2982,13 @@ static bool console_flush_all(bool do_co
+@@ -2979,6 +2989,13 @@ static bool console_flush_all(bool do_co
  			u64 printk_seq;
  			bool progress;
  
@@ -479,7 +479,7 @@ Signed-off-by: Sebastian Andrzej Siewior <bigeasy@linutronix.de>
  			if (!console_is_usable(con, flags))
  				continue;
  			any_usable = true;
-@@ -3266,9 +3283,23 @@ EXPORT_SYMBOL(console_stop);
+@@ -3273,9 +3290,23 @@ EXPORT_SYMBOL(console_stop);
  
  void console_start(struct console *console)
  {

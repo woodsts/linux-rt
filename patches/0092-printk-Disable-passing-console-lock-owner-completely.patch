@@ -57,7 +57,7 @@ Signed-off-by: Sebastian Andrzej Siewior <bigeasy@linutronix.de>
 
 --- a/kernel/printk/printk.c
 +++ b/kernel/printk/printk.c
-@@ -1870,10 +1870,23 @@ static bool console_waiter;
+@@ -1869,10 +1869,23 @@ static bool console_waiter;
   */
  static void console_lock_spinning_enable(void)
  {
@@ -81,7 +81,7 @@ Signed-off-by: Sebastian Andrzej Siewior <bigeasy@linutronix.de>
  	/* The waiter may spin on us after setting console_owner */
  	spin_acquire(&console_owner_dep_map, 0, 0, _THIS_IP_);
  }
-@@ -1898,6 +1911,22 @@ static int console_lock_spinning_disable
+@@ -1897,6 +1910,22 @@ static int console_lock_spinning_disable
  {
  	int waiter;
  

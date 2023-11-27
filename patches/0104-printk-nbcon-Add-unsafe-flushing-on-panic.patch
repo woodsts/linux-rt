@@ -44,7 +44,7 @@ Signed-off-by: Sebastian Andrzej Siewior <bigeasy@linutronix.de>
  #ifdef CONFIG_SMP
 --- a/kernel/panic.c
 +++ b/kernel/panic.c
-@@ -442,6 +442,9 @@ void panic(const char *fmt, ...)
+@@ -446,6 +446,9 @@ void panic(const char *fmt, ...)
  
  	/* Do not scroll important messages printed above */
  	suppress_printk = 1;

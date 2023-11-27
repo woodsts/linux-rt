@@ -69,7 +69,7 @@ Signed-off-by: Sebastian Andrzej Siewior <bigeasy@linutronix.de>
   * Specifies if a boot console is registered. If boot consoles are present,
   * nbcon consoles cannot print simultaneously and must be synchronized by
   * the console lock. This is because boot consoles and nbcon consoles may
-@@ -2390,7 +2397,7 @@ asmlinkage int vprintk_emit(int facility
+@@ -2389,7 +2396,7 @@ asmlinkage int vprintk_emit(int facility
  	nbcon_wake_threads();
  
  	/* If called from the scheduler, we can not call up(). */
@@ -78,7 +78,7 @@ Signed-off-by: Sebastian Andrzej Siewior <bigeasy@linutronix.de>
  		/*
  		 * The caller may be holding system-critical or
  		 * timing-sensitive locks. Disable preemption during
-@@ -2709,7 +2716,7 @@ void resume_console(void)
+@@ -2716,7 +2723,7 @@ void resume_console(void)
   */
  static int console_cpu_notify(unsigned int cpu)
  {
@@ -87,7 +87,7 @@ Signed-off-by: Sebastian Andrzej Siewior <bigeasy@linutronix.de>
  		/* If trylock fails, someone else is doing the printing */
  		if (console_trylock())
  			console_unlock();
-@@ -3259,7 +3266,8 @@ void console_flush_on_panic(enum con_flu
+@@ -3266,7 +3273,8 @@ void console_flush_on_panic(enum con_flu
  	if (!have_boot_console)
  		nbcon_atomic_flush_all();
  
@@ -97,7 +97,7 @@ Signed-off-by: Sebastian Andrzej Siewior <bigeasy@linutronix.de>
  }
  
  /*
-@@ -3589,8 +3597,11 @@ void register_console(struct console *ne
+@@ -3596,8 +3604,11 @@ void register_console(struct console *ne
  	newcon->dropped = 0;
  	console_init_seq(newcon, bootcon_registered);
  
@@ -110,7 +110,7 @@ Signed-off-by: Sebastian Andrzej Siewior <bigeasy@linutronix.de>
  
  	if (newcon->flags & CON_BOOT)
  		have_boot_console = true;
-@@ -3647,6 +3658,7 @@ EXPORT_SYMBOL(register_console);
+@@ -3654,6 +3665,7 @@ EXPORT_SYMBOL(register_console);
  /* Must be called under console_list_lock(). */
  static int unregister_console_locked(struct console *console)
  {
@@ -118,7 +118,7 @@ Signed-off-by: Sebastian Andrzej Siewior <bigeasy@linutronix.de>
  	bool is_boot_con = (console->flags & CON_BOOT);
  	struct console *c;
  	int res;
-@@ -3697,18 +3709,32 @@ static int unregister_console_locked(str
+@@ -3704,18 +3716,32 @@ static int unregister_console_locked(str
  		res = console->exit(console);
  
  	/*
@@ -154,7 +154,7 @@ Signed-off-by: Sebastian Andrzej Siewior <bigeasy@linutronix.de>
  	}
  
  	return res;
-@@ -3861,6 +3887,7 @@ static bool __pr_flush(struct console *c
+@@ -3868,6 +3894,7 @@ static bool __pr_flush(struct console *c
  	u64 last_diff = 0;
  	u64 printk_seq;
  	short flags;
@@ -162,7 +162,7 @@ Signed-off-by: Sebastian Andrzej Siewior <bigeasy@linutronix.de>
  	int cookie;
  	u64 diff;
  	u64 seq;
-@@ -3870,22 +3897,28 @@ static bool __pr_flush(struct console *c
+@@ -3877,22 +3904,28 @@ static bool __pr_flush(struct console *c
  	seq = prb_next_reserve_seq(prb);
  
  	/* Flush the consoles so that records up to @seq are printed. */
@@ -200,7 +200,7 @@ Signed-off-by: Sebastian Andrzej Siewior <bigeasy@linutronix.de>
  
  		cookie = console_srcu_read_lock();
  		for_each_console_srcu(c) {
-@@ -3907,6 +3940,7 @@ static bool __pr_flush(struct console *c
+@@ -3914,6 +3947,7 @@ static bool __pr_flush(struct console *c
  			if (flags & CON_NBCON) {
  				printk_seq = nbcon_seq_read(c);
  			} else {
@@ -208,7 +208,7 @@ Signed-off-by: Sebastian Andrzej Siewior <bigeasy@linutronix.de>
  				printk_seq = c->seq;
  			}
  
-@@ -3918,7 +3952,8 @@ static bool __pr_flush(struct console *c
+@@ -3925,7 +3959,8 @@ static bool __pr_flush(struct console *c
  		if (diff != last_diff && reset_on_progress)
  			remaining_jiffies = timeout_jiffies;
  
@@ -218,7 +218,7 @@ Signed-off-by: Sebastian Andrzej Siewior <bigeasy@linutronix.de>
  
  		/* Note: @diff is 0 if there are no usable consoles. */
  		if (diff == 0 || remaining_jiffies == 0)
-@@ -4040,7 +4075,11 @@ void defer_console_output(void)
+@@ -4047,7 +4082,11 @@ void defer_console_output(void)
  	 * New messages may have been added directly to the ringbuffer
  	 * using vprintk_store(), so wake any waiters as well.
  	 */

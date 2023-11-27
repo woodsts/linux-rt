@@ -58,7 +58,7 @@ Signed-off-by: Sebastian Andrzej Siewior <bigeasy@linutronix.de>
  /*
   * This is used for debugging the mess that is the VT code by
   * keeping track if we have the console semaphore held. It's
-@@ -2593,26 +2616,6 @@ static int console_cpu_notify(unsigned i
+@@ -2600,26 +2623,6 @@ static int console_cpu_notify(unsigned i
  	return 0;
  }
  

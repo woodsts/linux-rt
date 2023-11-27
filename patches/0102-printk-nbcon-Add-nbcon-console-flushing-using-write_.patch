@@ -25,7 +25,7 @@ Signed-off-by: Sebastian Andrzej Siewior <bigeasy@linutronix.de>
 
 --- a/kernel/printk/printk.c
 +++ b/kernel/printk/printk.c
-@@ -3195,6 +3195,9 @@ void console_flush_on_panic(enum con_flu
+@@ -3202,6 +3202,9 @@ void console_flush_on_panic(enum con_flu
  		console_srcu_read_unlock(cookie);
  	}
  
@@ -35,7 +35,7 @@ Signed-off-by: Sebastian Andrzej Siewior <bigeasy@linutronix.de>
  	console_flush_all(false, &next_seq, &handover);
  }
  
-@@ -3963,8 +3966,22 @@ void defer_console_output(void)
+@@ -3970,8 +3973,22 @@ void defer_console_output(void)
  	__wake_up_klogd(PRINTK_PENDING_WAKEUP | PRINTK_PENDING_OUTPUT);
  }
  

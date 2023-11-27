@@ -17,7 +17,7 @@ Signed-off-by: Sebastian Andrzej Siewior <bigeasy@linutronix.de>
 
 --- a/kernel/panic.c
 +++ b/kernel/panic.c
-@@ -655,6 +655,8 @@ struct warn_args {
+@@ -659,6 +659,8 @@ struct warn_args {
  void __warn(const char *file, int line, void *caller, unsigned taint,
  	    struct pt_regs *regs, struct warn_args *args)
  {
@@ -26,7 +26,7 @@ Signed-off-by: Sebastian Andrzej Siewior <bigeasy@linutronix.de>
  	disable_trace_on_warning();
  
  	if (file)
-@@ -685,6 +687,8 @@ void __warn(const char *file, int line,
+@@ -689,6 +691,8 @@ void __warn(const char *file, int line,
  
  	/* Just a warning, don't kill lockdep. */
  	add_taint(taint, LOCKDEP_STILL_OK);

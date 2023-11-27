@@ -38,7 +38,7 @@ Signed-off-by: Sebastian Andrzej Siewior <bigeasy@linutronix.de>
  #ifdef CONFIG_PRINTK
  /*
   * During panic, heavy printk by other CPUs can delay the
-@@ -3506,6 +3514,9 @@ void register_console(struct console *ne
+@@ -3513,6 +3521,9 @@ void register_console(struct console *ne
  	if (newcon->flags & CON_NBCON)
  		nbcon_init(newcon);
  
@@ -48,7 +48,7 @@ Signed-off-by: Sebastian Andrzej Siewior <bigeasy@linutronix.de>
  	/*
  	 * Put this console in the list - keep the
  	 * preferred driver at the head of the list.
-@@ -3558,6 +3569,8 @@ EXPORT_SYMBOL(register_console);
+@@ -3565,6 +3576,8 @@ EXPORT_SYMBOL(register_console);
  /* Must be called under console_list_lock(). */
  static int unregister_console_locked(struct console *console)
  {
@@ -57,7 +57,7 @@ Signed-off-by: Sebastian Andrzej Siewior <bigeasy@linutronix.de>
  	int res;
  
  	lockdep_assert_console_list_lock_held();
-@@ -3605,6 +3618,21 @@ static int unregister_console_locked(str
+@@ -3612,6 +3625,21 @@ static int unregister_console_locked(str
  	if (console->exit)
  		res = console->exit(console);
  

@@ -20,7 +20,7 @@ Signed-off-by: Sebastian Andrzej Siewior <bigeasy@linutronix.de>
 
 --- a/kernel/printk/printk.c
 +++ b/kernel/printk/printk.c
-@@ -3756,7 +3756,7 @@ static bool __pr_flush(struct console *c
+@@ -3763,7 +3763,7 @@ static bool __pr_flush(struct console *c
  
  	might_sleep();
  

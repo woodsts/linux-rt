@@ -9,7 +9,7 @@ Signed-off-by: Sebastian Andrzej Siewior <bigeasy@linutronix.de>
 
 --- a/kernel/printk/printk.c
 +++ b/kernel/printk/printk.c
-@@ -2361,6 +2361,32 @@ asmlinkage int vprintk_emit(int facility
+@@ -2360,6 +2360,32 @@ asmlinkage int vprintk_emit(int facility
  
  	printed_len = vprintk_store(facility, level, dev_info, fmt, args);
  
