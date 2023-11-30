@@ -85,6 +85,7 @@ preempt-Put-preempt_enable-within-an-instrumentation.patch
 0122-serial-8250-revert-drop-lockdep-annotation-from-seri.patch
 
 printk-ringbuffer-Extend-the-sequence-number-properl.patch
+printk-nbcon-Remove-the-msleep-from-nbcon_kthread_sh.patch
 
 ###########################################################################
 # DRM:
