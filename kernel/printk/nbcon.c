@@ -1032,13 +1032,6 @@ static bool nbcon_kthread_should_wakeup(struct console *con, struct nbcon_contex
 
 		nbcon_state_read(con, &cur);
 
-		/*
-		 * Some other CPU is using the console. Patiently poll
-		 * to see if it becomes available. This is more efficient
-		 * than having every release trigger an irq_work to wake
-		 * the kthread.
-		 */
-		msleep(1);
 	} while (cur.prio != NBCON_PRIO_NONE);
 
 	/* Bring the sequence in @ctxt up to date */
