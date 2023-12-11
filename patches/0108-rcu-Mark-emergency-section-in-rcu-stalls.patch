@@ -24,7 +24,7 @@ Signed-off-by: Sebastian Andrzej Siewior <bigeasy@linutronix.de>
  
  //////////////////////////////////////////////////////////////////////////////
  //
-@@ -597,6 +598,8 @@ static void print_other_cpu_stall(unsign
+@@ -603,6 +604,8 @@ static void print_other_cpu_stall(unsign
  	if (rcu_stall_is_suppressed())
  		return;
  
@@ -33,7 +33,7 @@ Signed-off-by: Sebastian Andrzej Siewior <bigeasy@linutronix.de>
  	/*
  	 * OK, time to rat on our buddy...
  	 * See Documentation/RCU/stallwarn.rst for info on how to debug
-@@ -651,6 +654,8 @@ static void print_other_cpu_stall(unsign
+@@ -657,6 +660,8 @@ static void print_other_cpu_stall(unsign
  	panic_on_rcu_stall();
  
  	rcu_force_quiescent_state();  /* Kick them all. */
