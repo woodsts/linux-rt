@@ -32,11 +32,11 @@ Signed-off-by: Thomas Gleixner <tglx@linutronix.de>
 ---
 --- a/arch/powerpc/kvm/Kconfig
 +++ b/arch/powerpc/kvm/Kconfig
-@@ -224,6 +224,7 @@ config KVM_E500MC
+@@ -222,6 +222,7 @@ config KVM_E500MC
  config KVM_MPIC
  	bool "KVM in-kernel MPIC emulation"
  	depends on KVM && PPC_E500
 +	depends on !PREEMPT_RT
  	select HAVE_KVM_IRQCHIP
- 	select HAVE_KVM_IRQFD
  	select HAVE_KVM_IRQ_ROUTING
+ 	select HAVE_KVM_MSI

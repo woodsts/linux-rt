@@ -9,8 +9,6 @@
 ###########################################################################
 # Posted
 ###########################################################################
-# printk related
-srcu-Use-try-lock-lockdep-annotation-for-NMI-safe-ac.patch
 
 ###########################################################################
 # Post
@@ -35,7 +33,7 @@ rcutorture-Also-force-sched-priority-to-timersd-on-b.patch
 tick-Fix-timer-storm-since-introduction-of-timersd.patch
 softirq-Wake-ktimers-thread-also-in-softirq.patch
 zram-Replace-bit-spinlocks-with-spinlock_t-for-PREEM.patch
-preempt-Put-preempt_enable-within-an-instrumentation.patch
+# preempt-Put-preempt_enable-within-an-instrumentation.patch
 
 # Sched
 0001-sched-core-Provide-a-method-to-check-if-a-task-is-PI.patch

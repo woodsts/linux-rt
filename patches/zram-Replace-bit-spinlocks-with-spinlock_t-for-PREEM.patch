@@ -71,7 +71,7 @@ Link: https://lore.kernel.org/20230323161830.jFbWCosd@linutronix.de
  
  static inline bool init_done(struct zram *zram)
  {
-@@ -1242,6 +1278,7 @@ static bool zram_meta_alloc(struct zram
+@@ -1241,6 +1277,7 @@ static bool zram_meta_alloc(struct zram
  
  	if (!huge_class_size)
  		huge_class_size = zs_huge_class_size(zram->mem_pool);
@@ -88,6 +88,6 @@ Link: https://lore.kernel.org/20230323161830.jFbWCosd@linutronix.de
 +#ifdef CONFIG_PREEMPT_RT
 +	spinlock_t lock;
 +#endif
- #ifdef CONFIG_ZRAM_MEMORY_TRACKING
+ #ifdef CONFIG_ZRAM_TRACK_ENTRY_ACTIME
  	ktime_t ac_time;
  #endif
