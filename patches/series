@@ -93,6 +93,7 @@ zram-Replace-bit-spinlocks-with-spinlock_t-for-PREEM.patch
 0048-printk-Add-kthread-for-all-legacy-consoles.patch
 0049-serial-8250-revert-drop-lockdep-annotation-from-seri.patch
 0050-printk-Avoid-false-positive-lockdep-report-for-legac.patch
+printk-nbcon-move-locked_port-flag-to-struct-uart_po.patch
 
 ###########################################################################
 # DRM:
@@ -118,6 +119,7 @@ PREEMPT_AUTO.patch
 ###########################################################################
 0001-arm-Disable-jump-label-on-PREEMPT_RT.patch
 ARM__enable_irq_in_translation_section_permission_fault_handlers.patch
+arm-Disable-FAST_GUP-on-PREEMPT_RT-if-HIGHPTE-is-als.patch
 # arm64-signal-Use-ARCH_RT_DELAYS_SIGNAL_SEND.patch
 tty_serial_omap__Make_the_locking_RT_aware.patch
 tty_serial_pl011__Make_the_locking_work_on_RT.patch

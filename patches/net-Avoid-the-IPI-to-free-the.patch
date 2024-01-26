@@ -24,7 +24,7 @@ Signed-off-by: Sebastian Andrzej Siewior <bigeasy@linutronix.de>
 
 --- a/include/linux/netdevice.h
 +++ b/include/linux/netdevice.h
-@@ -3288,7 +3288,11 @@ struct softnet_data {
+@@ -3325,7 +3325,11 @@ struct softnet_data {
  	int			defer_count;
  	int			defer_ipi_scheduled;
  	struct sk_buff		*defer_list;
@@ -38,7 +38,7 @@ Signed-off-by: Sebastian Andrzej Siewior <bigeasy@linutronix.de>
  static inline void input_queue_head_incr(struct softnet_data *sd)
 --- a/net/core/dev.c
 +++ b/net/core/dev.c
-@@ -4679,15 +4679,6 @@ static void rps_trigger_softirq(void *da
+@@ -4684,15 +4684,6 @@ static void rps_trigger_softirq(void *da
  
  #endif /* CONFIG_RPS */
  
@@ -54,7 +54,7 @@ Signed-off-by: Sebastian Andrzej Siewior <bigeasy@linutronix.de>
  /*
   * After we queued a packet into sd->input_pkt_queue,
   * we need to make sure this queue is serviced soon.
-@@ -6658,6 +6649,32 @@ static void skb_defer_free_flush(struct
+@@ -6701,6 +6692,32 @@ static void skb_defer_free_flush(struct
  	}
  }
  
@@ -87,7 +87,7 @@ Signed-off-by: Sebastian Andrzej Siewior <bigeasy@linutronix.de>
  static int napi_threaded_poll(void *data)
  {
  	struct napi_struct *napi = data;
-@@ -11621,7 +11638,11 @@ static int __init net_dev_init(void)
+@@ -11723,7 +11740,11 @@ static int __init net_dev_init(void)
  		INIT_CSD(&sd->csd, rps_trigger_softirq, sd);
  		sd->cpu = i;
  #endif
@@ -101,7 +101,7 @@ Signed-off-by: Sebastian Andrzej Siewior <bigeasy@linutronix.de>
  		init_gro_hash(&sd->backlog);
 --- a/net/core/skbuff.c
 +++ b/net/core/skbuff.c
-@@ -6858,8 +6858,13 @@ nodefer:	__kfree_skb(skb);
+@@ -6921,8 +6921,13 @@ nodefer:	__kfree_skb(skb);
  	/* Make sure to trigger NET_RX_SOFTIRQ on the remote CPU
  	 * if we are unlucky enough (this seems very unlikely).
  	 */
