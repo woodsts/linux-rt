@@ -733,7 +733,7 @@ Signed-off-by: Sebastian Andrzej Siewior <bigeasy@linutronix.de>
  extern struct rt_bandwidth def_rt_bandwidth;
 --- a/kernel/trace/trace.c
 +++ b/kernel/trace/trace.c
-@@ -2703,6 +2703,8 @@ unsigned int tracing_gen_ctx_irq_test(un
+@@ -2714,6 +2714,8 @@ unsigned int tracing_gen_ctx_irq_test(un
  
  	if (tif_need_resched())
  		trace_flags |= TRACE_FLAG_NEED_RESCHED;

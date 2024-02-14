@@ -1,6 +1,6 @@
 From: John Ogness <john.ogness@linutronix.de>
-Date: Fri, 13 Oct 2023 14:30:49 +0000
-Subject: [PATCH 07/50] printk: Add this_cpu_in_panic()
+Date: Wed, 7 Feb 2024 14:46:56 +0106
+Subject: [PATCH 07/52] printk: Add this_cpu_in_panic()
 
 There is already panic_in_progress() and other_cpu_in_panic(),
 but checking if the current CPU is the panic CPU must still be
@@ -10,6 +10,8 @@ Add this_cpu_in_panic() to complete the set.
 
 Signed-off-by: John Ogness <john.ogness@linutronix.de>
 Reviewed-by: Petr Mladek <pmladek@suse.com>
+Link: https://lore.kernel.org/r/20240207134103.1357162-8-john.ogness@linutronix.de
+Signed-off-by: Petr Mladek <pmladek@suse.com>
 Signed-off-by: Sebastian Andrzej Siewior <bigeasy@linutronix.de>
 ---
  kernel/printk/internal.h |    1 +

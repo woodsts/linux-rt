@@ -1,6 +1,6 @@
 From: John Ogness <john.ogness@linutronix.de>
 Date: Wed, 22 Nov 2023 11:23:43 +0000
-Subject: [PATCH 15/50] printk: Consider nbcon boot consoles on seq init
+Subject: [PATCH 15/52] printk: Consider nbcon boot consoles on seq init
 
 If a non-boot console is registering and boot consoles exist, the
 consoles are flushed before being unregistered. This allows the

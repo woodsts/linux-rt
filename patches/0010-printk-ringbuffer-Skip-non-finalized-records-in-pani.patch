@@ -1,6 +1,6 @@
 From: John Ogness <john.ogness@linutronix.de>
-Date: Fri, 13 Oct 2023 10:23:11 +0000
-Subject: [PATCH 10/50] printk: ringbuffer: Skip non-finalized records in panic
+Date: Wed, 7 Feb 2024 14:46:59 +0106
+Subject: [PATCH 10/52] printk: ringbuffer: Skip non-finalized records in panic
 
 Normally a reader will stop once reaching a non-finalized
 record. However, when a panic happens, writers from other CPUs
@@ -15,6 +15,9 @@ on the panic CPU.
 
 Fixes: 896fbe20b4e2 ("printk: use the lockless ringbuffer")
 Signed-off-by: John Ogness <john.ogness@linutronix.de>
+Reviewed-by: Petr Mladek <pmladek@suse.com>
+Link: https://lore.kernel.org/r/20240207134103.1357162-11-john.ogness@linutronix.de
+Signed-off-by: Petr Mladek <pmladek@suse.com>
 Signed-off-by: Sebastian Andrzej Siewior <bigeasy@linutronix.de>
 ---
  kernel/printk/printk_ringbuffer.c |   28 ++++++++++++++++++++++++++--
@@ -22,7 +25,7 @@ Signed-off-by: Sebastian Andrzej Siewior <bigeasy@linutronix.de>
 
 --- a/kernel/printk/printk_ringbuffer.c
 +++ b/kernel/printk/printk_ringbuffer.c
-@@ -2107,6 +2107,10 @@ u64 prb_next_reserve_seq(struct printk_r
+@@ -2099,6 +2099,10 @@ u64 prb_next_reserve_seq(struct printk_r
   *
   * On failure @seq is updated to a record that is not yet available to the
   * reader, but it will be the next record available to the reader.
@@ -33,7 +36,7 @@ Signed-off-by: Sebastian Andrzej Siewior <bigeasy@linutronix.de>
   */
  static bool _prb_read_valid(struct printk_ringbuffer *rb, u64 *seq,
  			    struct printk_record *r, unsigned int *line_count)
-@@ -2129,8 +2133,28 @@ static bool _prb_read_valid(struct print
+@@ -2121,8 +2125,28 @@ static bool _prb_read_valid(struct print
  			(*seq)++;
  
  		} else {

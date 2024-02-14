@@ -1,6 +1,6 @@
 From: John Ogness <john.ogness@linutronix.de>
-Date: Thu, 19 Oct 2023 10:32:05 +0000
-Subject: [PATCH 04/50] printk: ringbuffer: Do not skip non-finalized records
+Date: Wed, 7 Feb 2024 14:46:53 +0106
+Subject: [PATCH 04/52] printk: ringbuffer: Do not skip non-finalized records
  with prb_next_seq()
 
 Commit f244b4dc53e5 ("printk: ringbuffer: Improve
@@ -34,6 +34,9 @@ which fold in the value returned by prb_first_seq().
 
 Fixes: f244b4dc53e5 ("printk: ringbuffer: Improve prb_next_seq() performance")
 Signed-off-by: John Ogness <john.ogness@linutronix.de>
+Reviewed-by: Petr Mladek <pmladek@suse.com>
+Link: https://lore.kernel.org/r/20240207134103.1357162-5-john.ogness@linutronix.de
+Signed-off-by: Petr Mladek <pmladek@suse.com>
 Signed-off-by: Sebastian Andrzej Siewior <bigeasy@linutronix.de>
 ---
  kernel/printk/printk_ringbuffer.c |  164 ++++++++++++++++++++++++++++----------

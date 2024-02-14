@@ -1,6 +1,6 @@
 From: John Ogness <john.ogness@linutronix.de>
 Date: Mon, 9 Oct 2023 13:55:19 +0000
-Subject: [PATCH 16/50] printk: Add sparse notation to console_srcu locking
+Subject: [PATCH 16/52] printk: Add sparse notation to console_srcu locking
 
 kernel/printk/printk.c:284:5: sparse: sparse: context imbalance in
 'console_srcu_read_lock' - wrong count at exit

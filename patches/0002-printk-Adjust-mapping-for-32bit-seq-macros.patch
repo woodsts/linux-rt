@@ -1,6 +1,6 @@
 From: Sebastian Andrzej Siewior <bigeasy@linutronix.de>
-Date: Thu, 7 Dec 2023 14:15:15 +0000
-Subject: [PATCH 02/50] printk: Adjust mapping for 32bit seq macros
+Date: Wed, 7 Feb 2024 14:46:51 +0106
+Subject: [PATCH 02/52] printk: Adjust mapping for 32bit seq macros
 
 Note: This change only applies to 32bit architectures. On 64bit
       architectures the macros are NOPs.
@@ -37,6 +37,7 @@ __ulseq_to_u64seq(a000 0000) => 1 a000 0000
 __ulseq_to_u64seq(a000 0001) => 1 a000 0001
 
 After this change the range of possible return values are:
+
 1 a000 0001 to 2 a000 0000
 
 __ulseq_to_u64seq(1fff ffff) => 2 1fff ffff
@@ -52,6 +53,9 @@ Reported-by: Francesco Dolcini <francesco@dolcini.it>
 Reported-by: kernel test robot <oliver.sang@intel.com>
 Signed-off-by: Sebastian Andrzej Siewior <bigeasy@linutronix.de>
 Signed-off-by: John Ogness <john.ogness@linutronix.de>
+Reviewed-by: Petr Mladek <pmladek@suse.com>
+Link: https://lore.kernel.org/r/20240207134103.1357162-3-john.ogness@linutronix.de
+Signed-off-by: Petr Mladek <pmladek@suse.com>
 Signed-off-by: Sebastian Andrzej Siewior <bigeasy@linutronix.de>
 ---
  kernel/printk/printk_ringbuffer.h |    2 +-

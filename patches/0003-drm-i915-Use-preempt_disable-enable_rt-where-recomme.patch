@@ -43,7 +43,7 @@ Signed-off-by: Sebastian Andrzej Siewior <bigeasy@linutronix.de>
 +#ifdef I915
 +	spin_lock_irqsave(&i915->uncore.lock, *flags);
 +#else
-+	*flags = NULL;
++	*flags = 0;
 +#endif
 +}
 +
@@ -54,7 +54,7 @@ Signed-off-by: Sebastian Andrzej Siewior <bigeasy@linutronix.de>
 +	spin_unlock_irqrestore(&i915->uncore.lock, flags);
 +#else
 +	if (flags)
-+		;
++		return;
 +#endif
 +}
  static void intel_vblank_section_enter(struct drm_i915_private *i915)

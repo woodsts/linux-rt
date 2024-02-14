@@ -1,6 +1,6 @@
 From: John Ogness <john.ogness@linutronix.de>
-Date: Wed, 22 Nov 2023 16:13:37 +0000
-Subject: [PATCH 03/50] printk: Use prb_first_seq() as base for 32bit seq
+Date: Wed, 7 Feb 2024 14:46:52 +0106
+Subject: [PATCH 03/52] printk: Use prb_first_seq() as base for 32bit seq
  macros
 
 Note: This change only applies to 32bit architectures. On 64bit
@@ -16,6 +16,9 @@ because it is guaranteed to return 64bit sequence numbers without
 relying on any 32bit seq macros.
 
 Signed-off-by: John Ogness <john.ogness@linutronix.de>
+Reviewed-by: Petr Mladek <pmladek@suse.com>
+Link: https://lore.kernel.org/r/20240207134103.1357162-4-john.ogness@linutronix.de
+Signed-off-by: Petr Mladek <pmladek@suse.com>
 Signed-off-by: Sebastian Andrzej Siewior <bigeasy@linutronix.de>
 ---
  kernel/printk/printk_ringbuffer.c |    2 +-

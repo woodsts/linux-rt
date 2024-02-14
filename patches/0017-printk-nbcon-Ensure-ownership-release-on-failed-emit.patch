@@ -1,12 +1,18 @@
 From: John Ogness <john.ogness@linutronix.de>
 Date: Fri, 20 Oct 2023 09:52:59 +0000
-Subject: [PATCH 17/50] printk: nbcon: Ensure ownership release on failed emit
+Subject: [PATCH 17/52] printk: nbcon: Ensure ownership release on failed emit
 
 Until now it was assumed that ownership has been lost when the
-write_atomic() callback fails. nbcon_emit_next_record() only
-returns false when ownership has been lost.
+write_atomic() callback fails. And nbcon_emit_next_record()
+directly returned false. However, if nbcon_emit_next_record()
+returns false, the context must no longer have ownership.
 
-Ensure ownership has been lost before reporting failure by
+The semantics for the callbacks could be specified such that
+if they return false, they must have released ownership. But
+in practice those semantics seem odd since the ownership was
+acquired outside of the callback.
+
+Ensure ownership has been released before reporting failure by
 explicitly attempting a release. If the current context is not
 the owner, the release has no effect.
 

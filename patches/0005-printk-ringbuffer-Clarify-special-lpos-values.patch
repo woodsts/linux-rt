@@ -1,6 +1,6 @@
 From: John Ogness <john.ogness@linutronix.de>
-Date: Mon, 23 Oct 2023 11:11:05 +0000
-Subject: [PATCH 05/50] printk: ringbuffer: Clarify special lpos values
+Date: Wed, 7 Feb 2024 14:46:54 +0106
+Subject: [PATCH 05/52] printk: ringbuffer: Clarify special lpos values
 
 For empty line records, no data blocks are created. Instead,
 these valid records are identified by special logical position
@@ -18,6 +18,9 @@ as clarification to the values used to represent data-less
 blocks.
 
 Signed-off-by: John Ogness <john.ogness@linutronix.de>
+Reviewed-by: Petr Mladek <pmladek@suse.com>
+Link: https://lore.kernel.org/r/20240207134103.1357162-6-john.ogness@linutronix.de
+Signed-off-by: Petr Mladek <pmladek@suse.com>
 Signed-off-by: Sebastian Andrzej Siewior <bigeasy@linutronix.de>
 ---
  kernel/printk/printk_ringbuffer.c |   20 ++++++++++++++++----

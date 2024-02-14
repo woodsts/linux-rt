@@ -1,6 +1,6 @@
 From: John Ogness <john.ogness@linutronix.de>
-Date: Mon, 6 Nov 2023 14:59:55 +0000
-Subject: [PATCH 09/50] printk: Wait for all reserved records with pr_flush()
+Date: Wed, 7 Feb 2024 14:46:58 +0106
+Subject: [PATCH 09/52] printk: Wait for all reserved records with pr_flush()
 
 Currently pr_flush() will only wait for records that were
 available to readers at the time of the call (using
@@ -17,12 +17,15 @@ printk() messages (completed or in progress) have been printed.
 
 Fixes: 3b604ca81202 ("printk: add pr_flush()")
 Signed-off-by: John Ogness <john.ogness@linutronix.de>
+Reviewed-by: Petr Mladek <pmladek@suse.com>
+Link: https://lore.kernel.org/r/20240207134103.1357162-10-john.ogness@linutronix.de
+Signed-off-by: Petr Mladek <pmladek@suse.com>
 Signed-off-by: Sebastian Andrzej Siewior <bigeasy@linutronix.de>
 ---
  kernel/printk/printk.c            |    2 
- kernel/printk/printk_ringbuffer.c |  113 ++++++++++++++++++++++++++++++++++++++
+ kernel/printk/printk_ringbuffer.c |  105 ++++++++++++++++++++++++++++++++++++++
  kernel/printk/printk_ringbuffer.h |    1 
- 3 files changed, 115 insertions(+), 1 deletion(-)
+ 3 files changed, 107 insertions(+), 1 deletion(-)
 
 --- a/kernel/printk/printk.c
 +++ b/kernel/printk/printk.c
@@ -37,7 +40,7 @@ Signed-off-by: Sebastian Andrzej Siewior <bigeasy@linutronix.de>
  	console_lock();
 --- a/kernel/printk/printk_ringbuffer.c
 +++ b/kernel/printk/printk_ringbuffer.c
-@@ -1986,6 +1986,119 @@ u64 prb_first_seq(struct printk_ringbuff
+@@ -1986,6 +1986,111 @@ u64 prb_first_seq(struct printk_ringbuff
  	return seq;
  }
  
@@ -79,8 +82,8 @@ Signed-off-by: Sebastian Andrzej Siewior <bigeasy@linutronix.de>
 +	last_finalized_seq = desc_last_finalized_seq(rb);
 +
 +	/*
-+	 * @head_id is loaded after @last_finalized_seq to ensure that it is
-+	 * at or beyond @last_finalized_seq.
++	 * @head_id is loaded after @last_finalized_seq to ensure that
++	 * it points to the record with @last_finalized_seq or newer.
 +	 *
 +	 * Memory barrier involvement:
 +	 *
@@ -113,25 +116,20 @@ Signed-off-by: Sebastian Andrzej Siewior <bigeasy@linutronix.de>
 +	if (err == -EINVAL) {
 +		if (last_finalized_seq == 0) {
 +			/*
-+			 * @last_finalized_seq still contains its initial
-+			 * value. Probably no record has been finalized yet.
-+			 * This means the ringbuffer is not yet full and the
-+			 * @head_id value can be used directly (subtracting
-+			 * off the id value corresponding to seq=0).
-+			 */
-+
-+			/*
-+			 * Because of hack#2 of the bootstrapping phase, the
-+			 * @head_id initial value must be handled separately.
++			 * No record has been finalized or even reserved yet.
++			 *
++			 * The @head_id is initialized such that the first
++			 * increment will yield the first record (seq=0).
++			 * Handle it separately to avoid a negative @diff
++			 * below.
 +			 */
 +			if (head_id == DESC0_ID(desc_ring->count_bits))
 +				return 0;
 +
 +			/*
-+			 * The @head_id is initialized such that the first
-+			 * increment will yield the first record (seq=0).
-+			 * Therefore use the initial value +1 as the base to
-+			 * subtract from @head_id.
++			 * One or more descriptors are already reserved. Use
++			 * the descriptor ID of the first one (@seq=0) for
++			 * the @diff below.
 +			 */
 +			last_finalized_id = DESC0_ID(desc_ring->count_bits) + 1;
 +		} else {
@@ -140,10 +138,7 @@ Signed-off-by: Sebastian Andrzej Siewior <bigeasy@linutronix.de>
 +		}
 +	}
 +
-+	/*
-+	 * @diff is the number of records beyond the last record available
-+	 * to readers.
-+	 */
++	/* Diff of known descriptor IDs to compute related sequence numbers. */
 +	diff = head_id - last_finalized_id;
 +
 +	/*

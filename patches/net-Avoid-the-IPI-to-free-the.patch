@@ -87,7 +87,7 @@ Signed-off-by: Sebastian Andrzej Siewior <bigeasy@linutronix.de>
  static int napi_threaded_poll(void *data)
  {
  	struct napi_struct *napi = data;
-@@ -11723,7 +11740,11 @@ static int __init net_dev_init(void)
+@@ -11732,7 +11749,11 @@ static int __init net_dev_init(void)
  		INIT_CSD(&sd->csd, rps_trigger_softirq, sd);
  		sd->cpu = i;
  #endif
