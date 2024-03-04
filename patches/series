@@ -10,6 +10,26 @@
 # Posted
 ###########################################################################
 
+# tty/ serial
+0001-serial-amba-pl011-Use-uart_prepare_sysrq_char.patch
+0002-serial-ar933x-Use-uart_prepare_sysrq_char.patch
+0003-serial-bcm63xx-Use-uart_prepare_sysrq_char.patch
+0004-serial-meson-Use-uart_prepare_sysrq_char.patch
+0005-serial-msm-Use-uart_prepare_sysrq_char.patch
+0006-serial-omap-Use-uart_prepare_sysrq_char.patch
+0007-serial-pxa-Use-uart_prepare_sysrq_char.patch
+0008-serial-sunplus-Use-uart_prepare_sysrq_char.patch
+0009-serial-lpc32xx_hs-Use-uart_prepare_sysrq_char-to-han.patch
+0010-serial-owl-Use-uart_prepare_sysrq_char-to-handle-sys.patch
+0011-serial-rda-Use-uart_prepare_sysrq_char-to-handle-sys.patch
+0012-serial-sifive-Use-uart_prepare_sysrq_char-to-handle-.patch
+0013-serial-pch-Invoke-handle_rx_to-directly.patch
+0014-serial-pch-Make-push_rx-return-void.patch
+0015-serial-pch-Don-t-disable-interrupts-while-acquiring-.patch
+0016-serial-pch-Don-t-initialize-uart_port-s-spin_lock.patch
+0017-serial-pch-Remove-eg20t_port-lock.patch
+0018-serial-pch-Use-uart_prepare_sysrq_char.patch
+
 ###########################################################################
 # Post
 ###########################################################################
@@ -122,8 +142,6 @@ PREEMPT_AUTO.patch
 ARM__enable_irq_in_translation_section_permission_fault_handlers.patch
 arm-Disable-FAST_GUP-on-PREEMPT_RT-if-HIGHPTE-is-als.patch
 # arm64-signal-Use-ARCH_RT_DELAYS_SIGNAL_SEND.patch
-tty_serial_omap__Make_the_locking_RT_aware.patch
-tty_serial_pl011__Make_the_locking_work_on_RT.patch
 0001-ARM-vfp-Provide-vfp_lock-for-VFP-locking.patch
 0002-ARM-vfp-Use-vfp_lock-in-vfp_sync_hwstate.patch
 0003-ARM-vfp-Use-vfp_lock-in-vfp_support_entry.patch
