@@ -2283,17 +2283,6 @@ event_sched_out(struct perf_event *event, struct perf_event_context *ctx)
 		state = PERF_EVENT_STATE_OFF;
 	}
 
-	if (event->pending_sigtrap) {
-		event->pending_sigtrap = 0;
-		if (state != PERF_EVENT_STATE_OFF &&
-		    !event->pending_work &&
-		    !task_work_add(current, &event->pending_task, TWA_RESUME)) {
-			event->pending_work = 1;
-		} else {
-			local_dec(&event->ctx->nr_pending);
-		}
-	}
-
 	perf_event_set_state(event, state);
 
 	if (!is_software_event(event))
@@ -6787,11 +6776,6 @@ static void __perf_pending_irq(struct perf_event *event)
 	 * Yay, we hit home and are in the context of the event.
 	 */
 	if (cpu == smp_processor_id()) {
-		if (event->pending_sigtrap) {
-			event->pending_sigtrap = 0;
-			perf_sigtrap(event);
-			local_dec(&event->ctx->nr_pending);
-		}
 		if (event->pending_disable) {
 			event->pending_disable = 0;
 			perf_event_disable_local(event);
@@ -9735,18 +9719,28 @@ static int __perf_event_overflow(struct perf_event *event,
 
 		if (regs)
 			pending_id = hash32_ptr((void *)instruction_pointer(regs)) ?: 1;
-		if (!event->pending_sigtrap) {
-			event->pending_sigtrap = pending_id;
+
+		if (!event->pending_work &&
+		    !task_work_add(current, &event->pending_task, TWA_RESUME)) {
+			event->pending_work = pending_id;
 			local_inc(&event->ctx->nr_pending);
 
 			event->pending_addr = 0;
 			if (valid_sample && (data->sample_flags & PERF_SAMPLE_ADDR))
 				event->pending_addr = data->addr;
-			irq_work_queue(&event->pending_irq);
+			/*
+			 * The NMI path returns directly to userland. The
+			 * irq_work is raised as a dummy interrupt to ensure
+			 * regular return path to user is taken and task_work
+			 * is processed.
+			 */
+			if (in_nmi())
+				irq_work_queue(&event->pending_irq);
+
 		} else if (event->attr.exclude_kernel && valid_sample) {
 			/*
 			 * Should not be able to return to user space without
-			 * consuming pending_sigtrap; with exceptions:
+			 * consuming pending_work; with exceptions:
 			 *
 			 *  1. Where !exclude_kernel, events can overflow again
 			 *     in the kernel without returning to user space.
@@ -9756,7 +9750,7 @@ static int __perf_event_overflow(struct perf_event *event,
 			 *     To approximate progress (with false negatives),
 			 *     check 32-bit hash of the current IP.
 			 */
-			WARN_ON_ONCE(event->pending_sigtrap != pending_id);
+			WARN_ON_ONCE(event->pending_work != pending_id);
 		}
 	}
 
