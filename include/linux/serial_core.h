@@ -588,13 +588,19 @@ struct uart_port {
 	void			*private_data;		/* generic platform data pointer */
 };
 
-/* Only for internal port lock wrapper synchronization. */
+/*
+ * Only for console->device_lock()/_unlock() callbacks and internal
+ * port lock wrapper synchronization.
+ */
 static inline void __uart_port_lock_irqsave(struct uart_port *up, unsigned long *flags)
 {
 	spin_lock_irqsave(&up->lock, *flags);
 }
 
-/* Only for internal port lock wrapper synchronization. */
+/*
+ * Only for console->device_lock()/_unlock() callbacks and internal
+ * port lock wrapper synchronization.
+ */
 static inline void __uart_port_unlock_irqrestore(struct uart_port *up, unsigned long flags)
 {
 	spin_unlock_irqrestore(&up->lock, flags);
