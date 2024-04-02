@@ -1,6 +1,6 @@
 From: John Ogness <john.ogness@linutronix.de>
 Date: Wed, 7 Feb 2024 14:46:55 +0106
-Subject: [PATCH 06/52] printk: For @suppress_panic_printk check for other CPU
+Subject: [PATCH 06/57] printk: For @suppress_panic_printk check for other CPU
  in panic
 
 Currently @suppress_panic_printk is checked along with
@@ -23,7 +23,7 @@ Signed-off-by: Sebastian Andrzej Siewior <bigeasy@linutronix.de>
 
 --- a/kernel/printk/printk.c
 +++ b/kernel/printk/printk.c
-@@ -2270,8 +2270,7 @@ asmlinkage int vprintk_emit(int facility
+@@ -2322,8 +2322,7 @@ asmlinkage int vprintk_emit(int facility
  	if (unlikely(suppress_printk))
  		return 0;
  

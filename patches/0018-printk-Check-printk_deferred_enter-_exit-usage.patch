@@ -1,24 +1,28 @@
 From: Sebastian Andrzej Siewior <bigeasy@linutronix.de>
 Date: Fri, 22 Sep 2023 14:58:18 +0000
-Subject: [PATCH 18/52] printk: Check printk_deferred_enter()/_exit() usage
+Subject: [PATCH 18/57] printk: Check printk_deferred_enter()/_exit() usage
 
 Add validation that printk_deferred_enter()/_exit() are called in
 non-migration contexts.
 
 Signed-off-by: Sebastian Andrzej Siewior <bigeasy@linutronix.de>
 Signed-off-by: John Ogness <john.ogness@linutronix.de>
+Reviewed-by: Petr Mladek <pmladek@suse.com>
 Signed-off-by: Sebastian Andrzej Siewior <bigeasy@linutronix.de>
 ---
- include/linux/printk.h      |    7 +++++--
+ include/linux/printk.h      |    9 +++++----
+ kernel/printk/internal.h    |    3 +++
  kernel/printk/printk_safe.c |   12 ++++++++++++
- 2 files changed, 17 insertions(+), 2 deletions(-)
+ 3 files changed, 20 insertions(+), 4 deletions(-)
 
 --- a/include/linux/printk.h
 +++ b/include/linux/printk.h
-@@ -159,13 +159,16 @@ int _printk(const char *fmt, ...);
+@@ -157,15 +157,16 @@ int _printk(const char *fmt, ...);
+  */
+ __printf(1, 2) __cold int _printk_deferred(const char *fmt, ...);
  
- extern void __printk_safe_enter(void);
- extern void __printk_safe_exit(void);
+-extern void __printk_safe_enter(void);
+-extern void __printk_safe_exit(void);
 +extern void __printk_deferred_enter(void);
 +extern void __printk_deferred_exit(void);
 +
@@ -34,6 +38,18 @@ Signed-off-by: Sebastian Andrzej Siewior <bigeasy@linutronix.de>
  
  /*
   * Please don't use printk_ratelimit(), because it shares ratelimiting state
+--- a/kernel/printk/internal.h
++++ b/kernel/printk/internal.h
+@@ -53,6 +53,9 @@ int vprintk_store(int facility, int leve
+ __printf(1, 0) int vprintk_default(const char *fmt, va_list args);
+ __printf(1, 0) int vprintk_deferred(const char *fmt, va_list args);
+ 
++void __printk_safe_enter(void);
++void __printk_safe_exit(void);
++
+ bool printk_percpu_data_ready(void);
+ 
+ #define printk_safe_enter_irqsave(flags)	\
 --- a/kernel/printk/printk_safe.c
 +++ b/kernel/printk/printk_safe.c
 @@ -26,6 +26,18 @@ void __printk_safe_exit(void)
@@ -43,13 +59,13 @@ Signed-off-by: Sebastian Andrzej Siewior <bigeasy@linutronix.de>
 +void __printk_deferred_enter(void)
 +{
 +	cant_migrate();
-+	this_cpu_inc(printk_context);
++	__printk_safe_enter();
 +}
 +
 +void __printk_deferred_exit(void)
 +{
 +	cant_migrate();
-+	this_cpu_dec(printk_context);
++	__printk_safe_exit();
 +}
 +
  asmlinkage int vprintk(const char *fmt, va_list args)

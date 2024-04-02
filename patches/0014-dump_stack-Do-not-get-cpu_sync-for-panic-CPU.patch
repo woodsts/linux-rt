@@ -1,6 +1,6 @@
 From: John Ogness <john.ogness@linutronix.de>
 Date: Wed, 7 Feb 2024 14:47:03 +0106
-Subject: [PATCH 14/52] dump_stack: Do not get cpu_sync for panic CPU
+Subject: [PATCH 14/57] dump_stack: Do not get cpu_sync for panic CPU
 
 dump_stack() is called in panic(). If for some reason another CPU
 is holding the printk_cpu_sync and is unable to release it, the

@@ -1,6 +1,6 @@
 From: John Ogness <john.ogness@linutronix.de>
 Date: Wed, 7 Feb 2024 14:47:01 +0106
-Subject: [PATCH 12/52] printk: Avoid non-panic CPUs writing to ringbuffer
+Subject: [PATCH 12/57] printk: Avoid non-panic CPUs writing to ringbuffer
 
 Commit 13fb0f74d702 ("printk: Avoid livelock with heavy printk
 during panic") introduced a mechanism to silence non-panic CPUs
