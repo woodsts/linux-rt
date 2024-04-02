@@ -62,8 +62,8 @@ Acked-by: Jakub Kicinski <kuba@kernel.org>
 Link: https://lore.kernel.org/r/20240309090824.2956805-3-bigeasy@linutronix.de
 Signed-off-by: Sebastian Andrzej Siewior <bigeasy@linutronix.de>
 ---
- net/core/dev.c |  149 +++++++++++++++++++++++++++++++++++++++++++--------------
- 1 file changed, 114 insertions(+), 35 deletions(-)
+ net/core/dev.c |  152 +++++++++++++++++++++++++++++++++++++++++++--------------
+ 1 file changed, 115 insertions(+), 37 deletions(-)
 
 --- a/net/core/dev.c
 +++ b/net/core/dev.c
@@ -171,7 +171,7 @@ Signed-off-by: Sebastian Andrzej Siewior <bigeasy@linutronix.de>
  			again = false;
  		} else {
  			skb_queue_splice_tail_init(&sd->input_pkt_queue,
-@@ -6691,40 +6727,46 @@ static void skb_defer_free_flush(struct
+@@ -6691,43 +6727,48 @@ static void skb_defer_free_flush(struct
  	}
  }
  
@@ -181,11 +181,20 @@ Signed-off-by: Sebastian Andrzej Siewior <bigeasy@linutronix.de>
 -	struct napi_struct *napi = data;
  	struct softnet_data *sd;
 -	void *have;
++	unsigned long last_qs = jiffies;
  
 -	while (!napi_thread_wait(napi)) {
+-		unsigned long last_qs = jiffies;
++	for (;;) {
++		bool repoll = false;
++		void *have;
+ 
 -		for (;;) {
 -			bool repoll = false;
--
++		local_bh_disable();
++		sd = this_cpu_ptr(&softnet_data);
++		sd->in_napi_threaded_poll = true;
+ 
 -			local_bh_disable();
 -			sd = this_cpu_ptr(&softnet_data);
 -			sd->in_napi_threaded_poll = true;
@@ -203,17 +212,6 @@ Signed-off-by: Sebastian Andrzej Siewior <bigeasy@linutronix.de>
 -			}
 -			skb_defer_free_flush(sd);
 -			local_bh_enable();
-+	for (;;) {
-+		bool repoll = false;
-+		void *have;
- 
--			if (!repoll)
--				break;
-+		local_bh_disable();
-+		sd = this_cpu_ptr(&softnet_data);
-+		sd->in_napi_threaded_poll = true;
- 
--			cond_resched();
 +		have = netpoll_poll_lock(napi);
 +		__napi_poll(napi, &repoll);
 +		netpoll_poll_unlock(have);
@@ -224,13 +222,19 @@ Signed-off-by: Sebastian Andrzej Siewior <bigeasy@linutronix.de>
 +		if (sd_has_rps_ipi_waiting(sd)) {
 +			local_irq_disable();
 +			net_rps_action_and_irq_enable(sd);
- 		}
++		}
 +		skb_defer_free_flush(sd);
 +		local_bh_enable();
-+
+ 
+-			if (!repoll)
+-				break;
 +		if (!repoll)
 +			break;
-+
+ 
+-			rcu_softirq_qs_periodic(last_qs);
+-			cond_resched();
+-		}
++		rcu_softirq_qs_periodic(last_qs);
 +		cond_resched();
  	}
 +}
@@ -245,7 +249,7 @@ Signed-off-by: Sebastian Andrzej Siewior <bigeasy@linutronix.de>
  	return 0;
  }
  
-@@ -11323,7 +11365,7 @@ static int dev_cpu_dead(unsigned int old
+@@ -11326,7 +11367,7 @@ static int dev_cpu_dead(unsigned int old
  
  		list_del_init(&napi->poll_list);
  		if (napi->poll == process_backlog)
@@ -254,7 +258,7 @@ Signed-off-by: Sebastian Andrzej Siewior <bigeasy@linutronix.de>
  		else
  			____napi_schedule(sd, napi);
  	}
-@@ -11331,12 +11373,14 @@ static int dev_cpu_dead(unsigned int old
+@@ -11334,12 +11375,14 @@ static int dev_cpu_dead(unsigned int old
  	raise_softirq_irqoff(NET_TX_SOFTIRQ);
  	local_irq_enable();
  
@@ -273,7 +277,7 @@ Signed-off-by: Sebastian Andrzej Siewior <bigeasy@linutronix.de>
  
  	/* Process offline CPU's input_pkt_queue */
  	while ((skb = __skb_dequeue(&oldsd->process_queue))) {
-@@ -11655,6 +11699,38 @@ static void __init net_dev_struct_check(
+@@ -11659,6 +11702,38 @@ static void __init net_dev_struct_check(
   *
   */
  
@@ -312,7 +316,7 @@ Signed-off-by: Sebastian Andrzej Siewior <bigeasy@linutronix.de>
  /*
   *       This is called single threaded during boot, so no need
   *       to take the rtnl semaphore.
-@@ -11707,7 +11783,10 @@ static int __init net_dev_init(void)
+@@ -11711,7 +11786,10 @@ static int __init net_dev_init(void)
  		init_gro_hash(&sd->backlog);
  		sd->backlog.poll = process_backlog;
  		sd->backlog.weight = weight_p;
