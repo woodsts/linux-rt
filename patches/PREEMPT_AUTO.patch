@@ -665,7 +665,7 @@ Signed-off-by: Sebastian Andrzej Siewior <bigeasy@linutronix.de>
  			return;
  		}
  		hrtick_start(rq, delta);
-@@ -8298,7 +8314,7 @@ static void check_preempt_wakeup_fair(st
+@@ -8304,7 +8320,7 @@ static void check_preempt_wakeup_fair(st
  	 * prevents us from potentially nominating it as a false LAST_BUDDY
  	 * below.
  	 */
@@ -674,7 +674,7 @@ Signed-off-by: Sebastian Andrzej Siewior <bigeasy@linutronix.de>
  		return;
  
  	/* Idle tasks are by definition preempted by non-idle tasks. */
-@@ -8340,7 +8356,7 @@ static void check_preempt_wakeup_fair(st
+@@ -8346,7 +8362,7 @@ static void check_preempt_wakeup_fair(st
  	return;
  
  preempt:
@@ -683,7 +683,7 @@ Signed-off-by: Sebastian Andrzej Siewior <bigeasy@linutronix.de>
  }
  
  #ifdef CONFIG_SMP
-@@ -12510,7 +12526,7 @@ static inline void task_tick_core(struct
+@@ -12516,7 +12532,7 @@ static inline void task_tick_core(struct
  	 */
  	if (rq->core->core_forceidle_count && rq->cfs.nr_running == 1 &&
  	    __entity_slice_used(&curr->se, MIN_NR_TASKS_DURING_FORCEIDLE))
@@ -692,7 +692,7 @@ Signed-off-by: Sebastian Andrzej Siewior <bigeasy@linutronix.de>
  }
  
  /*
-@@ -12675,7 +12691,7 @@ prio_changed_fair(struct rq *rq, struct
+@@ -12681,7 +12697,7 @@ prio_changed_fair(struct rq *rq, struct
  	 */
  	if (task_current(rq, p)) {
  		if (p->prio > oldprio)
