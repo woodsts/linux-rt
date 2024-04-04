@@ -43,7 +43,7 @@ Signed-off-by: Sebastian Andrzej Siewior <bigeasy@linutronix.de>
  
 --- a/kernel/printk/printk.c
 +++ b/kernel/printk/printk.c
-@@ -2947,9 +2947,10 @@ static bool console_flush_all(bool do_co
+@@ -2942,9 +2942,10 @@ static bool console_flush_all(bool do_co
  
  		cookie = console_srcu_read_lock();
  		for_each_console_srcu(con) {
@@ -55,7 +55,7 @@ Signed-off-by: Sebastian Andrzej Siewior <bigeasy@linutronix.de>
  				continue;
  			any_usable = true;
  
-@@ -3819,7 +3820,7 @@ static bool __pr_flush(struct console *c
+@@ -3829,7 +3830,7 @@ static bool __pr_flush(struct console *c
  			 * that they make forward progress, so only increment
  			 * @diff for usable consoles.
  			 */

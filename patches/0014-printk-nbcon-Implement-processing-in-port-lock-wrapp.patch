@@ -76,7 +76,7 @@ Signed-off-by: Sebastian Andrzej Siewior <bigeasy@linutronix.de>
  
 --- a/drivers/tty/serial/serial_core.c
 +++ b/drivers/tty/serial/serial_core.c
-@@ -3145,8 +3145,15 @@ static int serial_core_add_one_port(stru
+@@ -3157,8 +3157,15 @@ static int serial_core_add_one_port(stru
  	state->uart_port = uport;
  	uport->state = state;
  
@@ -93,7 +93,7 @@ Signed-off-by: Sebastian Andrzej Siewior <bigeasy@linutronix.de>
  	uport->minor = drv->tty_driver->minor_start + uport->line;
  	uport->name = kasprintf(GFP_KERNEL, "%s%d", drv->dev_name,
  				drv->tty_driver->name_base + uport->line);
-@@ -3155,13 +3162,6 @@ static int serial_core_add_one_port(stru
+@@ -3167,13 +3174,6 @@ static int serial_core_add_one_port(stru
  		goto out;
  	}
  
@@ -109,7 +109,7 @@ Signed-off-by: Sebastian Andrzej Siewior <bigeasy@linutronix.de>
  
 --- a/include/linux/console.h
 +++ b/include/linux/console.h
-@@ -283,6 +283,25 @@ struct nbcon_write_context {
+@@ -301,6 +301,25 @@ struct nbcon_write_context {
  };
  
  /**
@@ -135,7 +135,7 @@ Signed-off-by: Sebastian Andrzej Siewior <bigeasy@linutronix.de>
   * struct console - The console descriptor structure
   * @name:		The name of the console driver
   * @write:		Legacy write callback to output messages (Optional)
-@@ -396,6 +415,21 @@ struct console {
+@@ -414,6 +433,21 @@ struct console {
  
  	atomic_t		__private nbcon_state;
  	atomic_long_t		__private nbcon_seq;
@@ -157,7 +157,7 @@ Signed-off-by: Sebastian Andrzej Siewior <bigeasy@linutronix.de>
  	struct printk_buffers	*pbufs;
  };
  
-@@ -425,28 +459,29 @@ extern void console_list_unlock(void) __
+@@ -443,28 +477,29 @@ extern void console_list_unlock(void) __
  extern struct hlist_head console_list;
  
  /**
@@ -250,7 +250,7 @@ Signed-off-by: Sebastian Andrzej Siewior <bigeasy@linutronix.de>
  #include <linux/spinlock.h>
  #include <linux/sched.h>
  #include <linux/tty.h>
-@@ -607,12 +610,90 @@ static inline void __uart_port_unlock_ir
+@@ -610,12 +613,90 @@ static inline void __uart_port_unlock_ir
  }
  
  /**
@@ -341,7 +341,7 @@ Signed-off-by: Sebastian Andrzej Siewior <bigeasy@linutronix.de>
  }
  
  /**
-@@ -622,6 +703,7 @@ static inline void uart_port_lock(struct
+@@ -625,6 +706,7 @@ static inline void uart_port_lock(struct
  static inline void uart_port_lock_irq(struct uart_port *up)
  {
  	spin_lock_irq(&up->lock);
@@ -349,7 +349,7 @@ Signed-off-by: Sebastian Andrzej Siewior <bigeasy@linutronix.de>
  }
  
  /**
-@@ -632,6 +714,7 @@ static inline void uart_port_lock_irq(st
+@@ -635,6 +717,7 @@ static inline void uart_port_lock_irq(st
  static inline void uart_port_lock_irqsave(struct uart_port *up, unsigned long *flags)
  {
  	spin_lock_irqsave(&up->lock, *flags);
@@ -357,7 +357,7 @@ Signed-off-by: Sebastian Andrzej Siewior <bigeasy@linutronix.de>
  }
  
  /**
-@@ -642,7 +725,11 @@ static inline void uart_port_lock_irqsav
+@@ -645,7 +728,11 @@ static inline void uart_port_lock_irqsav
   */
  static inline bool uart_port_trylock(struct uart_port *up)
  {
@@ -370,7 +370,7 @@ Signed-off-by: Sebastian Andrzej Siewior <bigeasy@linutronix.de>
  }
  
  /**
-@@ -654,7 +741,11 @@ static inline bool uart_port_trylock(str
+@@ -657,7 +744,11 @@ static inline bool uart_port_trylock(str
   */
  static inline bool uart_port_trylock_irqsave(struct uart_port *up, unsigned long *flags)
  {
@@ -383,7 +383,7 @@ Signed-off-by: Sebastian Andrzej Siewior <bigeasy@linutronix.de>
  }
  
  /**
-@@ -663,6 +754,7 @@ static inline bool uart_port_trylock_irq
+@@ -666,6 +757,7 @@ static inline bool uart_port_trylock_irq
   */
  static inline void uart_port_unlock(struct uart_port *up)
  {
@@ -391,7 +391,7 @@ Signed-off-by: Sebastian Andrzej Siewior <bigeasy@linutronix.de>
  	spin_unlock(&up->lock);
  }
  
-@@ -672,6 +764,7 @@ static inline void uart_port_unlock(stru
+@@ -675,6 +767,7 @@ static inline void uart_port_unlock(stru
   */
  static inline void uart_port_unlock_irq(struct uart_port *up)
  {
@@ -399,7 +399,7 @@ Signed-off-by: Sebastian Andrzej Siewior <bigeasy@linutronix.de>
  	spin_unlock_irq(&up->lock);
  }
  
-@@ -682,6 +775,7 @@ static inline void uart_port_unlock_irq(
+@@ -685,6 +778,7 @@ static inline void uart_port_unlock_irq(
   */
  static inline void uart_port_unlock_irqrestore(struct uart_port *up, unsigned long flags)
  {

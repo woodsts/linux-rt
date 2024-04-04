@@ -181,7 +181,7 @@ Signed-off-by: Sebastian Andrzej Siewior <bigeasy@linutronix.de>
   *
 --- a/kernel/printk/printk.c
 +++ b/kernel/printk/printk.c
-@@ -3177,6 +3177,8 @@ void console_flush_on_panic(enum con_flu
+@@ -3172,6 +3172,8 @@ void console_flush_on_panic(enum con_flu
  		console_srcu_read_unlock(cookie);
  	}
  

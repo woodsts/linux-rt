@@ -33,7 +33,7 @@ Signed-off-by: Sebastian Andrzej Siewior <bigeasy@linutronix.de>
 
 --- a/include/linux/console.h
 +++ b/include/linux/console.h
-@@ -325,6 +325,7 @@ struct nbcon_drvdata {
+@@ -343,6 +343,7 @@ struct nbcon_drvdata {
   *
   * @nbcon_state:	State for nbcon consoles
   * @nbcon_seq:		Sequence number of the next record for nbcon to print
@@ -41,7 +41,7 @@ Signed-off-by: Sebastian Andrzej Siewior <bigeasy@linutronix.de>
   * @pbufs:		Pointer to nbcon private buffer
   * @kthread:		Printer kthread for this console
   * @rcuwait:		RCU-safe wait object for @kthread waking
-@@ -441,6 +442,7 @@ struct console {
+@@ -459,6 +460,7 @@ struct console {
  
  	atomic_t		__private nbcon_state;
  	atomic_long_t		__private nbcon_seq;
@@ -106,7 +106,7 @@ Signed-off-by: Sebastian Andrzej Siewior <bigeasy@linutronix.de>
  }
 --- a/kernel/printk/printk.c
 +++ b/kernel/printk/printk.c
-@@ -2881,6 +2881,25 @@ void console_prepend_dropped(struct prin
+@@ -2876,6 +2876,25 @@ void console_prepend_dropped(struct prin
  }
  
  /*

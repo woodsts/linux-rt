@@ -50,7 +50,7 @@ Signed-off-by: Sebastian Andrzej Siewior <bigeasy@linutronix.de>
  #ifdef CONFIG_PRINTK
  DECLARE_WAIT_QUEUE_HEAD(log_wait);
  /* All 3 protected by @syslog_lock. */
-@@ -2344,7 +2359,7 @@ asmlinkage int vprintk_emit(int facility
+@@ -2339,7 +2354,7 @@ asmlinkage int vprintk_emit(int facility
  	printed_len = vprintk_store(facility, level, dev_info, fmt, args);
  
  	/* If called from the scheduler, we can not call up(). */
@@ -59,7 +59,7 @@ Signed-off-by: Sebastian Andrzej Siewior <bigeasy@linutronix.de>
  		/*
  		 * The caller may be holding system-critical or
  		 * timing-sensitive locks. Disable preemption during
-@@ -2653,7 +2668,7 @@ void resume_console(void)
+@@ -2648,7 +2663,7 @@ void resume_console(void)
   */
  static int console_cpu_notify(unsigned int cpu)
  {
@@ -68,7 +68,7 @@ Signed-off-by: Sebastian Andrzej Siewior <bigeasy@linutronix.de>
  		/* If trylock fails, someone else is doing the printing */
  		if (console_trylock())
  			console_unlock();
-@@ -3194,7 +3209,8 @@ void console_flush_on_panic(enum con_flu
+@@ -3189,7 +3204,8 @@ void console_flush_on_panic(enum con_flu
  
  	nbcon_atomic_flush_pending();
  
@@ -78,7 +78,7 @@ Signed-off-by: Sebastian Andrzej Siewior <bigeasy@linutronix.de>
  }
  
  /*
-@@ -3531,6 +3547,8 @@ void register_console(struct console *ne
+@@ -3541,6 +3557,8 @@ void register_console(struct console *ne
  		 */
  		nbcon_seq_force(newcon, newcon->seq);
  		newcon->seq = 0;
@@ -87,7 +87,7 @@ Signed-off-by: Sebastian Andrzej Siewior <bigeasy@linutronix.de>
  	}
  
  	if (newcon->flags & CON_BOOT)
-@@ -3605,6 +3623,7 @@ EXPORT_SYMBOL(register_console);
+@@ -3615,6 +3633,7 @@ EXPORT_SYMBOL(register_console);
  /* Must be called under console_list_lock(). */
  static int unregister_console_locked(struct console *console)
  {
@@ -95,7 +95,7 @@ Signed-off-by: Sebastian Andrzej Siewior <bigeasy@linutronix.de>
  	bool found_boot_con = false;
  	struct console *c;
  	int res;
-@@ -3661,9 +3680,13 @@ static int unregister_console_locked(str
+@@ -3671,9 +3690,13 @@ static int unregister_console_locked(str
  	for_each_console(c) {
  		if (c->flags & CON_BOOT)
  			found_boot_con = true;
@@ -109,7 +109,7 @@ Signed-off-by: Sebastian Andrzej Siewior <bigeasy@linutronix.de>
  
  	return res;
  }
-@@ -3824,22 +3847,34 @@ static bool __pr_flush(struct console *c
+@@ -3834,22 +3857,34 @@ static bool __pr_flush(struct console *c
  	seq = prb_next_reserve_seq(prb);
  
  	/* Flush the consoles so that records up to @seq are printed. */
@@ -153,7 +153,7 @@ Signed-off-by: Sebastian Andrzej Siewior <bigeasy@linutronix.de>
  
  		cookie = console_srcu_read_lock();
  		for_each_console_srcu(c) {
-@@ -3859,6 +3894,7 @@ static bool __pr_flush(struct console *c
+@@ -3869,6 +3904,7 @@ static bool __pr_flush(struct console *c
  			if (flags & CON_NBCON) {
  				printk_seq = nbcon_seq_read(c);
  			} else {
@@ -161,7 +161,7 @@ Signed-off-by: Sebastian Andrzej Siewior <bigeasy@linutronix.de>
  				printk_seq = c->seq;
  			}
  
-@@ -3870,7 +3906,8 @@ static bool __pr_flush(struct console *c
+@@ -3880,7 +3916,8 @@ static bool __pr_flush(struct console *c
  		if (diff != last_diff && reset_on_progress)
  			remaining_jiffies = timeout_jiffies;
  
@@ -171,7 +171,7 @@ Signed-off-by: Sebastian Andrzej Siewior <bigeasy@linutronix.de>
  
  		/* Note: @diff is 0 if there are no usable consoles. */
  		if (diff == 0 || remaining_jiffies == 0)
-@@ -3940,6 +3977,7 @@ static void __wake_up_klogd(int val)
+@@ -3950,6 +3987,7 @@ static void __wake_up_klogd(int val)
  		return;
  
  	preempt_disable();
@@ -179,7 +179,7 @@ Signed-off-by: Sebastian Andrzej Siewior <bigeasy@linutronix.de>
  	/*
  	 * Guarantee any new records can be seen by tasks preparing to wait
  	 * before this context checks if the wait queue is empty.
-@@ -3951,11 +3989,22 @@ static void __wake_up_klogd(int val)
+@@ -3961,11 +3999,22 @@ static void __wake_up_klogd(int val)
  	 *
  	 * This pairs with devkmsg_read:A and syslog_print:A.
  	 */

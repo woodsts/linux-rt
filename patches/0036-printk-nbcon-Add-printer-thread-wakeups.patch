@@ -33,7 +33,7 @@ Signed-off-by: Sebastian Andrzej Siewior <bigeasy@linutronix.de>
  #include <linux/rculist.h>
  #include <linux/rcuwait.h>
  #include <linux/types.h>
-@@ -327,6 +328,7 @@ struct nbcon_drvdata {
+@@ -345,6 +346,7 @@ struct nbcon_drvdata {
   * @pbufs:		Pointer to nbcon private buffer
   * @kthread:		Printer kthread for this console
   * @rcuwait:		RCU-safe wait object for @kthread waking
@@ -41,7 +41,7 @@ Signed-off-by: Sebastian Andrzej Siewior <bigeasy@linutronix.de>
   */
  struct console {
  	char			name[16];
-@@ -457,6 +459,7 @@ struct console {
+@@ -475,6 +477,7 @@ struct console {
  	struct printk_buffers	*pbufs;
  	struct task_struct	*kthread;
  	struct rcuwait		rcuwait;
@@ -133,7 +133,7 @@ Signed-off-by: Sebastian Andrzej Siewior <bigeasy@linutronix.de>
  }
 --- a/kernel/printk/printk.c
 +++ b/kernel/printk/printk.c
-@@ -2415,6 +2415,8 @@ asmlinkage int vprintk_emit(int facility
+@@ -2410,6 +2410,8 @@ asmlinkage int vprintk_emit(int facility
  		}
  	}
  
@@ -142,7 +142,7 @@ Signed-off-by: Sebastian Andrzej Siewior <bigeasy@linutronix.de>
  	if (do_trylock_unlock) {
  		/*
  		 * The caller may be holding system-critical or
-@@ -2721,6 +2723,10 @@ void resume_console(void)
+@@ -2716,6 +2718,10 @@ void resume_console(void)
  	 */
  	synchronize_srcu(&console_srcu);
  
@@ -153,7 +153,7 @@ Signed-off-by: Sebastian Andrzej Siewior <bigeasy@linutronix.de>
  	cookie = console_srcu_read_lock();
  	for_each_console_srcu(con) {
  		flags = console_srcu_read_flags(con);
-@@ -4151,6 +4157,7 @@ void defer_console_output(void)
+@@ -4161,6 +4167,7 @@ void defer_console_output(void)
  
  void printk_trigger_flush(void)
  {

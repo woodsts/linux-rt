@@ -26,7 +26,7 @@ Signed-off-by: Sebastian Andrzej Siewior <bigeasy@linutronix.de>
 
 --- a/kernel/time/timer.c
 +++ b/kernel/time/timer.c
-@@ -1470,9 +1470,16 @@ static inline void timer_base_unlock_exp
+@@ -1563,9 +1563,16 @@ static inline void timer_base_unlock_exp
   */
  static void timer_sync_wait_running(struct timer_base *base)
  {

@@ -34,7 +34,7 @@ Signed-off-by: Sebastian Andrzej Siewior <bigeasy@linutronix.de>
 
 --- a/Documentation/admin-guide/kernel-parameters.txt
 +++ b/Documentation/admin-guide/kernel-parameters.txt
-@@ -6508,6 +6508,18 @@
+@@ -6538,6 +6538,18 @@
  			Force threading of all interrupt handlers except those
  			marked explicitly IRQF_NO_THREAD.
  
@@ -50,7 +50,7 @@ Signed-off-by: Sebastian Andrzej Siewior <bigeasy@linutronix.de>
 +			driver is legacy or not. Non-legacy (NBCON) console
 +			drivers are already threaded and are shown with 'N'.
 +
- 	topology=	[S390]
+ 	topology=	[S390,EARLY]
  			Format: {off | on}
  			Specify if the kernel should make use of the cpu
 --- a/kernel/printk/internal.h

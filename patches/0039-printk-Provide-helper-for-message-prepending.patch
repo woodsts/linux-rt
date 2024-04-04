@@ -14,7 +14,7 @@ Signed-off-by: Sebastian Andrzej Siewior <bigeasy@linutronix.de>
 
 --- a/kernel/printk/printk.c
 +++ b/kernel/printk/printk.c
-@@ -2819,30 +2819,25 @@ static void __console_unlock(void)
+@@ -2814,30 +2814,25 @@ static void __console_unlock(void)
  #ifdef CONFIG_PRINTK
  
  /*
@@ -51,7 +51,7 @@ Signed-off-by: Sebastian Andrzej Siewior <bigeasy@linutronix.de>
  
  	/*
  	 * Make sure outbuf is sufficiently large before prepending.
-@@ -2865,6 +2860,27 @@ void console_prepend_dropped(struct prin
+@@ -2860,6 +2855,27 @@ void console_prepend_dropped(struct prin
  }
  
  /*

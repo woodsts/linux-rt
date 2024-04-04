@@ -30,7 +30,7 @@ Signed-off-by: Sebastian Andrzej Siewior <bigeasy@linutronix.de>
 
 --- a/kernel/printk/printk.c
 +++ b/kernel/printk/printk.c
-@@ -2985,6 +2985,33 @@ bool printk_get_next_message(struct prin
+@@ -2980,6 +2980,33 @@ bool printk_get_next_message(struct prin
  }
  
  /*
@@ -64,7 +64,7 @@ Signed-off-by: Sebastian Andrzej Siewior <bigeasy@linutronix.de>
   * Used as the printk buffers for non-panic, serialized console printing.
   * This is for legacy (!CON_NBCON) as well as all boot (CON_BOOT) consoles.
   * Its usage requires the console_lock held.
-@@ -3039,7 +3066,7 @@ static bool console_emit_next_record(str
+@@ -3034,7 +3061,7 @@ static bool console_emit_next_record(str
  		/*
  		 * With forced threading this function is either in a thread
  		 * or panic context. So there is no need for concern about
@@ -73,7 +73,7 @@ Signed-off-by: Sebastian Andrzej Siewior <bigeasy@linutronix.de>
  		 */
  
  		con->write(con, outbuf, pmsg.outbuf_len);
-@@ -3061,7 +3088,9 @@ static bool console_emit_next_record(str
+@@ -3056,7 +3083,9 @@ static bool console_emit_next_record(str
  		/* Do not trace print latency. */
  		stop_critical_timings();
  

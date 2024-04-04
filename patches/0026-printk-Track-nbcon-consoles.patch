@@ -26,7 +26,7 @@ Signed-off-by: Sebastian Andrzej Siewior <bigeasy@linutronix.de>
   * Specifies if a boot console is registered. If boot consoles are present,
   * nbcon consoles cannot print simultaneously and must be synchronized by
   * the console lock. This is because boot consoles and nbcon consoles may
-@@ -3538,6 +3543,7 @@ void register_console(struct console *ne
+@@ -3548,6 +3553,7 @@ void register_console(struct console *ne
  	console_init_seq(newcon, bootcon_registered);
  
  	if (newcon->flags & CON_NBCON) {
@@ -34,7 +34,7 @@ Signed-off-by: Sebastian Andrzej Siewior <bigeasy@linutronix.de>
  		nbcon_init(newcon);
  
  		/*
-@@ -3624,6 +3630,7 @@ EXPORT_SYMBOL(register_console);
+@@ -3634,6 +3640,7 @@ EXPORT_SYMBOL(register_console);
  static int unregister_console_locked(struct console *console)
  {
  	bool found_legacy_con = false;
@@ -42,7 +42,7 @@ Signed-off-by: Sebastian Andrzej Siewior <bigeasy@linutronix.de>
  	bool found_boot_con = false;
  	struct console *c;
  	int res;
-@@ -3680,13 +3687,18 @@ static int unregister_console_locked(str
+@@ -3690,13 +3697,18 @@ static int unregister_console_locked(str
  	for_each_console(c) {
  		if (c->flags & CON_BOOT)
  			found_boot_con = true;

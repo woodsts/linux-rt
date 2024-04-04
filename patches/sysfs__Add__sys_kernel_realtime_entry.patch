@@ -24,9 +24,9 @@ Signed-off-by: Thomas Gleixner <tglx@linutronix.de>
 ---
 --- a/kernel/ksysfs.c
 +++ b/kernel/ksysfs.c
-@@ -179,6 +179,15 @@ KERNEL_ATTR_RO(crash_elfcorehdr_size);
+@@ -181,6 +181,15 @@ KERNEL_ATTR_RO(crash_elfcorehdr_size);
  
- #endif /* CONFIG_CRASH_CORE */
+ #endif /* CONFIG_VMCORE_INFO */
  
 +#if defined(CONFIG_PREEMPT_RT)
 +static ssize_t realtime_show(struct kobject *kobj,
@@ -40,7 +40,7 @@ Signed-off-by: Thomas Gleixner <tglx@linutronix.de>
  /* whether file capabilities are enabled */
  static ssize_t fscaps_show(struct kobject *kobj,
  				  struct kobj_attribute *attr, char *buf)
-@@ -275,6 +284,9 @@ static struct attribute * kernel_attrs[]
+@@ -279,6 +288,9 @@ static struct attribute * kernel_attrs[]
  	&rcu_expedited_attr.attr,
  	&rcu_normal_attr.attr,
  #endif

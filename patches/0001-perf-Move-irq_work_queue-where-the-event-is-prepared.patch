@@ -23,7 +23,7 @@ Signed-off-by: Sebastian Andrzej Siewior <bigeasy@linutronix.de>
 
 --- a/kernel/events/core.c
 +++ b/kernel/events/core.c
-@@ -9595,6 +9595,7 @@ static int __perf_event_overflow(struct
+@@ -9591,6 +9591,7 @@ static int __perf_event_overflow(struct
  		if (!event->pending_sigtrap) {
  			event->pending_sigtrap = pending_id;
  			local_inc(&event->ctx->nr_pending);
@@ -31,7 +31,7 @@ Signed-off-by: Sebastian Andrzej Siewior <bigeasy@linutronix.de>
  		} else if (event->attr.exclude_kernel && valid_sample) {
  			/*
  			 * Should not be able to return to user space without
-@@ -9614,7 +9615,6 @@ static int __perf_event_overflow(struct
+@@ -9610,7 +9611,6 @@ static int __perf_event_overflow(struct
  		event->pending_addr = 0;
  		if (valid_sample && (data->sample_flags & PERF_SAMPLE_ADDR))
  			event->pending_addr = data->addr;

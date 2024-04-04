@@ -44,7 +44,7 @@ Signed-off-by: Sebastian Andrzej Siewior <bigeasy@linutronix.de>
 
 --- a/include/linux/console.h
 +++ b/include/linux/console.h
-@@ -559,10 +559,14 @@ static inline bool console_is_registered
+@@ -577,10 +577,14 @@ static inline bool console_is_registered
  	hlist_for_each_entry(con, &console_list, node)
  
  #ifdef CONFIG_PRINTK
@@ -170,7 +170,7 @@ Signed-off-by: Sebastian Andrzej Siewior <bigeasy@linutronix.de>
   *
 --- a/kernel/printk/printk.c
 +++ b/kernel/printk/printk.c
-@@ -2417,16 +2417,25 @@ asmlinkage int vprintk_emit(int facility
+@@ -2412,16 +2412,25 @@ asmlinkage int vprintk_emit(int facility
  		 * printing of all remaining records to all consoles so that
  		 * this context can return as soon as possible. Hopefully
  		 * another printk() caller will take over the printing.

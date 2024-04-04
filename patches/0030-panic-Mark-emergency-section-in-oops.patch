@@ -20,7 +20,7 @@ Signed-off-by: Sebastian Andrzej Siewior <bigeasy@linutronix.de>
 
 --- a/kernel/panic.c
 +++ b/kernel/panic.c
-@@ -634,6 +634,7 @@ bool oops_may_print(void)
+@@ -638,6 +638,7 @@ bool oops_may_print(void)
   */
  void oops_enter(void)
  {
@@ -28,7 +28,7 @@ Signed-off-by: Sebastian Andrzej Siewior <bigeasy@linutronix.de>
  	tracing_off();
  	/* can't trust the integrity of the kernel anymore: */
  	debug_locks_off();
-@@ -656,6 +657,7 @@ void oops_exit(void)
+@@ -660,6 +661,7 @@ void oops_exit(void)
  {
  	do_oops_enter_exit();
  	print_oops_end_marker();

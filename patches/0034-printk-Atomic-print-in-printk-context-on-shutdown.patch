@@ -18,7 +18,7 @@ Signed-off-by: Sebastian Andrzej Siewior <bigeasy@linutronix.de>
 
 --- a/kernel/printk/printk.c
 +++ b/kernel/printk/printk.c
-@@ -2402,12 +2402,17 @@ asmlinkage int vprintk_emit(int facility
+@@ -2397,12 +2397,17 @@ asmlinkage int vprintk_emit(int facility
  		 *
  		 * - When this CPU is in panic.
  		 *

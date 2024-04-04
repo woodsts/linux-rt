@@ -16,7 +16,7 @@ Signed-off-by: Sebastian Andrzej Siewior <bigeasy@linutronix.de>
 
 --- a/include/linux/console.h
 +++ b/include/linux/console.h
-@@ -285,7 +285,7 @@ struct nbcon_write_context {
+@@ -303,7 +303,7 @@ struct nbcon_write_context {
  /**
   * struct console - The console descriptor structure
   * @name:		The name of the console driver
@@ -25,7 +25,7 @@ Signed-off-by: Sebastian Andrzej Siewior <bigeasy@linutronix.de>
   * @read:		Read callback for console input (Optional)
   * @device:		The underlying TTY device driver (Optional)
   * @unblank:		Callback to unblank the console (Optional)
-@@ -302,7 +302,6 @@ struct nbcon_write_context {
+@@ -320,7 +320,6 @@ struct nbcon_write_context {
   * @data:		Driver private data
   * @node:		hlist node for the console list
   *
@@ -33,7 +33,7 @@ Signed-off-by: Sebastian Andrzej Siewior <bigeasy@linutronix.de>
   * @nbcon_state:	State for nbcon consoles
   * @nbcon_seq:		Sequence number of the next record for nbcon to print
   * @pbufs:		Pointer to nbcon private buffer
-@@ -327,8 +326,32 @@ struct console {
+@@ -345,8 +344,32 @@ struct console {
  	struct hlist_node	node;
  
  	/* nbcon console specific members */

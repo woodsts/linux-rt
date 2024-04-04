@@ -26,7 +26,7 @@ Signed-off-by: Sebastian Andrzej Siewior <bigeasy@linutronix.de>
 
 --- a/kernel/printk/printk.c
 +++ b/kernel/printk/printk.c
-@@ -3453,6 +3453,7 @@ void register_console(struct console *ne
+@@ -3463,6 +3463,7 @@ void register_console(struct console *ne
  	struct console *con;
  	bool bootcon_registered = false;
  	bool realcon_registered = false;
@@ -34,7 +34,7 @@ Signed-off-by: Sebastian Andrzej Siewior <bigeasy@linutronix.de>
  	int err;
  
  	console_list_lock();
-@@ -3545,6 +3546,19 @@ void register_console(struct console *ne
+@@ -3555,6 +3556,19 @@ void register_console(struct console *ne
  	}
  
  	/*
@@ -54,7 +54,7 @@ Signed-off-by: Sebastian Andrzej Siewior <bigeasy@linutronix.de>
  	 * Put this console in the list - keep the
  	 * preferred driver at the head of the list.
  	 */
-@@ -3568,6 +3582,10 @@ void register_console(struct console *ne
+@@ -3578,6 +3592,10 @@ void register_console(struct console *ne
  	 * register_console() completes.
  	 */
  

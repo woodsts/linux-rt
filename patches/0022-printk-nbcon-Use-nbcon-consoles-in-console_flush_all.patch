@@ -146,7 +146,7 @@ Signed-off-by: Sebastian Andrzej Siewior <bigeasy@linutronix.de>
   * @con:			The nbcon console to flush
 --- a/kernel/printk/printk.c
 +++ b/kernel/printk/printk.c
-@@ -1871,7 +1871,7 @@ static bool console_waiter;
+@@ -1860,7 +1860,7 @@ static bool console_waiter;
   * there may be a waiter spinning (like a spinlock). Also it must be
   * ready to hand over the lock at the end of the section.
   */
@@ -155,7 +155,7 @@ Signed-off-by: Sebastian Andrzej Siewior <bigeasy@linutronix.de>
  {
  	/*
  	 * Do not use spinning in panic(). The panic CPU wants to keep the lock.
-@@ -1910,7 +1910,7 @@ static void console_lock_spinning_enable
+@@ -1899,7 +1899,7 @@ static void console_lock_spinning_enable
   *
   * Return: 1 if the lock rights were passed, 0 otherwise.
   */
@@ -164,7 +164,7 @@ Signed-off-by: Sebastian Andrzej Siewior <bigeasy@linutronix.de>
  {
  	int waiter;
  
-@@ -2956,13 +2956,20 @@ static bool console_flush_all(bool do_co
+@@ -2951,13 +2951,20 @@ static bool console_flush_all(bool do_co
  		cookie = console_srcu_read_lock();
  		for_each_console_srcu(con) {
  			short flags = console_srcu_read_flags(con);
@@ -186,7 +186,7 @@ Signed-off-by: Sebastian Andrzej Siewior <bigeasy@linutronix.de>
  
  			/*
  			 * If a handover has occurred, the SRCU read lock
-@@ -2972,8 +2979,8 @@ static bool console_flush_all(bool do_co
+@@ -2967,8 +2974,8 @@ static bool console_flush_all(bool do_co
  				return false;
  
  			/* Track the next of the highest seq flushed. */

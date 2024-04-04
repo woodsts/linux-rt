@@ -1,0 +1,67 @@
+From: Sebastian Andrzej Siewior <bigeasy@linutronix.de>
+Date: Tue, 19 Mar 2024 19:20:50 +0100
+Subject: [PATCH] Locking: Let PREEMPT_RT compile again with new rwsem asserts.
+
+The commit cited below broke the build for PREEMPT_RT because
+rwsem_assert_held_write_nolockdep() passes a struct rw_semaphore but
+rw_base_assert_held_write() expects struct rwbase_rt. Fixing the type
+alone leads to the problem that WARN_ON() is not found because bug.h is
+missing.
+
+In order to resolve this:
+- Keep the assert (WARN_ON()) in rwsem.h (not rwbase_rt.h)
+- Make rwsem_assert_held_write_nolockdep() do the implementation
+  specific (rw_base) writer check.
+- Replace the "inline" with __always_inline which was used before.
+
+Fixes: f70405afc99b1 ("locking: Add rwsem_assert_held() and rwsem_assert_held_write()")
+Reported-by: Clark Williams <williams@redhat.com>
+Reviewed-by: Waiman Long <longman@redhat.com>
+Link: https://lore.kernel.org/r/20240319182050.U4AzUF3I@linutronix.de
+Signed-off-by: Sebastian Andrzej Siewior <bigeasy@linutronix.de>
+---
+ include/linux/rwbase_rt.h | 4 ++--
+ include/linux/rwsem.h     | 6 +++---
+ 2 files changed, 5 insertions(+), 5 deletions(-)
+
+diff --git a/include/linux/rwbase_rt.h b/include/linux/rwbase_rt.h
+index 29c4e4f243e47..f2394a409c9d5 100644
+--- a/include/linux/rwbase_rt.h
++++ b/include/linux/rwbase_rt.h
+@@ -31,9 +31,9 @@ static __always_inline bool rw_base_is_locked(const struct rwbase_rt *rwb)
+ 	return atomic_read(&rwb->readers) != READER_BIAS;
+ }
+ 
+-static inline void rw_base_assert_held_write(const struct rwbase_rt *rwb)
++static __always_inline bool rw_base_is_write_locked(const struct rwbase_rt *rwb)
+ {
+-	WARN_ON(atomic_read(&rwb->readers) != WRITER_BIAS);
++	return atomic_read(&rwb->readers) == WRITER_BIAS;
+ }
+ 
+ static __always_inline bool rw_base_is_contended(const struct rwbase_rt *rwb)
+diff --git a/include/linux/rwsem.h b/include/linux/rwsem.h
+index 4f1c18992f768..c8b543d428b0a 100644
+--- a/include/linux/rwsem.h
++++ b/include/linux/rwsem.h
+@@ -167,14 +167,14 @@ static __always_inline int rwsem_is_locked(const struct rw_semaphore *sem)
+ 	return rw_base_is_locked(&sem->rwbase);
+ }
+ 
+-static inline void rwsem_assert_held_nolockdep(const struct rw_semaphore *sem)
++static __always_inline void rwsem_assert_held_nolockdep(const struct rw_semaphore *sem)
+ {
+ 	WARN_ON(!rwsem_is_locked(sem));
+ }
+ 
+-static inline void rwsem_assert_held_write_nolockdep(const struct rw_semaphore *sem)
++static __always_inline void rwsem_assert_held_write_nolockdep(const struct rw_semaphore *sem)
+ {
+-	rw_base_assert_held_write(sem);
++	WARN_ON(!rw_base_is_write_locked(&sem->rwbase));
+ }
+ 
+ static __always_inline int rwsem_is_contended(struct rw_semaphore *sem)
+-- 
+2.43.0
+

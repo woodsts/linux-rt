@@ -32,7 +32,7 @@ Signed-off-by: Sebastian Andrzej Siewior <bigeasy@linutronix.de>
 
 --- a/include/linux/console.h
 +++ b/include/linux/console.h
-@@ -371,6 +371,11 @@ struct console {
+@@ -389,6 +389,11 @@ struct console {
  	 * functions are also points of possible ownership transfer. If
  	 * either function returns false, ownership has been lost.
  	 *
@@ -44,7 +44,7 @@ Signed-off-by: Sebastian Andrzej Siewior <bigeasy@linutronix.de>
  	 * This callback can be called from any context (including NMI).
  	 * Therefore it must avoid usage of any locking and instead rely
  	 * on the console ownership for synchronization.
-@@ -595,12 +600,14 @@ extern void nbcon_cpu_emergency_exit(voi
+@@ -613,12 +618,14 @@ extern void nbcon_cpu_emergency_exit(voi
  extern bool nbcon_can_proceed(struct nbcon_write_context *wctxt);
  extern bool nbcon_enter_unsafe(struct nbcon_write_context *wctxt);
  extern bool nbcon_exit_unsafe(struct nbcon_write_context *wctxt);

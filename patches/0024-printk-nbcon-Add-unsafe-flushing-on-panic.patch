@@ -43,7 +43,7 @@ Signed-off-by: Sebastian Andrzej Siewior <bigeasy@linutronix.de>
  bool this_cpu_in_panic(void);
 --- a/kernel/panic.c
 +++ b/kernel/panic.c
-@@ -453,6 +453,7 @@ void panic(const char *fmt, ...)
+@@ -457,6 +457,7 @@ void panic(const char *fmt, ...)
  	 * Explicitly flush the kernel log buffer one last time.
  	 */
  	console_flush_on_panic(CONSOLE_FLUSH_PENDING);

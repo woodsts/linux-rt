@@ -20,7 +20,7 @@ Signed-off-by: Sebastian Andrzej Siewior <bigeasy@linutronix.de>
 
 --- a/include/linux/console.h
 +++ b/include/linux/console.h
-@@ -352,6 +352,48 @@ struct console {
+@@ -370,6 +370,48 @@ struct console {
  	 */
  	void (*write_atomic)(struct console *con, struct nbcon_write_context *wctxt);
  

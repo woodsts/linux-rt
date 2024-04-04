@@ -47,7 +47,7 @@ Signed-off-by: Sebastian Andrzej Siewior <bigeasy@linutronix.de>
  }
 --- a/kernel/panic.c
 +++ b/kernel/panic.c
-@@ -364,6 +364,8 @@ void panic(const char *fmt, ...)
+@@ -368,6 +368,8 @@ void panic(const char *fmt, ...)
  
  	panic_other_cpus_shutdown(_crash_kexec_post_notifiers);
  
@@ -69,7 +69,7 @@ Signed-off-by: Sebastian Andrzej Siewior <bigeasy@linutronix.de>
   */
  static bool have_nbcon_console;
  
-@@ -2335,12 +2337,29 @@ int vprintk_store(int facility, int leve
+@@ -2330,12 +2332,29 @@ int vprintk_store(int facility, int leve
  	return ret;
  }
  
@@ -100,7 +100,7 @@ Signed-off-by: Sebastian Andrzej Siewior <bigeasy@linutronix.de>
  
  	/* Suppress unimportant messages after panic happens */
  	if (unlikely(suppress_printk))
-@@ -2356,15 +2375,42 @@ asmlinkage int vprintk_emit(int facility
+@@ -2351,15 +2370,42 @@ asmlinkage int vprintk_emit(int facility
  
  	if (level == LOGLEVEL_SCHED) {
  		level = LOGLEVEL_DEFAULT;
@@ -146,7 +146,7 @@ Signed-off-by: Sebastian Andrzej Siewior <bigeasy@linutronix.de>
  		/*
  		 * The caller may be holding system-critical or
  		 * timing-sensitive locks. Disable preemption during
-@@ -2384,10 +2430,10 @@ asmlinkage int vprintk_emit(int facility
+@@ -2379,10 +2425,10 @@ asmlinkage int vprintk_emit(int facility
  		preempt_enable();
  	}
  

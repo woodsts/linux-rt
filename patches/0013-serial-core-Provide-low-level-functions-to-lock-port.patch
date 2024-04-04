@@ -20,7 +20,7 @@ Signed-off-by: Sebastian Andrzej Siewior <bigeasy@linutronix.de>
 
 --- a/include/linux/serial_core.h
 +++ b/include/linux/serial_core.h
-@@ -588,6 +588,24 @@ struct uart_port {
+@@ -591,6 +591,24 @@ struct uart_port {
  	void			*private_data;		/* generic platform data pointer */
  };
  

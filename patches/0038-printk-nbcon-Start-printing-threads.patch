@@ -90,7 +90,7 @@ Signed-off-by: Sebastian Andrzej Siewior <bigeasy@linutronix.de>
  /**
 --- a/kernel/printk/printk.c
 +++ b/kernel/printk/printk.c
-@@ -2402,6 +2402,9 @@ asmlinkage int vprintk_emit(int facility
+@@ -2397,6 +2397,9 @@ asmlinkage int vprintk_emit(int facility
  		 *
  		 * - When this CPU is in panic.
  		 *
@@ -100,7 +100,7 @@ Signed-off-by: Sebastian Andrzej Siewior <bigeasy@linutronix.de>
  		 * - During shutdown, since the printing threads may not get
  		 *   a chance to print the final messages.
  		 *
-@@ -2410,6 +2413,7 @@ asmlinkage int vprintk_emit(int facility
+@@ -2405,6 +2408,7 @@ asmlinkage int vprintk_emit(int facility
  		 * consoles cannot print simultaneously with boot consoles.
  		 */
  		if (is_panic_context ||
@@ -108,7 +108,7 @@ Signed-off-by: Sebastian Andrzej Siewior <bigeasy@linutronix.de>
  		    (system_state > SYSTEM_RUNNING)) {
  			nbcon_atomic_flush_pending();
  		}
-@@ -3726,6 +3730,7 @@ EXPORT_SYMBOL(register_console);
+@@ -3736,6 +3740,7 @@ EXPORT_SYMBOL(register_console);
  /* Must be called under console_list_lock(). */
  static int unregister_console_locked(struct console *console)
  {
@@ -116,7 +116,7 @@ Signed-off-by: Sebastian Andrzej Siewior <bigeasy@linutronix.de>
  	bool found_legacy_con = false;
  	bool found_nbcon_con = false;
  	bool found_boot_con = false;
-@@ -3797,6 +3802,15 @@ static int unregister_console_locked(str
+@@ -3807,6 +3812,15 @@ static int unregister_console_locked(str
  	if (!found_nbcon_con)
  		have_nbcon_console = found_nbcon_con;
  

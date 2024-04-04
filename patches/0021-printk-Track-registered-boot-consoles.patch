@@ -39,7 +39,7 @@ Signed-off-by: Sebastian Andrzej Siewior <bigeasy@linutronix.de>
  #ifdef CONFIG_PRINTK
  DECLARE_WAIT_QUEUE_HEAD(log_wait);
  /* All 3 protected by @syslog_lock. */
-@@ -3518,6 +3526,9 @@ void register_console(struct console *ne
+@@ -3528,6 +3536,9 @@ void register_console(struct console *ne
  		newcon->seq = 0;
  	}
  
@@ -49,7 +49,7 @@ Signed-off-by: Sebastian Andrzej Siewior <bigeasy@linutronix.de>
  	/*
  	 * If another context is actively using the hardware of this new
  	 * console, it will not be aware of the nbcon synchronization. This
-@@ -3587,6 +3598,8 @@ EXPORT_SYMBOL(register_console);
+@@ -3597,6 +3608,8 @@ EXPORT_SYMBOL(register_console);
  /* Must be called under console_list_lock(). */
  static int unregister_console_locked(struct console *console)
  {
@@ -58,7 +58,7 @@ Signed-off-by: Sebastian Andrzej Siewior <bigeasy@linutronix.de>
  	int res;
  
  	lockdep_assert_console_list_lock_held();
-@@ -3634,6 +3647,17 @@ static int unregister_console_locked(str
+@@ -3644,6 +3657,17 @@ static int unregister_console_locked(str
  	if (console->exit)
  		res = console->exit(console);
  

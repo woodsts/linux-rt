@@ -212,7 +212,7 @@ Signed-off-by: Sebastian Andrzej Siewior <bigeasy@linutronix.de>
  /* All 3 protected by @syslog_lock. */
  /* the next printk record to read by syslog(READ) or /proc/kmsg */
  static u64 syslog_seq;
-@@ -2358,7 +2353,8 @@ asmlinkage int vprintk_emit(int facility
+@@ -2353,7 +2348,8 @@ asmlinkage int vprintk_emit(int facility
  			    const struct dev_printk_info *dev_info,
  			    const char *fmt, va_list args)
  {
@@ -222,7 +222,7 @@ Signed-off-by: Sebastian Andrzej Siewior <bigeasy@linutronix.de>
  	int printed_len;
  
  	/* Suppress unimportant messages after panic happens */
-@@ -2481,6 +2477,14 @@ EXPORT_SYMBOL(_printk);
+@@ -2476,6 +2472,14 @@ EXPORT_SYMBOL(_printk);
  static bool pr_flush(int timeout_ms, bool reset_on_progress);
  static bool __pr_flush(struct console *con, int timeout_ms, bool reset_on_progress);
  
@@ -237,7 +237,7 @@ Signed-off-by: Sebastian Andrzej Siewior <bigeasy@linutronix.de>
  #else /* CONFIG_PRINTK */
  
  #define printk_time		false
-@@ -2494,6 +2498,8 @@ static u64 syslog_seq;
+@@ -2489,6 +2493,8 @@ static u64 syslog_seq;
  static bool pr_flush(int timeout_ms, bool reset_on_progress) { return true; }
  static bool __pr_flush(struct console *con, int timeout_ms, bool reset_on_progress) { return true; }
  
@@ -246,7 +246,7 @@ Signed-off-by: Sebastian Andrzej Siewior <bigeasy@linutronix.de>
  #endif /* CONFIG_PRINTK */
  
  #ifdef CONFIG_EARLY_PRINTK
-@@ -2739,6 +2745,8 @@ void resume_console(void)
+@@ -2734,6 +2740,8 @@ void resume_console(void)
  	}
  	console_srcu_read_unlock(cookie);
  
@@ -255,7 +255,7 @@ Signed-off-by: Sebastian Andrzej Siewior <bigeasy@linutronix.de>
  	pr_flush(1000, true);
  }
  
-@@ -2753,7 +2761,8 @@ void resume_console(void)
+@@ -2748,7 +2756,8 @@ void resume_console(void)
   */
  static int console_cpu_notify(unsigned int cpu)
  {
@@ -265,7 +265,7 @@ Signed-off-by: Sebastian Andrzej Siewior <bigeasy@linutronix.de>
  		/* If trylock fails, someone else is doing the printing */
  		if (console_trylock())
  			console_unlock();
-@@ -3013,31 +3022,43 @@ static bool console_emit_next_record(str
+@@ -3008,31 +3017,43 @@ static bool console_emit_next_record(str
  		con->dropped = 0;
  	}
  
@@ -329,7 +329,7 @@ Signed-off-by: Sebastian Andrzej Siewior <bigeasy@linutronix.de>
  skip:
  	return true;
  }
-@@ -3101,12 +3122,13 @@ static bool console_flush_all(bool do_co
+@@ -3096,12 +3117,13 @@ static bool console_flush_all(bool do_co
  			if ((flags & CON_NBCON) && con->kthread)
  				continue;
  
@@ -345,7 +345,7 @@ Signed-off-by: Sebastian Andrzej Siewior <bigeasy@linutronix.de>
  				printk_seq = nbcon_seq_read(con);
  			} else {
  				progress = console_emit_next_record(con, handover, cookie);
-@@ -3145,19 +3167,7 @@ static bool console_flush_all(bool do_co
+@@ -3140,19 +3162,7 @@ static bool console_flush_all(bool do_co
  	return false;
  }
  
@@ -366,7 +366,7 @@ Signed-off-by: Sebastian Andrzej Siewior <bigeasy@linutronix.de>
  {
  	bool do_cond_resched;
  	bool handover;
-@@ -3201,6 +3211,32 @@ void console_unlock(void)
+@@ -3196,6 +3206,32 @@ void console_unlock(void)
  		 */
  	} while (prb_read_valid(prb, next_seq, NULL) && console_trylock());
  }
@@ -399,7 +399,7 @@ Signed-off-by: Sebastian Andrzej Siewior <bigeasy@linutronix.de>
  EXPORT_SYMBOL(console_unlock);
  
  /**
-@@ -3410,11 +3446,106 @@ void console_start(struct console *conso
+@@ -3405,11 +3441,106 @@ void console_start(struct console *conso
  
  	if (flags & CON_NBCON)
  		nbcon_kthread_wake(console);
@@ -506,7 +506,7 @@ Signed-off-by: Sebastian Andrzej Siewior <bigeasy@linutronix.de>
  static int __read_mostly keep_bootcon;
  
  static int __init keep_bootcon_setup(char *str)
-@@ -3691,6 +3822,7 @@ void register_console(struct console *ne
+@@ -3701,6 +3832,7 @@ void register_console(struct console *ne
  		newcon->seq = 0;
  	} else {
  		have_legacy_console = true;
@@ -514,7 +514,7 @@ Signed-off-by: Sebastian Andrzej Siewior <bigeasy@linutronix.de>
  	}
  
  	if (newcon->flags & CON_BOOT)
-@@ -3846,6 +3978,13 @@ static int unregister_console_locked(str
+@@ -3856,6 +3988,13 @@ static int unregister_console_locked(str
  			nbcon_kthread_create(c);
  	}
  
@@ -528,7 +528,7 @@ Signed-off-by: Sebastian Andrzej Siewior <bigeasy@linutronix.de>
  	return res;
  }
  
-@@ -4004,8 +4143,12 @@ static bool __pr_flush(struct console *c
+@@ -4014,8 +4153,12 @@ static bool __pr_flush(struct console *c
  
  	seq = prb_next_reserve_seq(prb);
  
@@ -543,7 +543,7 @@ Signed-off-by: Sebastian Andrzej Siewior <bigeasy@linutronix.de>
  		console_lock();
  		console_unlock();
  	}
-@@ -4119,9 +4262,16 @@ static void wake_up_klogd_work_func(stru
+@@ -4129,9 +4272,16 @@ static void wake_up_klogd_work_func(stru
  	int pending = this_cpu_xchg(printk_pending, 0);
  
  	if (pending & PRINTK_PENDING_OUTPUT) {

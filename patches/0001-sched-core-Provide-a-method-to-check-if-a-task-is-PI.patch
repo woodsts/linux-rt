@@ -19,7 +19,7 @@ Signed-off-by: Sebastian Andrzej Siewior <bigeasy@linutronix.de>
 
 --- a/include/linux/sched.h
 +++ b/include/linux/sched.h
-@@ -1791,6 +1791,7 @@ static inline int dl_task_check_affinity
+@@ -1795,6 +1795,7 @@ static inline int dl_task_check_affinity
  }
  #endif
  
@@ -29,7 +29,7 @@ Signed-off-by: Sebastian Andrzej Siewior <bigeasy@linutronix.de>
  extern int task_prio(const struct task_struct *p);
 --- a/kernel/sched/core.c
 +++ b/kernel/sched/core.c
-@@ -8890,6 +8890,21 @@ static inline void preempt_dynamic_init(
+@@ -8911,6 +8911,21 @@ static inline void preempt_dynamic_init(
  
  #endif /* #ifdef CONFIG_PREEMPT_DYNAMIC */
  

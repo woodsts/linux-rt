@@ -87,7 +87,7 @@ Signed-off-by: Sebastian Andrzej Siewior <bigeasy@linutronix.de>
  			if (nbcon_seq_read(con) >= stop_seq)
 --- a/kernel/printk/printk.c
 +++ b/kernel/printk/printk.c
-@@ -3056,7 +3056,7 @@ static bool console_flush_all(bool do_co
+@@ -3051,7 +3051,7 @@ static bool console_flush_all(bool do_co
  			if ((flags & CON_NBCON) && con->kthread)
  				continue;
  
@@ -96,7 +96,7 @@ Signed-off-by: Sebastian Andrzej Siewior <bigeasy@linutronix.de>
  				continue;
  			any_usable = true;
  
-@@ -3991,8 +3991,10 @@ static bool __pr_flush(struct console *c
+@@ -4001,8 +4001,10 @@ static bool __pr_flush(struct console *c
  			 * that they make forward progress, so only increment
  			 * @diff for usable consoles.
  			 */

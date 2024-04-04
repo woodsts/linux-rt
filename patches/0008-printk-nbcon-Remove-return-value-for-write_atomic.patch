@@ -22,7 +22,7 @@ Signed-off-by: Sebastian Andrzej Siewior <bigeasy@linutronix.de>
 
 --- a/include/linux/console.h
 +++ b/include/linux/console.h
-@@ -327,7 +327,7 @@ struct console {
+@@ -345,7 +345,7 @@ struct console {
  	struct hlist_node	node;
  
  	/* nbcon console specific members */
