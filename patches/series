@@ -23,7 +23,6 @@
 0004-perf-Split-__perf_pending_irq-out-of-perf_pending_ir.patch
 
 # locking.
-Locking-Let-PREEMPT_RT-compile-again-with-new-rwsem-.patch
 drm-ttm-tests-Let-ttm_bo_test-consider-different-ww_.patch
 
 ###########################################################################
