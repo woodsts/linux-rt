@@ -81,7 +81,7 @@ Signed-off-by: Sebastian Andrzej Siewior <bigeasy@linutronix.de>
  		spin_unlock_irq(&sd->input_pkt_queue.lock);
  	else if (!IS_ENABLED(CONFIG_PREEMPT_RT))
  		local_irq_enable();
-@@ -4722,6 +4722,23 @@ static void napi_schedule_rps(struct sof
+@@ -4728,6 +4728,23 @@ static void napi_schedule_rps(struct sof
  	__napi_schedule_irqoff(&mysd->backlog);
  }
  
@@ -107,7 +107,7 @@ Signed-off-by: Sebastian Andrzej Siewior <bigeasy@linutronix.de>
  #endif
 --- a/net/core/skbuff.c
 +++ b/net/core/skbuff.c
-@@ -7039,8 +7039,8 @@ nodefer:	__kfree_skb(skb);
+@@ -7050,8 +7050,8 @@ nodefer:	__kfree_skb(skb);
  	/* Make sure to trigger NET_RX_SOFTIRQ on the remote CPU
  	 * if we are unlucky enough (this seems very unlikely).
  	 */

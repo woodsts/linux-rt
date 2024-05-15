@@ -31,7 +31,7 @@ Signed-off-by: Sebastian Andrzej Siewior <bigeasy@linutronix.de>
 
 --- a/net/core/dev.c
 +++ b/net/core/dev.c
-@@ -4427,13 +4427,7 @@ static inline void ____napi_schedule(str
+@@ -4433,13 +4433,7 @@ static inline void ____napi_schedule(str
  		 */
  		thread = READ_ONCE(napi->thread);
  		if (thread) {
@@ -46,7 +46,7 @@ Signed-off-by: Sebastian Andrzej Siewior <bigeasy@linutronix.de>
  			wake_up_process(thread);
  			return;
  		}
-@@ -6710,8 +6704,6 @@ static int napi_poll(struct napi_struct
+@@ -6716,8 +6710,6 @@ static int napi_poll(struct napi_struct
  
  static int napi_thread_wait(struct napi_struct *napi)
  {
@@ -55,7 +55,7 @@ Signed-off-by: Sebastian Andrzej Siewior <bigeasy@linutronix.de>
  	set_current_state(TASK_INTERRUPTIBLE);
  
  	while (!kthread_should_stop()) {
-@@ -6720,15 +6712,13 @@ static int napi_thread_wait(struct napi_
+@@ -6726,15 +6718,13 @@ static int napi_thread_wait(struct napi_
  		 * Testing SCHED bit is not enough because SCHED bit might be
  		 * set by some other busy poll thread or by napi_disable().
  		 */

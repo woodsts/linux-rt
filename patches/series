@@ -24,7 +24,6 @@
 
 # locking.
 drm-ttm-tests-Let-ttm_bo_test-consider-different-ww_.patch
-cxgb4-Properly-lock-queues-for-the-TX-selftest.patch
 
 ###########################################################################
 # Post

@@ -121,7 +121,7 @@ Signed-off-by: Sebastian Andrzej Siewior <bigeasy@linutronix.de>
 
 --- a/arch/x86/Kconfig
 +++ b/arch/x86/Kconfig
-@@ -278,6 +278,7 @@ config X86
+@@ -279,6 +279,7 @@ config X86
  	select HAVE_STATIC_CALL
  	select HAVE_STATIC_CALL_INLINE		if HAVE_OBJTOOL
  	select HAVE_PREEMPT_DYNAMIC_CALL
@@ -555,7 +555,7 @@ Signed-off-by: Sebastian Andrzej Siewior <bigeasy@linutronix.de>
  late_initcall(sched_init_debug);
 --- a/kernel/sched/fair.c
 +++ b/kernel/sched/fair.c
-@@ -975,8 +975,10 @@ static void clear_buddies(struct cfs_rq
+@@ -981,8 +981,10 @@ static void clear_buddies(struct cfs_rq
   * XXX: strictly: vd_i += N*r_i/w_i such that: vd_i > ve_i
   * this is probably good enough.
   */
@@ -567,7 +567,7 @@ Signed-off-by: Sebastian Andrzej Siewior <bigeasy@linutronix.de>
  	if ((s64)(se->vruntime - se->deadline) < 0)
  		return;
  
-@@ -995,10 +997,19 @@ static void update_deadline(struct cfs_r
+@@ -1001,10 +1003,19 @@ static void update_deadline(struct cfs_r
  	/*
  	 * The task has consumed its request, reschedule.
  	 */
@@ -590,7 +590,7 @@ Signed-off-by: Sebastian Andrzej Siewior <bigeasy@linutronix.de>
  }
  
  #include "pelt.h"
-@@ -1153,7 +1164,7 @@ s64 update_curr_common(struct rq *rq)
+@@ -1159,7 +1170,7 @@ s64 update_curr_common(struct rq *rq)
  /*
   * Update the current task's runtime statistics.
   */
@@ -599,7 +599,7 @@ Signed-off-by: Sebastian Andrzej Siewior <bigeasy@linutronix.de>
  {
  	struct sched_entity *curr = cfs_rq->curr;
  	s64 delta_exec;
-@@ -1166,7 +1177,7 @@ static void update_curr(struct cfs_rq *c
+@@ -1172,7 +1183,7 @@ static void update_curr(struct cfs_rq *c
  		return;
  
  	curr->vruntime += calc_delta_fair(delta_exec, curr);
@@ -608,7 +608,7 @@ Signed-off-by: Sebastian Andrzej Siewior <bigeasy@linutronix.de>
  	update_min_vruntime(cfs_rq);
  
  	if (entity_is_task(curr))
-@@ -1175,6 +1186,11 @@ static void update_curr(struct cfs_rq *c
+@@ -1181,6 +1192,11 @@ static void update_curr(struct cfs_rq *c
  	account_cfs_rq_runtime(cfs_rq, delta_exec);
  }
  
@@ -620,7 +620,7 @@ Signed-off-by: Sebastian Andrzej Siewior <bigeasy@linutronix.de>
  static void update_curr_fair(struct rq *rq)
  {
  	update_curr(cfs_rq_of(&rq->curr->se));
-@@ -5499,7 +5515,7 @@ entity_tick(struct cfs_rq *cfs_rq, struc
+@@ -5505,7 +5521,7 @@ entity_tick(struct cfs_rq *cfs_rq, struc
  	/*
  	 * Update run-time statistics of the 'current'.
  	 */
@@ -629,7 +629,7 @@ Signed-off-by: Sebastian Andrzej Siewior <bigeasy@linutronix.de>
  
  	/*
  	 * Ensure that runnable average is periodically updated.
-@@ -5513,7 +5529,7 @@ entity_tick(struct cfs_rq *cfs_rq, struc
+@@ -5519,7 +5535,7 @@ entity_tick(struct cfs_rq *cfs_rq, struc
  	 * validating it and just reschedule.
  	 */
  	if (queued) {
@@ -638,7 +638,7 @@ Signed-off-by: Sebastian Andrzej Siewior <bigeasy@linutronix.de>
  		return;
  	}
  	/*
-@@ -5659,7 +5675,7 @@ static void __account_cfs_rq_runtime(str
+@@ -5665,7 +5681,7 @@ static void __account_cfs_rq_runtime(str
  	 * hierarchy can be throttled
  	 */
  	if (!assign_cfs_rq_runtime(cfs_rq) && likely(cfs_rq->curr))
@@ -647,7 +647,7 @@ Signed-off-by: Sebastian Andrzej Siewior <bigeasy@linutronix.de>
  }
  
  static __always_inline
-@@ -5919,7 +5935,7 @@ void unthrottle_cfs_rq(struct cfs_rq *cf
+@@ -5925,7 +5941,7 @@ void unthrottle_cfs_rq(struct cfs_rq *cf
  
  	/* Determine whether we need to wake up potentially idle CPU: */
  	if (rq->curr == rq->idle && rq->cfs.nr_running)
@@ -656,7 +656,7 @@ Signed-off-by: Sebastian Andrzej Siewior <bigeasy@linutronix.de>
  }
  
  #ifdef CONFIG_SMP
-@@ -6634,7 +6650,7 @@ static void hrtick_start_fair(struct rq
+@@ -6640,7 +6656,7 @@ static void hrtick_start_fair(struct rq
  
  		if (delta < 0) {
  			if (task_current(rq, p))
@@ -665,7 +665,7 @@ Signed-off-by: Sebastian Andrzej Siewior <bigeasy@linutronix.de>
  			return;
  		}
  		hrtick_start(rq, delta);
-@@ -8310,7 +8326,7 @@ static void check_preempt_wakeup_fair(st
+@@ -8316,7 +8332,7 @@ static void check_preempt_wakeup_fair(st
  	 * prevents us from potentially nominating it as a false LAST_BUDDY
  	 * below.
  	 */
@@ -674,7 +674,7 @@ Signed-off-by: Sebastian Andrzej Siewior <bigeasy@linutronix.de>
  		return;
  
  	/* Idle tasks are by definition preempted by non-idle tasks. */
-@@ -8352,7 +8368,7 @@ static void check_preempt_wakeup_fair(st
+@@ -8358,7 +8374,7 @@ static void check_preempt_wakeup_fair(st
  	return;
  
  preempt:
@@ -683,7 +683,7 @@ Signed-off-by: Sebastian Andrzej Siewior <bigeasy@linutronix.de>
  }
  
  #ifdef CONFIG_SMP
-@@ -12498,7 +12514,7 @@ static inline void task_tick_core(struct
+@@ -12504,7 +12520,7 @@ static inline void task_tick_core(struct
  	 */
  	if (rq->core->core_forceidle_count && rq->cfs.nr_running == 1 &&
  	    __entity_slice_used(&curr->se, MIN_NR_TASKS_DURING_FORCEIDLE))
@@ -692,7 +692,7 @@ Signed-off-by: Sebastian Andrzej Siewior <bigeasy@linutronix.de>
  }
  
  /*
-@@ -12663,7 +12679,7 @@ prio_changed_fair(struct rq *rq, struct
+@@ -12669,7 +12685,7 @@ prio_changed_fair(struct rq *rq, struct
  	 */
  	if (task_current(rq, p)) {
  		if (p->prio > oldprio)
@@ -723,7 +723,7 @@ Signed-off-by: Sebastian Andrzej Siewior <bigeasy@linutronix.de>
  
 --- a/kernel/sched/sched.h
 +++ b/kernel/sched/sched.h
-@@ -2463,6 +2463,7 @@ extern void init_sched_fair_class(void);
+@@ -2465,6 +2465,7 @@ extern void init_sched_fair_class(void);
  extern void reweight_task(struct task_struct *p, int prio);
  
  extern void resched_curr(struct rq *rq);
