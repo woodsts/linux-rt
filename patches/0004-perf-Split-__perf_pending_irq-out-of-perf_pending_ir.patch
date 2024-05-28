@@ -41,7 +41,7 @@ Signed-off-by: Sebastian Andrzej Siewior <bigeasy@linutronix.de>
  
 --- a/kernel/events/core.c
 +++ b/kernel/events/core.c
-@@ -2449,7 +2449,7 @@ static void __perf_event_disable(struct
+@@ -2451,7 +2451,7 @@ static void __perf_event_disable(struct
   * hold the top-level event's child_mutex, so any descendant that
   * goes to exit will block in perf_event_exit_event().
   *
@@ -50,7 +50,7 @@ Signed-off-by: Sebastian Andrzej Siewior <bigeasy@linutronix.de>
   * is the current context on this CPU and preemption is disabled,
   * hence we can't get into perf_event_task_sched_out for this context.
   */
-@@ -2489,7 +2489,7 @@ EXPORT_SYMBOL_GPL(perf_event_disable);
+@@ -2491,7 +2491,7 @@ EXPORT_SYMBOL_GPL(perf_event_disable);
  void perf_event_disable_inatomic(struct perf_event *event)
  {
  	event->pending_disable = 1;
@@ -59,7 +59,7 @@ Signed-off-by: Sebastian Andrzej Siewior <bigeasy@linutronix.de>
  }
  
  #define MAX_INTERRUPTS (~0ULL)
-@@ -5175,6 +5175,7 @@ static void perf_addr_filters_splice(str
+@@ -5194,6 +5194,7 @@ static void perf_addr_filters_splice(str
  static void _free_event(struct perf_event *event)
  {
  	irq_work_sync(&event->pending_irq);
@@ -67,7 +67,7 @@ Signed-off-by: Sebastian Andrzej Siewior <bigeasy@linutronix.de>
  
  	unaccount_event(event);
  
-@@ -6711,7 +6712,7 @@ static void perf_sigtrap(struct perf_eve
+@@ -6722,7 +6723,7 @@ static void perf_sigtrap(struct perf_eve
  /*
   * Deliver the pending work in-event-context or follow the context.
   */
@@ -76,7 +76,7 @@ Signed-off-by: Sebastian Andrzej Siewior <bigeasy@linutronix.de>
  {
  	int cpu = READ_ONCE(event->oncpu);
  
-@@ -6749,11 +6750,26 @@ static void __perf_pending_irq(struct pe
+@@ -6760,11 +6761,26 @@ static void __perf_pending_irq(struct pe
  	 *				  irq_work_queue(); // FAILS
  	 *
  	 *  irq_work_run()
@@ -105,7 +105,7 @@ Signed-off-by: Sebastian Andrzej Siewior <bigeasy@linutronix.de>
  }
  
  static void perf_pending_irq(struct irq_work *entry)
-@@ -6776,8 +6792,6 @@ static void perf_pending_irq(struct irq_
+@@ -6787,8 +6803,6 @@ static void perf_pending_irq(struct irq_
  		perf_event_wakeup(event);
  	}
  
@@ -114,7 +114,7 @@ Signed-off-by: Sebastian Andrzej Siewior <bigeasy@linutronix.de>
  	if (rctx >= 0)
  		perf_swevent_put_recursion_context(rctx);
  }
-@@ -9568,7 +9582,7 @@ static int __perf_event_overflow(struct
+@@ -9676,7 +9690,7 @@ static int __perf_event_overflow(struct
  			 * is processed.
  			 */
  			if (in_nmi())
@@ -123,7 +123,7 @@ Signed-off-by: Sebastian Andrzej Siewior <bigeasy@linutronix.de>
  		} else if (event->attr.exclude_kernel && valid_sample) {
  			/*
  			 * Should not be able to return to user space without
-@@ -11908,6 +11922,7 @@ perf_event_alloc(struct perf_event_attr
+@@ -11925,6 +11939,7 @@ perf_event_alloc(struct perf_event_attr
  
  	init_waitqueue_head(&event->waitq);
  	init_irq_work(&event->pending_irq, perf_pending_irq);

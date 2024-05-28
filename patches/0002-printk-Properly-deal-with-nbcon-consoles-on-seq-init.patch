@@ -92,7 +92,7 @@ Signed-off-by: Sebastian Andrzej Siewior <bigeasy@linutronix.de>
  
 --- a/kernel/printk/printk.c
 +++ b/kernel/printk/printk.c
-@@ -3363,19 +3363,21 @@ static void try_enable_default_console(s
+@@ -3390,19 +3390,21 @@ static void try_enable_default_console(s
  		newcon->flags |= CON_CONSDEV;
  }
  
@@ -117,7 +117,7 @@ Signed-off-by: Sebastian Andrzej Siewior <bigeasy@linutronix.de>
  
  		/*
  		 * If any enabled boot consoles are due to be unregistered
-@@ -3396,7 +3398,7 @@ static void console_init_seq(struct cons
+@@ -3423,7 +3425,7 @@ static void console_init_seq(struct cons
  			 * Flush all consoles and set the console to start at
  			 * the next unprinted sequence number.
  			 */
@@ -126,7 +126,7 @@ Signed-off-by: Sebastian Andrzej Siewior <bigeasy@linutronix.de>
  				/*
  				 * Flushing failed. Just choose the lowest
  				 * sequence of the enabled boot consoles.
-@@ -3409,19 +3411,30 @@ static void console_init_seq(struct cons
+@@ -3436,19 +3438,30 @@ static void console_init_seq(struct cons
  				if (handover)
  					console_lock();
  
@@ -162,7 +162,7 @@ Signed-off-by: Sebastian Andrzej Siewior <bigeasy@linutronix.de>
  }
  
  #define console_first()				\
-@@ -3453,6 +3466,7 @@ void register_console(struct console *ne
+@@ -3480,6 +3493,7 @@ void register_console(struct console *ne
  	struct console *con;
  	bool bootcon_registered = false;
  	bool realcon_registered = false;
@@ -170,7 +170,7 @@ Signed-off-by: Sebastian Andrzej Siewior <bigeasy@linutronix.de>
  	int err;
  
  	console_list_lock();
-@@ -3530,10 +3544,13 @@ void register_console(struct console *ne
+@@ -3557,10 +3571,13 @@ void register_console(struct console *ne
  	}
  
  	newcon->dropped = 0;

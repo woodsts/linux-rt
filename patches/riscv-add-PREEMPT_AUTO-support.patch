@@ -15,7 +15,7 @@ Signed-off-by: Sebastian Andrzej Siewior <bigeasy@linutronix.de>
 
 --- a/arch/riscv/Kconfig
 +++ b/arch/riscv/Kconfig
-@@ -152,6 +152,7 @@ config RISCV
+@@ -162,6 +162,7 @@ config RISCV
  	select HAVE_PERF_USER_STACK_DUMP
  	select HAVE_POSIX_CPU_TIMERS_TASK_WORK
  	select HAVE_PREEMPT_DYNAMIC_KEY if !XIP_KERNEL

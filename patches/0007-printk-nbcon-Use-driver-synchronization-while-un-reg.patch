@@ -40,7 +40,7 @@ Signed-off-by: Sebastian Andrzej Siewior <bigeasy@linutronix.de>
 
 --- a/kernel/printk/printk.c
 +++ b/kernel/printk/printk.c
-@@ -3466,6 +3466,7 @@ void register_console(struct console *ne
+@@ -3493,6 +3493,7 @@ void register_console(struct console *ne
  	struct console *con;
  	bool bootcon_registered = false;
  	bool realcon_registered = false;
@@ -48,7 +48,7 @@ Signed-off-by: Sebastian Andrzej Siewior <bigeasy@linutronix.de>
  	u64 init_seq;
  	int err;
  
-@@ -3553,6 +3554,19 @@ void register_console(struct console *ne
+@@ -3580,6 +3581,19 @@ void register_console(struct console *ne
  	}
  
  	/*
@@ -68,7 +68,7 @@ Signed-off-by: Sebastian Andrzej Siewior <bigeasy@linutronix.de>
  	 * Put this console in the list - keep the
  	 * preferred driver at the head of the list.
  	 */
-@@ -3576,6 +3590,10 @@ void register_console(struct console *ne
+@@ -3603,6 +3617,10 @@ void register_console(struct console *ne
  	 * register_console() completes.
  	 */
  
@@ -79,7 +79,7 @@ Signed-off-by: Sebastian Andrzej Siewior <bigeasy@linutronix.de>
  	console_sysfs_notify();
  
  	/*
-@@ -3604,6 +3622,7 @@ EXPORT_SYMBOL(register_console);
+@@ -3631,6 +3649,7 @@ EXPORT_SYMBOL(register_console);
  /* Must be called under console_list_lock(). */
  static int unregister_console_locked(struct console *console)
  {
@@ -87,7 +87,7 @@ Signed-off-by: Sebastian Andrzej Siewior <bigeasy@linutronix.de>
  	int res;
  
  	lockdep_assert_console_list_lock_held();
-@@ -3622,8 +3641,18 @@ static int unregister_console_locked(str
+@@ -3649,8 +3668,18 @@ static int unregister_console_locked(str
  	if (!console_is_registered_locked(console))
  		return -ENODEV;
  

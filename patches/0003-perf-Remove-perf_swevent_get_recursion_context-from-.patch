@@ -26,7 +26,7 @@ Signed-off-by: Sebastian Andrzej Siewior <bigeasy@linutronix.de>
 
 --- a/kernel/events/core.c
 +++ b/kernel/events/core.c
-@@ -6785,14 +6785,6 @@ static void perf_pending_irq(struct irq_
+@@ -6796,14 +6796,6 @@ static void perf_pending_irq(struct irq_
  static void perf_pending_task(struct callback_head *head)
  {
  	struct perf_event *event = container_of(head, struct perf_event, pending_task);
@@ -41,7 +41,7 @@ Signed-off-by: Sebastian Andrzej Siewior <bigeasy@linutronix.de>
  
  	if (event->pending_work) {
  		event->pending_work = 0;
-@@ -6800,10 +6792,6 @@ static void perf_pending_task(struct cal
+@@ -6811,10 +6803,6 @@ static void perf_pending_task(struct cal
  		local_dec(&event->ctx->nr_pending);
  	}
  

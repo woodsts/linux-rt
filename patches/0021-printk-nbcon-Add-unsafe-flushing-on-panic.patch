@@ -23,15 +23,15 @@ Signed-off-by: Sebastian Andrzej Siewior <bigeasy@linutronix.de>
 
 --- a/include/linux/printk.h
 +++ b/include/linux/printk.h
-@@ -197,6 +197,7 @@ extern asmlinkage void dump_stack(void)
- void printk_trigger_flush(void);
+@@ -201,6 +201,7 @@ void printk_trigger_flush(void);
+ void console_replay_all(void);
  extern bool nbcon_driver_try_acquire(struct console *con);
  extern void nbcon_driver_release(struct console *con);
 +void nbcon_atomic_flush_unsafe(void);
  #else
  static inline __printf(1, 0)
  int vprintk(const char *s, va_list args)
-@@ -286,6 +287,10 @@ static inline void nbcon_driver_release(
+@@ -293,6 +294,10 @@ static inline void nbcon_driver_release(
  {
  }
  
@@ -44,7 +44,7 @@ Signed-off-by: Sebastian Andrzej Siewior <bigeasy@linutronix.de>
  bool this_cpu_in_panic(void);
 --- a/kernel/panic.c
 +++ b/kernel/panic.c
-@@ -457,6 +457,7 @@ void panic(const char *fmt, ...)
+@@ -456,6 +456,7 @@ void panic(const char *fmt, ...)
  	 * Explicitly flush the kernel log buffer one last time.
  	 */
  	console_flush_on_panic(CONSOLE_FLUSH_PENDING);

@@ -27,15 +27,15 @@ Signed-off-by: Sebastian Andrzej Siewior <bigeasy@linutronix.de>
 
 --- a/include/linux/printk.h
 +++ b/include/linux/printk.h
-@@ -195,6 +195,7 @@ void show_regs_print_info(const char *lo
- extern asmlinkage void dump_stack_lvl(const char *log_lvl) __cold;
+@@ -199,6 +199,7 @@ extern asmlinkage void dump_stack_lvl(co
  extern asmlinkage void dump_stack(void) __cold;
  void printk_trigger_flush(void);
+ void console_replay_all(void);
 +void printk_legacy_allow_panic_sync(void);
  extern bool nbcon_driver_try_acquire(struct console *con);
  extern void nbcon_driver_release(struct console *con);
  void nbcon_atomic_flush_unsafe(void);
-@@ -278,6 +279,10 @@ static inline void printk_trigger_flush(
+@@ -285,6 +286,10 @@ static inline void console_replay_all(vo
  {
  }
  
@@ -48,7 +48,7 @@ Signed-off-by: Sebastian Andrzej Siewior <bigeasy@linutronix.de>
  	return false;
 --- a/kernel/panic.c
 +++ b/kernel/panic.c
-@@ -368,6 +368,8 @@ void panic(const char *fmt, ...)
+@@ -367,6 +367,8 @@ void panic(const char *fmt, ...)
  
  	panic_other_cpus_shutdown(_crash_kexec_post_notifiers);
  
@@ -59,7 +59,7 @@ Signed-off-by: Sebastian Andrzej Siewior <bigeasy@linutronix.de>
  	 * add information to the kmsg dump output.
 --- a/kernel/printk/printk.c
 +++ b/kernel/printk/printk.c
-@@ -471,7 +471,9 @@ static DEFINE_MUTEX(syslog_lock);
+@@ -468,7 +468,9 @@ static DEFINE_MUTEX(syslog_lock);
  static bool have_legacy_console;
  
  /*
@@ -70,7 +70,7 @@ Signed-off-by: Sebastian Andrzej Siewior <bigeasy@linutronix.de>
   */
  static bool have_nbcon_console;
  
-@@ -2330,12 +2332,29 @@ int vprintk_store(int facility, int leve
+@@ -2327,12 +2329,29 @@ int vprintk_store(int facility, int leve
  	return ret;
  }
  
@@ -101,7 +101,7 @@ Signed-off-by: Sebastian Andrzej Siewior <bigeasy@linutronix.de>
  
  	/* Suppress unimportant messages after panic happens */
  	if (unlikely(suppress_printk))
-@@ -2351,15 +2370,42 @@ asmlinkage int vprintk_emit(int facility
+@@ -2348,15 +2367,42 @@ asmlinkage int vprintk_emit(int facility
  
  	if (level == LOGLEVEL_SCHED) {
  		level = LOGLEVEL_DEFAULT;
@@ -147,7 +147,7 @@ Signed-off-by: Sebastian Andrzej Siewior <bigeasy@linutronix.de>
  		/*
  		 * The caller may be holding system-critical or
  		 * timing-sensitive locks. Disable preemption during
-@@ -2379,10 +2425,10 @@ asmlinkage int vprintk_emit(int facility
+@@ -2376,10 +2422,10 @@ asmlinkage int vprintk_emit(int facility
  		preempt_enable();
  	}
  

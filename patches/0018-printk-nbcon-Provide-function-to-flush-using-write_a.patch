@@ -248,9 +248,9 @@ Signed-off-by: Sebastian Andrzej Siewior <bigeasy@linutronix.de>
  EXPORT_SYMBOL_GPL(nbcon_driver_release);
 --- a/kernel/printk/printk.c
 +++ b/kernel/printk/printk.c
-@@ -3172,6 +3172,8 @@ void console_flush_on_panic(enum con_flu
- 		console_srcu_read_unlock(cookie);
- 	}
+@@ -3199,6 +3199,8 @@ void console_flush_on_panic(enum con_flu
+ 	if (mode == CONSOLE_REPLAY_ALL)
+ 		__console_rewind_all();
  
 +	nbcon_atomic_flush_pending();
 +

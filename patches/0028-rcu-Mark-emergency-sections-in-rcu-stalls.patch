@@ -81,7 +81,7 @@ Signed-off-by: Sebastian Andrzej Siewior <bigeasy@linutronix.de>
  	}
  	raw_spin_unlock_irqrestore_rcu_node(rnp, flags);
  }
-@@ -522,6 +524,7 @@ static void print_cpu_stall_info(int cpu
+@@ -523,6 +525,7 @@ static void print_cpu_stall_info(int cpu
  	       falsepositive ? " (false positive?)" : "");
  
  	print_cpu_stat_info(cpu);
@@ -89,7 +89,7 @@ Signed-off-by: Sebastian Andrzej Siewior <bigeasy@linutronix.de>
  }
  
  /* Complain about starvation of grace-period kthread.  */
-@@ -604,6 +607,8 @@ static void print_other_cpu_stall(unsign
+@@ -605,6 +608,8 @@ static void print_other_cpu_stall(unsign
  	if (rcu_stall_is_suppressed())
  		return;
  
@@ -98,7 +98,7 @@ Signed-off-by: Sebastian Andrzej Siewior <bigeasy@linutronix.de>
  	/*
  	 * OK, time to rat on our buddy...
  	 * See Documentation/RCU/stallwarn.rst for info on how to debug
-@@ -655,6 +660,8 @@ static void print_other_cpu_stall(unsign
+@@ -657,6 +662,8 @@ static void print_other_cpu_stall(unsign
  	rcu_check_gp_kthread_expired_fqs_timer();
  	rcu_check_gp_kthread_starvation();
  
@@ -107,7 +107,7 @@ Signed-off-by: Sebastian Andrzej Siewior <bigeasy@linutronix.de>
  	panic_on_rcu_stall();
  
  	rcu_force_quiescent_state();  /* Kick them all. */
-@@ -675,6 +682,8 @@ static void print_cpu_stall(unsigned lon
+@@ -677,6 +684,8 @@ static void print_cpu_stall(unsigned lon
  	if (rcu_stall_is_suppressed())
  		return;
  
@@ -116,7 +116,7 @@ Signed-off-by: Sebastian Andrzej Siewior <bigeasy@linutronix.de>
  	/*
  	 * OK, time to rat on ourselves...
  	 * See Documentation/RCU/stallwarn.rst for info on how to debug
-@@ -703,6 +712,8 @@ static void print_cpu_stall(unsigned lon
+@@ -706,6 +715,8 @@ static void print_cpu_stall(unsigned lon
  			   jiffies + 3 * rcu_jiffies_till_stall_check() + 3);
  	raw_spin_unlock_irqrestore_rcu_node(rnp, flags);
  

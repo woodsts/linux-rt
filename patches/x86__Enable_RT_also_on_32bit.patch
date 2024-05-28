@@ -14,7 +14,7 @@ Signed-off-by: Thomas Gleixner <tglx@linutronix.de>
 ---
 --- a/arch/x86/Kconfig
 +++ b/arch/x86/Kconfig
-@@ -121,6 +121,7 @@ config X86
+@@ -123,6 +123,7 @@ config X86
  	select ARCH_USES_CFI_TRAPS		if X86_64 && CFI_CLANG
  	select ARCH_SUPPORTS_LTO_CLANG
  	select ARCH_SUPPORTS_LTO_CLANG_THIN

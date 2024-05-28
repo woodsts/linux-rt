@@ -10,12 +10,6 @@
 # Posted
 ###########################################################################
 
-# net, RPS, v5
-0001-net-Remove-conditional-threaded-NAPI-wakeup-based-on.patch
-0002-net-Allow-to-use-SMP-threads-for-backlog-NAPI.patch
-0003-net-Use-backlog-NAPI-to-clean-up-the-defer_list.patch
-0004-net-Rename-rps_lock-to-backlog_lock.patch
-
 # perf, sigtrap, v3
 0001-perf-Move-irq_work_queue-where-the-event-is-prepared.patch
 0002-perf-Enqueue-SIGTRAP-always-via-task_work.patch
@@ -24,6 +18,9 @@
 
 # locking.
 drm-ttm-tests-Let-ttm_bo_test-consider-different-ww_.patch
+
+pinctrl-renesas-rzg2l-Use-spin_-lock-unlock-_irq-sav.patch
+memcg-Remove-the-lockdep-assert-from-__mod_objcg_mls.patch
 
 ###########################################################################
 # Post

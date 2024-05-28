@@ -48,17 +48,17 @@ Signed-off-by: Sebastian Andrzej Siewior <bigeasy@linutronix.de>
  extern const char linux_banner[];
  extern const char linux_proc_banner[];
  
-@@ -193,6 +195,8 @@ void show_regs_print_info(const char *lo
- extern asmlinkage void dump_stack_lvl(const char *log_lvl) __cold;
+@@ -197,6 +199,8 @@ extern asmlinkage void dump_stack_lvl(co
  extern asmlinkage void dump_stack(void) __cold;
  void printk_trigger_flush(void);
+ void console_replay_all(void);
 +extern bool nbcon_driver_try_acquire(struct console *con);
 +extern void nbcon_driver_release(struct console *con);
  #else
  static inline __printf(1, 0)
  int vprintk(const char *s, va_list args)
-@@ -272,6 +276,16 @@ static inline void dump_stack(void)
- static inline void printk_trigger_flush(void)
+@@ -279,6 +283,16 @@ static inline void printk_trigger_flush(
+ static inline void console_replay_all(void)
  {
  }
 +

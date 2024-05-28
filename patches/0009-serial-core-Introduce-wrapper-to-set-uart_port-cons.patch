@@ -20,7 +20,7 @@ Signed-off-by: Sebastian Andrzej Siewior <bigeasy@linutronix.de>
 
 --- a/drivers/tty/serial/8250/8250_core.c
 +++ b/drivers/tty/serial/8250/8250_core.c
-@@ -627,11 +627,11 @@ static int univ8250_console_setup(struct
+@@ -629,11 +629,11 @@ static int univ8250_console_setup(struct
  
  	port = &serial8250_ports[co->index].port;
  	/* link port to console */
@@ -34,7 +34,7 @@ Signed-off-by: Sebastian Andrzej Siewior <bigeasy@linutronix.de>
  	return retval;
  }
  
-@@ -689,7 +689,7 @@ static int univ8250_console_match(struct
+@@ -691,7 +691,7 @@ static int univ8250_console_match(struct
  			continue;
  
  		co->index = i;
@@ -45,7 +45,7 @@ Signed-off-by: Sebastian Andrzej Siewior <bigeasy@linutronix.de>
  
 --- a/drivers/tty/serial/amba-pl011.c
 +++ b/drivers/tty/serial/amba-pl011.c
-@@ -2488,7 +2488,7 @@ static int pl011_console_match(struct co
+@@ -2480,7 +2480,7 @@ static int pl011_console_match(struct co
  			continue;
  
  		co->index = i;
@@ -56,7 +56,7 @@ Signed-off-by: Sebastian Andrzej Siewior <bigeasy@linutronix.de>
  
 --- a/drivers/tty/serial/serial_core.c
 +++ b/drivers/tty/serial/serial_core.c
-@@ -3172,8 +3172,15 @@ static int serial_core_add_one_port(stru
+@@ -3168,8 +3168,15 @@ static int serial_core_add_one_port(stru
  	state->uart_port = uport;
  	uport->state = state;
  
@@ -73,7 +73,7 @@ Signed-off-by: Sebastian Andrzej Siewior <bigeasy@linutronix.de>
  	uport->minor = drv->tty_driver->minor_start + uport->line;
  	uport->name = kasprintf(GFP_KERNEL, "%s%d", drv->dev_name,
  				drv->tty_driver->name_base + uport->line);
-@@ -3182,13 +3189,6 @@ static int serial_core_add_one_port(stru
+@@ -3178,13 +3185,6 @@ static int serial_core_add_one_port(stru
  		goto out;
  	}
  
@@ -89,7 +89,7 @@ Signed-off-by: Sebastian Andrzej Siewior <bigeasy@linutronix.de>
  
 --- a/include/linux/serial_core.h
 +++ b/include/linux/serial_core.h
-@@ -610,6 +610,23 @@ static inline void __uart_port_unlock_ir
+@@ -609,6 +609,23 @@ static inline void __uart_port_unlock_ir
  }
  
  /**

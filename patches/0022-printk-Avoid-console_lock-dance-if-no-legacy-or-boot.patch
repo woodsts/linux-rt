@@ -22,7 +22,7 @@ Signed-off-by: Sebastian Andrzej Siewior <bigeasy@linutronix.de>
 
 --- a/kernel/printk/printk.c
 +++ b/kernel/printk/printk.c
-@@ -464,6 +464,13 @@ static int console_msg_format = MSG_FORM
+@@ -461,6 +461,13 @@ static int console_msg_format = MSG_FORM
  static DEFINE_MUTEX(syslog_lock);
  
  /*
@@ -36,7 +36,7 @@ Signed-off-by: Sebastian Andrzej Siewior <bigeasy@linutronix.de>
   * Specifies if a boot console is registered. If boot consoles are present,
   * nbcon consoles cannot print simultaneously and must be synchronized by
   * the console lock. This is because boot consoles and nbcon consoles may
-@@ -471,6 +478,14 @@ static DEFINE_MUTEX(syslog_lock);
+@@ -468,6 +475,14 @@ static DEFINE_MUTEX(syslog_lock);
   */
  static bool have_boot_console;
  
@@ -51,7 +51,7 @@ Signed-off-by: Sebastian Andrzej Siewior <bigeasy@linutronix.de>
  #ifdef CONFIG_PRINTK
  DECLARE_WAIT_QUEUE_HEAD(log_wait);
  /* All 3 protected by @syslog_lock. */
-@@ -2339,7 +2354,7 @@ asmlinkage int vprintk_emit(int facility
+@@ -2336,7 +2351,7 @@ asmlinkage int vprintk_emit(int facility
  	printed_len = vprintk_store(facility, level, dev_info, fmt, args);
  
  	/* If called from the scheduler, we can not call up(). */
@@ -60,7 +60,7 @@ Signed-off-by: Sebastian Andrzej Siewior <bigeasy@linutronix.de>
  		/*
  		 * The caller may be holding system-critical or
  		 * timing-sensitive locks. Disable preemption during
-@@ -2648,7 +2663,7 @@ void resume_console(void)
+@@ -2663,7 +2678,7 @@ void resume_console(void)
   */
  static int console_cpu_notify(unsigned int cpu)
  {
@@ -69,7 +69,7 @@ Signed-off-by: Sebastian Andrzej Siewior <bigeasy@linutronix.de>
  		/* If trylock fails, someone else is doing the printing */
  		if (console_trylock())
  			console_unlock();
-@@ -3189,7 +3204,8 @@ void console_flush_on_panic(enum con_flu
+@@ -3216,7 +3231,8 @@ void console_flush_on_panic(enum con_flu
  
  	nbcon_atomic_flush_pending();
  
@@ -79,7 +79,7 @@ Signed-off-by: Sebastian Andrzej Siewior <bigeasy@linutronix.de>
  }
  
  /*
-@@ -3538,6 +3554,7 @@ void register_console(struct console *ne
+@@ -3565,6 +3581,7 @@ void register_console(struct console *ne
  	if (newcon->flags & CON_NBCON) {
  		nbcon_init(newcon, init_seq);
  	} else {
@@ -87,7 +87,7 @@ Signed-off-by: Sebastian Andrzej Siewior <bigeasy@linutronix.de>
  		newcon->seq = init_seq;
  	}
  
-@@ -3613,6 +3630,7 @@ EXPORT_SYMBOL(register_console);
+@@ -3640,6 +3657,7 @@ EXPORT_SYMBOL(register_console);
  /* Must be called under console_list_lock(). */
  static int unregister_console_locked(struct console *console)
  {
@@ -95,7 +95,7 @@ Signed-off-by: Sebastian Andrzej Siewior <bigeasy@linutronix.de>
  	bool found_boot_con = false;
  	unsigned long flags;
  	struct console *c;
-@@ -3680,9 +3698,13 @@ static int unregister_console_locked(str
+@@ -3707,9 +3725,13 @@ static int unregister_console_locked(str
  	for_each_console(c) {
  		if (c->flags & CON_BOOT)
  			found_boot_con = true;
@@ -109,7 +109,7 @@ Signed-off-by: Sebastian Andrzej Siewior <bigeasy@linutronix.de>
  
  	return res;
  }
-@@ -3843,22 +3865,34 @@ static bool __pr_flush(struct console *c
+@@ -3870,22 +3892,34 @@ static bool __pr_flush(struct console *c
  	seq = prb_next_reserve_seq(prb);
  
  	/* Flush the consoles so that records up to @seq are printed. */
@@ -153,7 +153,7 @@ Signed-off-by: Sebastian Andrzej Siewior <bigeasy@linutronix.de>
  
  		cookie = console_srcu_read_lock();
  		for_each_console_srcu(c) {
-@@ -3878,6 +3912,7 @@ static bool __pr_flush(struct console *c
+@@ -3905,6 +3939,7 @@ static bool __pr_flush(struct console *c
  			if (flags & CON_NBCON) {
  				printk_seq = nbcon_seq_read(c);
  			} else {
@@ -161,7 +161,7 @@ Signed-off-by: Sebastian Andrzej Siewior <bigeasy@linutronix.de>
  				printk_seq = c->seq;
  			}
  
-@@ -3889,7 +3924,8 @@ static bool __pr_flush(struct console *c
+@@ -3916,7 +3951,8 @@ static bool __pr_flush(struct console *c
  		if (diff != last_diff && reset_on_progress)
  			remaining_jiffies = timeout_jiffies;
  
@@ -171,7 +171,7 @@ Signed-off-by: Sebastian Andrzej Siewior <bigeasy@linutronix.de>
  
  		/* Note: @diff is 0 if there are no usable consoles. */
  		if (diff == 0 || remaining_jiffies == 0)
-@@ -3959,6 +3995,7 @@ static void __wake_up_klogd(int val)
+@@ -3986,6 +4022,7 @@ static void __wake_up_klogd(int val)
  		return;
  
  	preempt_disable();
@@ -179,7 +179,7 @@ Signed-off-by: Sebastian Andrzej Siewior <bigeasy@linutronix.de>
  	/*
  	 * Guarantee any new records can be seen by tasks preparing to wait
  	 * before this context checks if the wait queue is empty.
-@@ -3970,11 +4007,22 @@ static void __wake_up_klogd(int val)
+@@ -3997,11 +4034,22 @@ static void __wake_up_klogd(int val)
  	 *
  	 * This pairs with devkmsg_read:A and syslog_print:A.
  	 */

@@ -42,7 +42,7 @@ Signed-off-by: Sebastian Andrzej Siewior <bigeasy@linutronix.de>
 
 --- a/kernel/sched/rt.c
 +++ b/kernel/sched/rt.c
-@@ -2194,8 +2194,11 @@ static int rto_next_cpu(struct root_doma
+@@ -2193,8 +2193,11 @@ static int rto_next_cpu(struct root_doma
  
  		rd->rto_cpu = cpu;
  
