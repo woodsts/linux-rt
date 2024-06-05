@@ -1,6 +1,6 @@
 From: John Ogness <john.ogness@linutronix.de>
 Date: Tue, 26 Sep 2023 12:44:07 +0000
-Subject: [PATCH 22/46] printk: Avoid console_lock dance if no legacy or boot
+Subject: [PATCH 22/48] printk: Avoid console_lock dance if no legacy or boot
  consoles
 
 Currently the console lock is used to attempt legacy-type
@@ -79,7 +79,7 @@ Signed-off-by: Sebastian Andrzej Siewior <bigeasy@linutronix.de>
  }
  
  /*
-@@ -3565,6 +3581,7 @@ void register_console(struct console *ne
+@@ -3566,6 +3582,7 @@ void register_console(struct console *ne
  	if (newcon->flags & CON_NBCON) {
  		nbcon_init(newcon, init_seq);
  	} else {
@@ -87,15 +87,15 @@ Signed-off-by: Sebastian Andrzej Siewior <bigeasy@linutronix.de>
  		newcon->seq = init_seq;
  	}
  
-@@ -3640,6 +3657,7 @@ EXPORT_SYMBOL(register_console);
- /* Must be called under console_list_lock(). */
+@@ -3642,6 +3659,7 @@ EXPORT_SYMBOL(register_console);
  static int unregister_console_locked(struct console *console)
  {
+ 	bool use_device_lock = (console->flags & CON_NBCON) && console->write_atomic;
 +	bool found_legacy_con = false;
  	bool found_boot_con = false;
  	unsigned long flags;
  	struct console *c;
-@@ -3707,9 +3725,13 @@ static int unregister_console_locked(str
+@@ -3709,9 +3727,13 @@ static int unregister_console_locked(str
  	for_each_console(c) {
  		if (c->flags & CON_BOOT)
  			found_boot_con = true;
@@ -109,7 +109,7 @@ Signed-off-by: Sebastian Andrzej Siewior <bigeasy@linutronix.de>
  
  	return res;
  }
-@@ -3870,22 +3892,34 @@ static bool __pr_flush(struct console *c
+@@ -3872,22 +3894,34 @@ static bool __pr_flush(struct console *c
  	seq = prb_next_reserve_seq(prb);
  
  	/* Flush the consoles so that records up to @seq are printed. */
@@ -153,7 +153,7 @@ Signed-off-by: Sebastian Andrzej Siewior <bigeasy@linutronix.de>
  
  		cookie = console_srcu_read_lock();
  		for_each_console_srcu(c) {
-@@ -3905,6 +3939,7 @@ static bool __pr_flush(struct console *c
+@@ -3907,6 +3941,7 @@ static bool __pr_flush(struct console *c
  			if (flags & CON_NBCON) {
  				printk_seq = nbcon_seq_read(c);
  			} else {
@@ -161,7 +161,7 @@ Signed-off-by: Sebastian Andrzej Siewior <bigeasy@linutronix.de>
  				printk_seq = c->seq;
  			}
  
-@@ -3916,7 +3951,8 @@ static bool __pr_flush(struct console *c
+@@ -3918,7 +3953,8 @@ static bool __pr_flush(struct console *c
  		if (diff != last_diff && reset_on_progress)
  			remaining_jiffies = timeout_jiffies;
  
@@ -171,7 +171,7 @@ Signed-off-by: Sebastian Andrzej Siewior <bigeasy@linutronix.de>
  
  		/* Note: @diff is 0 if there are no usable consoles. */
  		if (diff == 0 || remaining_jiffies == 0)
-@@ -3986,6 +4022,7 @@ static void __wake_up_klogd(int val)
+@@ -3988,6 +4024,7 @@ static void __wake_up_klogd(int val)
  		return;
  
  	preempt_disable();
@@ -179,7 +179,7 @@ Signed-off-by: Sebastian Andrzej Siewior <bigeasy@linutronix.de>
  	/*
  	 * Guarantee any new records can be seen by tasks preparing to wait
  	 * before this context checks if the wait queue is empty.
-@@ -3997,11 +4034,22 @@ static void __wake_up_klogd(int val)
+@@ -3999,11 +4036,22 @@ static void __wake_up_klogd(int val)
  	 *
  	 * This pairs with devkmsg_read:A and syslog_print:A.
  	 */

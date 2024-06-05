@@ -1,6 +1,6 @@
 From: John Ogness <john.ogness@linutronix.de>
 Date: Mon, 11 Dec 2023 09:36:52 +0000
-Subject: [PATCH 23/46] printk: Track nbcon consoles
+Subject: [PATCH 23/48] printk: Track nbcon consoles
 
 Add a global flag @have_nbcon_console to identify if any nbcon
 consoles are registered. This will be used in follow-up commits
@@ -27,7 +27,7 @@ Signed-off-by: Sebastian Andrzej Siewior <bigeasy@linutronix.de>
   * Specifies if a boot console is registered. If boot consoles are present,
   * nbcon consoles cannot print simultaneously and must be synchronized by
   * the console lock. This is because boot consoles and nbcon consoles may
-@@ -3579,6 +3584,7 @@ void register_console(struct console *ne
+@@ -3580,6 +3585,7 @@ void register_console(struct console *ne
  	init_seq = get_init_console_seq(newcon, bootcon_registered);
  
  	if (newcon->flags & CON_NBCON) {
@@ -35,15 +35,15 @@ Signed-off-by: Sebastian Andrzej Siewior <bigeasy@linutronix.de>
  		nbcon_init(newcon, init_seq);
  	} else {
  		have_legacy_console = true;
-@@ -3658,6 +3664,7 @@ EXPORT_SYMBOL(register_console);
- static int unregister_console_locked(struct console *console)
+@@ -3660,6 +3666,7 @@ static int unregister_console_locked(str
  {
+ 	bool use_device_lock = (console->flags & CON_NBCON) && console->write_atomic;
  	bool found_legacy_con = false;
 +	bool found_nbcon_con = false;
  	bool found_boot_con = false;
  	unsigned long flags;
  	struct console *c;
-@@ -3725,13 +3732,18 @@ static int unregister_console_locked(str
+@@ -3727,13 +3734,18 @@ static int unregister_console_locked(str
  	for_each_console(c) {
  		if (c->flags & CON_BOOT)
  			found_boot_con = true;

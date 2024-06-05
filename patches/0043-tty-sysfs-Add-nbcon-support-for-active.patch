@@ -1,6 +1,6 @@
 From: John Ogness <john.ogness@linutronix.de>
 Date: Fri, 22 Sep 2023 14:31:09 +0000
-Subject: [PATCH 40/46] tty: sysfs: Add nbcon support for 'active'
+Subject: [PATCH 43/48] tty: sysfs: Add nbcon support for 'active'
 
 Allow the 'active' attribute to list nbcon consoles.
 

@@ -1,11 +1,11 @@
 From: John Ogness <john.ogness@linutronix.de>
 Date: Tue, 26 Sep 2023 13:04:15 +0000
-Subject: [PATCH 34/46] printk: nbcon: Stop threads on shutdown/reboot
+Subject: [PATCH 36/48] printk: nbcon: Stop threads on shutdown/reboot
 
 Register a syscore_ops shutdown function to stop all threaded
-printers on shutdown/reboot. This allows printk to transition back
-to atomic printing in order to provide a robust mechanism for
-outputting the final messages.
+printers on shutdown/reboot. This allows printk to cleanly
+transition back to atomic printing in order to provide a robust
+mechanism for outputting the final messages.
 
 Signed-off-by: John Ogness <john.ogness@linutronix.de>
 Signed-off-by: Sebastian Andrzej Siewior <bigeasy@linutronix.de>
@@ -23,10 +23,10 @@ Signed-off-by: Sebastian Andrzej Siewior <bigeasy@linutronix.de>
  #include <linux/types.h>
  #include "internal.h"
  #include "printk_ringbuffer.h"
-@@ -1682,3 +1683,33 @@ void nbcon_driver_release(struct console
+@@ -1714,3 +1715,33 @@ void nbcon_device_release(struct console
  	console_srcu_read_unlock(cookie);
  }
- EXPORT_SYMBOL_GPL(nbcon_driver_release);
+ EXPORT_SYMBOL_GPL(nbcon_device_release);
 +
 +/**
 + * printk_kthread_shutdown - shutdown all threaded printers

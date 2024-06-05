@@ -1,6 +1,6 @@
 From: John Ogness <john.ogness@linutronix.de>
 Date: Tue, 5 Dec 2023 14:09:31 +0000
-Subject: [PATCH 35/46] printk: nbcon: Start printing threads
+Subject: [PATCH 37/48] printk: nbcon: Start printing threads
 
 If there are no boot consoles, the printing threads are started
 in early_initcall.
@@ -32,7 +32,7 @@ Signed-off-by: Sebastian Andrzej Siewior <bigeasy@linutronix.de>
  
  __printf(4, 0)
  int vprintk_store(int facility, int level,
-@@ -159,6 +160,7 @@ static inline void nbcon_kthread_wake(st
+@@ -161,6 +162,7 @@ static inline void nbcon_kthread_wake(st
  
  static inline void nbcon_kthread_wake(struct console *con) { }
  static inline void nbcon_kthread_create(struct console *con) { }
@@ -51,7 +51,7 @@ Signed-off-by: Sebastian Andrzej Siewior <bigeasy@linutronix.de>
  /**
   * nbcon_context_try_acquire_direct - Try to acquire directly
   * @ctxt:	The context of the caller
-@@ -1522,7 +1524,7 @@ void nbcon_kthread_create(struct console
+@@ -1553,7 +1555,7 @@ void nbcon_kthread_create(struct console
  	if (!(con->flags & CON_NBCON) || !con->write_thread)
  		return;
  
@@ -60,7 +60,7 @@ Signed-off-by: Sebastian Andrzej Siewior <bigeasy@linutronix.de>
  		return;
  
  	/*
-@@ -1548,6 +1550,19 @@ void nbcon_kthread_create(struct console
+@@ -1579,6 +1581,19 @@ void nbcon_kthread_create(struct console
  	sched_set_normal(con->kthread, -20);
  }
  
@@ -80,7 +80,7 @@ Signed-off-by: Sebastian Andrzej Siewior <bigeasy@linutronix.de>
  /**
   * nbcon_alloc - Allocate buffers needed by the nbcon console
   * @con:	Console to allocate buffers for
-@@ -1597,6 +1612,7 @@ void nbcon_init(struct console *con, u64
+@@ -1628,6 +1643,7 @@ void nbcon_init(struct console *con, u64
  	init_irq_work(&con->irq_work, nbcon_irq_work);
  	nbcon_seq_force(con, init_seq);
  	nbcon_state_set(con, &state);
@@ -108,15 +108,15 @@ Signed-off-by: Sebastian Andrzej Siewior <bigeasy@linutronix.de>
  		    (system_state > SYSTEM_RUNNING)) {
  			nbcon_atomic_flush_pending();
  		}
-@@ -3752,6 +3756,7 @@ EXPORT_SYMBOL(register_console);
- /* Must be called under console_list_lock(). */
+@@ -3757,6 +3761,7 @@ EXPORT_SYMBOL(register_console);
  static int unregister_console_locked(struct console *console)
  {
+ 	bool use_device_lock = (console->flags & CON_NBCON) && console->write_atomic;
 +	bool is_boot_con = (console->flags & CON_BOOT);
  	bool found_legacy_con = false;
  	bool found_nbcon_con = false;
  	bool found_boot_con = false;
-@@ -3834,6 +3839,15 @@ static int unregister_console_locked(str
+@@ -3839,6 +3844,15 @@ static int unregister_console_locked(str
  	if (!found_nbcon_con)
  		have_nbcon_console = found_nbcon_con;
  

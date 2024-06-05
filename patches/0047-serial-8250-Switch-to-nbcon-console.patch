@@ -1,6 +1,6 @@
 From: John Ogness <john.ogness@linutronix.de>
 Date: Wed, 13 Sep 2023 15:30:36 +0000
-Subject: [PATCH 42/46] serial: 8250: Switch to nbcon console
+Subject: [PATCH 47/48] serial: 8250: Switch to nbcon console
 
 Implement the necessary callbacks to switch the 8250 console driver
 to perform as an nbcon console.

@@ -1,6 +1,6 @@
 From: Thomas Gleixner <tglx@linutronix.de>
 Date: Mon, 11 Sep 2023 15:53:04 +0000
-Subject: [PATCH 26/46] panic: Mark emergency section in warn
+Subject: [PATCH 26/48] panic: Mark emergency section in warn
 
 Mark the full contents of __warn() as an emergency section. In
 this section, the CPU will not perform console output for the

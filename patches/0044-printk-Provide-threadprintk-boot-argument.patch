@@ -1,6 +1,6 @@
 From: John Ogness <john.ogness@linutronix.de>
 Date: Tue, 6 Feb 2024 14:19:34 +0000
-Subject: [PATCH 45/46] printk: Provide threadprintk boot argument
+Subject: [PATCH 44/48] printk: Provide threadprintk boot argument
 
 For PREEMPT_RT, legacy console printing is performed in a dedicated
 kthread. However, this behavior can also be interesting for other
@@ -11,7 +11,7 @@ Provide a new boot argument "threadprintk" that will create the
 dedicated kthread for legacy console printing for !PREEMPT_RT
 systems.
 
-The implementation is the same as "threadirqs" boot argument.
+The implementation is the same as the "threadirqs" boot argument.
 
 Users should be aware that if this option is enabled, the shutdown,
 reboot, and panic messages probably will not be visible on the
@@ -34,7 +34,7 @@ Signed-off-by: Sebastian Andrzej Siewior <bigeasy@linutronix.de>
 
 --- a/Documentation/admin-guide/kernel-parameters.txt
 +++ b/Documentation/admin-guide/kernel-parameters.txt
-@@ -6599,6 +6599,18 @@
+@@ -6621,6 +6621,18 @@
  			Force threading of all interrupt handlers except those
  			marked explicitly IRQF_NO_THREAD.
  

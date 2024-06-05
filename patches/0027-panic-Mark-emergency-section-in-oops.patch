@@ -1,6 +1,6 @@
 From: John Ogness <john.ogness@linutronix.de>
 Date: Tue, 19 Sep 2023 17:07:34 +0000
-Subject: [PATCH 27/46] panic: Mark emergency section in oops
+Subject: [PATCH 27/48] panic: Mark emergency section in oops
 
 Mark an emergency section beginning with oops_enter() until the
 end of oops_exit(). In this section, the CPU will not perform

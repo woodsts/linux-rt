@@ -1,6 +1,6 @@
 From: John Ogness <john.ogness@linutronix.de>
 Date: Mon, 25 Mar 2024 21:00:40 +0000
-Subject: [PATCH 37/46] printk: nbcon: Show replay message on takeover
+Subject: [PATCH 39/48] printk: nbcon: Show replay message on takeover
 
 An emergency or panic context can takeover console ownership
 while the current owner was printing a printk message. The
@@ -36,7 +36,7 @@ Signed-off-by: Sebastian Andrzej Siewior <bigeasy@linutronix.de>
 @@ -325,6 +325,7 @@ struct nbcon_write_context {
   * @nbcon_state:	State for nbcon consoles
   * @nbcon_seq:		Sequence number of the next record for nbcon to print
-  * @nbcon_driver_ctxt:	Context available for driver non-printing operations
+  * @nbcon_device_ctxt:	Context available for non-printing operations
 + * @nbcon_prev_seq:	Seq num the previous nbcon owner was assigned to print
   * @pbufs:		Pointer to nbcon private buffer
   * @kthread:		Printer kthread for this console
@@ -44,7 +44,7 @@ Signed-off-by: Sebastian Andrzej Siewior <bigeasy@linutronix.de>
 @@ -445,6 +446,8 @@ struct console {
  	atomic_t		__private nbcon_state;
  	atomic_long_t		__private nbcon_seq;
- 	struct nbcon_context	__private nbcon_driver_ctxt;
+ 	struct nbcon_context	__private nbcon_device_ctxt;
 +	atomic_long_t           __private nbcon_prev_seq;
 +
  	struct printk_buffers	*pbufs;
@@ -52,7 +52,7 @@ Signed-off-by: Sebastian Andrzej Siewior <bigeasy@linutronix.de>
  	struct rcuwait		rcuwait;
 --- a/kernel/printk/internal.h
 +++ b/kernel/printk/internal.h
-@@ -231,4 +231,5 @@ bool printk_get_next_message(struct prin
+@@ -233,4 +233,5 @@ bool printk_get_next_message(struct prin
  
  #ifdef CONFIG_PRINTK
  void console_prepend_dropped(struct printk_message *pmsg, unsigned long dropped);
@@ -97,7 +97,7 @@ Signed-off-by: Sebastian Andrzej Siewior <bigeasy@linutronix.de>
  	if (!nbcon_context_exit_unsafe(ctxt))
  		return false;
  
-@@ -1611,6 +1634,7 @@ void nbcon_init(struct console *con, u64
+@@ -1642,6 +1665,7 @@ void nbcon_init(struct console *con, u64
  	rcuwait_init(&con->rcuwait);
  	init_irq_work(&con->irq_work, nbcon_irq_work);
  	nbcon_seq_force(con, init_seq);

@@ -1,0 +1,53 @@
+From: Sebastian Andrzej Siewior <bigeasy@linutronix.de>
+Date: Tue, 4 Jun 2024 17:24:19 +0200
+Subject: [PATCH 13/15] net: Use nested-BH locking for bpf_scratchpad.
+
+bpf_scratchpad is a per-CPU variable and relies on disabled BH for its
+locking. Without per-CPU locking in local_bh_disable() on PREEMPT_RT
+this data structure requires explicit locking.
+
+Add a local_lock_t to the data structure and use local_lock_nested_bh()
+for locking. This change adds only lockdep coverage and does not alter
+the functional behaviour for !PREEMPT_RT.
+
+Cc: Alexei Starovoitov <ast@kernel.org>
+Cc: Andrii Nakryiko <andrii@kernel.org>
+Cc: Hao Luo <haoluo@google.com>
+Cc: Jiri Olsa <jolsa@kernel.org>
+Cc: John Fastabend <john.fastabend@gmail.com>
+Cc: KP Singh <kpsingh@kernel.org>
+Cc: Martin KaFai Lau <martin.lau@linux.dev>
+Cc: Song Liu <song@kernel.org>
+Cc: Stanislav Fomichev <sdf@google.com>
+Cc: Yonghong Song <yonghong.song@linux.dev>
+Cc: bpf@vger.kernel.org
+Link: https://lore.kernel.org/r/20240604154425.878636-13-bigeasy@linutronix.de
+Signed-off-by: Sebastian Andrzej Siewior <bigeasy@linutronix.de>
+---
+ net/core/filter.c |    6 +++++-
+ 1 file changed, 5 insertions(+), 1 deletion(-)
+
+--- a/net/core/filter.c
++++ b/net/core/filter.c
+@@ -1658,9 +1658,12 @@ struct bpf_scratchpad {
+ 		__be32 diff[MAX_BPF_STACK / sizeof(__be32)];
+ 		u8     buff[MAX_BPF_STACK];
+ 	};
++	local_lock_t	bh_lock;
+ };
+ 
+-static DEFINE_PER_CPU(struct bpf_scratchpad, bpf_sp);
++static DEFINE_PER_CPU(struct bpf_scratchpad, bpf_sp) = {
++	.bh_lock	= INIT_LOCAL_LOCK(bh_lock),
++};
+ 
+ static inline int __bpf_try_make_writable(struct sk_buff *skb,
+ 					  unsigned int write_len)
+@@ -2029,6 +2032,7 @@ BPF_CALL_5(bpf_csum_diff, __be32 *, from
+ 		     diff_size > sizeof(sp->diff)))
+ 		return -EINVAL;
+ 
++	guard(local_lock_nested_bh)(&bpf_sp.bh_lock);
+ 	for (i = 0; i < from_size / sizeof(__be32); i++, j++)
+ 		sp->diff[j] = ~from[i];
+ 	for (i = 0; i <   to_size / sizeof(__be32); i++, j++)

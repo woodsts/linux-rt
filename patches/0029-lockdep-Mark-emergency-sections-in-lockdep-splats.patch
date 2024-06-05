@@ -1,6 +1,6 @@
 From: John Ogness <john.ogness@linutronix.de>
 Date: Mon, 18 Sep 2023 20:27:41 +0000
-Subject: [PATCH 29/46] lockdep: Mark emergency sections in lockdep splats
+Subject: [PATCH 29/48] lockdep: Mark emergency sections in lockdep splats
 
 Mark emergency sections wherever multiple lines of
 lock debugging output are generated. In an emergency
@@ -17,6 +17,7 @@ functions can also be called in non-emergency
 situations (such as sysrq).
 
 Signed-off-by: John Ogness <john.ogness@linutronix.de>
+Reviewed-by: Petr Mladek <pmladek@suse.com>
 Signed-off-by: Sebastian Andrzej Siewior <bigeasy@linutronix.de>
 ---
  kernel/locking/lockdep.c |   84 +++++++++++++++++++++++++++++++++++++++++++++--

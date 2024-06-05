@@ -1,6 +1,6 @@
 From: John Ogness <john.ogness@linutronix.de>
 Date: Thu, 2 May 2024 08:02:58 +0000
-Subject: [PATCH 38/46] proc: consoles: Add notation to c_start/c_stop
+Subject: [PATCH 41/48] proc: consoles: Add notation to c_start/c_stop
 
 fs/proc/consoles.c:78:13: warning: context imbalance in 'c_start'
 	- wrong count at exit

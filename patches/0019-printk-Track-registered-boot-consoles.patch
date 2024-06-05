@@ -1,6 +1,6 @@
 From: John Ogness <john.ogness@linutronix.de>
 Date: Tue, 24 Oct 2023 14:13:14 +0000
-Subject: [PATCH 19/46] printk: Track registered boot consoles
+Subject: [PATCH 19/48] printk: Track registered boot consoles
 
 Unfortunately it is not known if a boot console and a regular
 (legacy or nbcon) console use the same hardware. For this reason
@@ -39,7 +39,7 @@ Signed-off-by: Sebastian Andrzej Siewior <bigeasy@linutronix.de>
  #ifdef CONFIG_PRINTK
  DECLARE_WAIT_QUEUE_HEAD(log_wait);
  /* All 3 protected by @syslog_lock. */
-@@ -3553,6 +3561,9 @@ void register_console(struct console *ne
+@@ -3554,6 +3562,9 @@ void register_console(struct console *ne
  		newcon->seq = init_seq;
  	}
  
@@ -49,17 +49,17 @@ Signed-off-by: Sebastian Andrzej Siewior <bigeasy@linutronix.de>
  	/*
  	 * If another context is actively using the hardware of this new
  	 * console, it will not be aware of the nbcon synchronization. This
-@@ -3622,7 +3633,9 @@ EXPORT_SYMBOL(register_console);
- /* Must be called under console_list_lock(). */
+@@ -3624,7 +3635,9 @@ EXPORT_SYMBOL(register_console);
  static int unregister_console_locked(struct console *console)
  {
+ 	bool use_device_lock = (console->flags & CON_NBCON) && console->write_atomic;
 +	bool found_boot_con = false;
  	unsigned long flags;
 +	struct console *c;
  	int res;
  
  	lockdep_assert_console_list_lock_held();
-@@ -3680,6 +3693,17 @@ static int unregister_console_locked(str
+@@ -3682,6 +3695,17 @@ static int unregister_console_locked(str
  	if (console->exit)
  		res = console->exit(console);
  

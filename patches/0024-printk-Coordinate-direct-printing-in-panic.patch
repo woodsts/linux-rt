@@ -1,6 +1,6 @@
 From: John Ogness <john.ogness@linutronix.de>
 Date: Wed, 22 Nov 2023 11:56:58 +0000
-Subject: [PATCH 24/46] printk: Coordinate direct printing in panic
+Subject: [PATCH 24/48] printk: Coordinate direct printing in panic
 
 Perform printing by nbcon consoles on the panic CPU from the
 printk() caller context in order to get panic messages printed
@@ -32,10 +32,10 @@ Signed-off-by: Sebastian Andrzej Siewior <bigeasy@linutronix.de>
  void printk_trigger_flush(void);
  void console_replay_all(void);
 +void printk_legacy_allow_panic_sync(void);
- extern bool nbcon_driver_try_acquire(struct console *con);
- extern void nbcon_driver_release(struct console *con);
+ extern bool nbcon_device_try_acquire(struct console *con);
+ extern void nbcon_device_release(struct console *con);
  void nbcon_atomic_flush_unsafe(void);
-@@ -285,6 +286,10 @@ static inline void console_replay_all(vo
+@@ -286,6 +287,10 @@ static inline void console_replay_all(vo
  {
  }
  
@@ -43,7 +43,7 @@ Signed-off-by: Sebastian Andrzej Siewior <bigeasy@linutronix.de>
 +{
 +}
 +
- static inline bool nbcon_driver_try_acquire(struct console *con)
+ static inline bool nbcon_device_try_acquire(struct console *con)
  {
  	return false;
 --- a/kernel/panic.c

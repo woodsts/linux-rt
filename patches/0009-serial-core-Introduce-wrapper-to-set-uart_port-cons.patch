@@ -1,6 +1,9 @@
 From: John Ogness <john.ogness@linutronix.de>
 Date: Wed, 17 Apr 2024 12:13:24 +0000
-Subject: [PATCH 09/46] serial: core: Introduce wrapper to set @uart_port->cons
+Subject: [PATCH 09/48] serial: core: Introduce wrapper to set @uart_port->cons
+MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
 
 Introduce uart_port_set_cons() as a wrapper to set @cons of a
 uart_port. The wrapper sets @cons under the port lock in order
@@ -10,6 +13,9 @@ commit relating to the port lock wrappers, which rely on @cons
 not changing between lock and unlock.
 
 Signed-off-by: John Ogness <john.ogness@linutronix.de>
+Tested-by: Théo Lebrun <theo.lebrun@bootlin.com> # EyeQ5, AMBA-PL011
+Acked-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Reviewed-by: Petr Mladek <pmladek@suse.com>
 Signed-off-by: Sebastian Andrzej Siewior <bigeasy@linutronix.de>
 ---
  drivers/tty/serial/8250/8250_core.c |    6 +++---

@@ -1,6 +1,6 @@
 From: John Ogness <john.ogness@linutronix.de>
 Date: Thu, 28 Mar 2024 13:29:10 +0000
-Subject: [PATCH 36/46] printk: Provide helper for message prepending
+Subject: [PATCH 38/48] printk: Provide helper for message prepending
 
 In order to support prepending different texts to printk
 messages, split out the prepending code into a helper

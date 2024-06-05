@@ -1,6 +1,6 @@
 From: John Ogness <john.ogness@linutronix.de>
 Date: Tue, 19 Sep 2023 14:33:27 +0000
-Subject: [PATCH 20/46] printk: nbcon: Use nbcon consoles in
+Subject: [PATCH 20/48] printk: nbcon: Use nbcon consoles in
  console_flush_all()
 
 Allow nbcon consoles to print messages in the legacy printk()
@@ -21,6 +21,7 @@ handovers/takeovers occur on a per-console basis and thus do
 not cause the console_flush_all() loop to abort.
 
 Signed-off-by: John Ogness <john.ogness@linutronix.de>
+Reviewed-by: Petr Mladek <pmladek@suse.com>
 Signed-off-by: Sebastian Andrzej Siewior <bigeasy@linutronix.de>
 ---
  kernel/printk/internal.h |    6 +++

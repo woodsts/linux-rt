@@ -1,16 +1,17 @@
 From: Thomas Gleixner <tglx@linutronix.de>
 Date: Tue, 26 Sep 2023 13:03:52 +0000
-Subject: [PATCH 33/46] printk: nbcon: Add printer thread wakeups
+Subject: [PATCH 35/48] printk: nbcon: Add printer thread wakeups
 
-Add a function to wakeup the printer threads. Use the new function
-when:
+Add a function to wakeup the printer threads. The printer threads
+are woken when:
 
-  - records are added to the printk ringbuffer
+  - a record is added to the printk ringbuffer
   - consoles are resumed
   - triggered via printk_trigger_flush()
+  - consoles should be replayed via sysrq
 
-The actual waking is performed via irq_work so that the wakeup can
-be triggered from any context.
+The actual waking is performed via irq_work so that the function
+can be called from any context.
 
 Co-developed-by: John Ogness <john.ogness@linutronix.de>
 Signed-off-by: John Ogness <john.ogness@linutronix.de>
@@ -20,8 +21,8 @@ Signed-off-by: Sebastian Andrzej Siewior <bigeasy@linutronix.de>
  include/linux/console.h  |    3 ++
  kernel/printk/internal.h |    1 
  kernel/printk/nbcon.c    |   56 +++++++++++++++++++++++++++++++++++++++++++++++
- kernel/printk/printk.c   |    7 +++++
- 4 files changed, 67 insertions(+)
+ kernel/printk/printk.c   |    8 ++++++
+ 4 files changed, 68 insertions(+)
 
 --- a/include/linux/console.h
 +++ b/include/linux/console.h
@@ -51,7 +52,7 @@ Signed-off-by: Sebastian Andrzej Siewior <bigeasy@linutronix.de>
  #ifdef CONFIG_LOCKDEP
 --- a/kernel/printk/internal.h
 +++ b/kernel/printk/internal.h
-@@ -91,6 +91,7 @@ void nbcon_atomic_flush_pending(void);
+@@ -93,6 +93,7 @@ void nbcon_atomic_flush_pending(void);
  bool nbcon_legacy_emit_next_record(struct console *con, bool *handover,
  				   int cookie);
  void nbcon_kthread_create(struct console *con);
@@ -61,7 +62,7 @@ Signed-off-by: Sebastian Andrzej Siewior <bigeasy@linutronix.de>
   * Check if the given console is currently capable and allowed to print
 --- a/kernel/printk/nbcon.c
 +++ b/kernel/printk/nbcon.c
-@@ -1056,6 +1056,61 @@ static int nbcon_kthread_func(void *__co
+@@ -1058,6 +1058,61 @@ static int nbcon_kthread_func(void *__co
  	goto wait_for_event;
  }
  
@@ -123,7 +124,7 @@ Signed-off-by: Sebastian Andrzej Siewior <bigeasy@linutronix.de>
  /* Track the nbcon emergency nesting per CPU. */
  static DEFINE_PER_CPU(unsigned int, nbcon_pcpu_emergency_nesting);
  static unsigned int early_nbcon_pcpu_emergency_nesting __initdata;
-@@ -1538,6 +1593,7 @@ void nbcon_init(struct console *con, u64
+@@ -1569,6 +1624,7 @@ void nbcon_init(struct console *con, u64
  	BUG_ON(!con->pbufs);
  
  	rcuwait_init(&con->rcuwait);
@@ -153,7 +154,7 @@ Signed-off-by: Sebastian Andrzej Siewior <bigeasy@linutronix.de>
  	cookie = console_srcu_read_lock();
  	for_each_console_srcu(con) {
  		flags = console_srcu_read_flags(con);
-@@ -4188,6 +4194,7 @@ void defer_console_output(void)
+@@ -4193,6 +4199,7 @@ void defer_console_output(void)
  
  void printk_trigger_flush(void)
  {
@@ -161,3 +162,11 @@ Signed-off-by: Sebastian Andrzej Siewior <bigeasy@linutronix.de>
  	defer_console_output();
  }
  
+@@ -4528,6 +4535,7 @@ void console_try_replay_all(void)
+ {
+ 	if (console_trylock()) {
+ 		__console_rewind_all();
++		nbcon_wake_threads();
+ 		/* Consoles are flushed as part of console_unlock(). */
+ 		console_unlock();
+ 	}

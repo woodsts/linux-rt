@@ -22,6 +22,27 @@ drm-ttm-tests-Let-ttm_bo_test-consider-different-ww_.patch
 pinctrl-renesas-rzg2l-Use-spin_-lock-unlock-_irq-sav.patch
 memcg-Remove-the-lockdep-assert-from-__mod_objcg_mls.patch
 
+# BH series.
+0001-locking-local_lock-Introduce-guard-definition-for-lo.patch
+0002-locking-local_lock-Add-local-nested-BH-locking-infra.patch
+0003-net-Use-__napi_alloc_frag_align-instead-of-open-codi.patch
+0004-net-Use-nested-BH-locking-for-napi_alloc_cache.patch
+0005-net-tcp_sigpool-Use-nested-BH-locking-for-sigpool_sc.patch
+0006-net-ipv4-Use-nested-BH-locking-for-ipv4_tcp_sk.patch
+0007-netfilter-br_netfilter-Use-nested-BH-locking-for-brn.patch
+0008-net-softnet_data-Make-xmit.recursion-per-task.patch
+0009-dev-Remove-PREEMPT_RT-ifdefs-from-backlog_lock.patch
+0010-dev-Use-nested-BH-locking-for-softnet_data.process_q.patch
+0011-lwt-Don-t-disable-migration-prio-invoking-BPF.patch
+0012-seg6-Use-nested-BH-locking-for-seg6_bpf_srh_states.patch
+0013-net-Use-nested-BH-locking-for-bpf_scratchpad.patch
+0014-net-Reference-bpf_redirect_info-via-task_struct-on-P.patch
+0015-net-Move-per-CPU-flush-lists-to-bpf_net_context-on-P.patch
+# tw_timer
+0001-net-tcp-dccp-prepare-for-tw_timer-un-pinning.patch
+0002-net-tcp-un-pin-the-tw_timer.patch
+0003-tcp-move-inet_twsk_schedule-helper-out-of-header.patch
+
 ###########################################################################
 # Post
 ###########################################################################
@@ -63,7 +84,7 @@ zram-Replace-bit-spinlocks-with-spinlock_t-for-PREEM.patch
 0008-serial-core-Provide-low-level-functions-to-lock-port.patch
 0009-serial-core-Introduce-wrapper-to-set-uart_port-cons.patch
 0010-console-Improve-console_srcu_read_flags-comments.patch
-0011-nbcon-Provide-functions-for-drivers-to-acquire-conso.patch
+0011-nbcon-Add-API-to-acquire-context-for-non-printing-op.patch
 0012-serial-core-Implement-processing-in-port-lock-wrappe.patch
 0013-printk-nbcon-Do-not-rely-on-proxy-headers.patch
 0014-printk-Make-console_is_usable-available-to-nbcon.patch
@@ -82,23 +103,25 @@ zram-Replace-bit-spinlocks-with-spinlock_t-for-PREEM.patch
 0027-panic-Mark-emergency-section-in-oops.patch
 0028-rcu-Mark-emergency-sections-in-rcu-stalls.patch
 0029-lockdep-Mark-emergency-sections-in-lockdep-splats.patch
-0030-printk-nbcon-Introduce-printing-kthreads.patch
-0031-printk-Atomic-print-in-printk-context-on-shutdown.patch
-0032-printk-nbcon-Add-context-to-console_is_usable.patch
-0033-printk-nbcon-Add-printer-thread-wakeups.patch
-0034-printk-nbcon-Stop-threads-on-shutdown-reboot.patch
-0035-printk-nbcon-Start-printing-threads.patch
-0036-printk-Provide-helper-for-message-prepending.patch
-0037-printk-nbcon-Show-replay-message-on-takeover.patch
-0038-proc-consoles-Add-notation-to-c_start-c_stop.patch
-0039-proc-Add-nbcon-support-for-proc-consoles.patch
-0040-tty-sysfs-Add-nbcon-support-for-active.patch
-0041-printk-nbcon-Provide-function-to-reacquire-ownership.patch
-0042-serial-8250-Switch-to-nbcon-console.patch
-0043-serial-8250-Revert-drop-lockdep-annotation-from-seri.patch
-0044-printk-Add-kthread-for-all-legacy-consoles.patch
-0045-printk-Provide-threadprintk-boot-argument.patch
-0046-printk-Avoid-false-positive-lockdep-report-for-legac.patch
+0030-printk-Rename-console_replay_all-and-update-context.patch
+0031-printk-nbcon-Introduce-printing-kthreads.patch
+0032-printk-Atomic-print-in-printk-context-on-shutdown.patch
+0033-printk-nbcon-Fix-nbcon_cpu_emergency_flush-when-pree.patch
+0034-printk-nbcon-Add-context-to-console_is_usable.patch
+0035-printk-nbcon-Add-printer-thread-wakeups.patch
+0036-printk-nbcon-Stop-threads-on-shutdown-reboot.patch
+0037-printk-nbcon-Start-printing-threads.patch
+0038-printk-Provide-helper-for-message-prepending.patch
+0039-printk-nbcon-Show-replay-message-on-takeover.patch
+0040-printk-Add-kthread-for-all-legacy-consoles.patch
+0041-proc-consoles-Add-notation-to-c_start-c_stop.patch
+0042-proc-Add-nbcon-support-for-proc-consoles.patch
+0043-tty-sysfs-Add-nbcon-support-for-active.patch
+0044-printk-Provide-threadprintk-boot-argument.patch
+0045-printk-Avoid-false-positive-lockdep-report-for-legac.patch
+0046-printk-nbcon-Add-function-for-printers-to-reacquire-.patch
+0047-serial-8250-Switch-to-nbcon-console.patch
+0048-serial-8250-Revert-drop-lockdep-annotation-from-seri.patch
 
 ###########################################################################
 # DRM:
