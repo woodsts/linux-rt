@@ -20,7 +20,6 @@
 drm-ttm-tests-Let-ttm_bo_test-consider-different-ww_.patch
 
 pinctrl-renesas-rzg2l-Use-spin_-lock-unlock-_irq-sav.patch
-memcg-Remove-the-lockdep-assert-from-__mod_objcg_mls.patch
 
 # BH series.
 0001-locking-local_lock-Introduce-guard-definition-for-lo.patch
