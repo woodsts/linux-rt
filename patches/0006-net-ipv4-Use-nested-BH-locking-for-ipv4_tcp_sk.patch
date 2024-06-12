@@ -1,5 +1,5 @@
 From: Sebastian Andrzej Siewior <bigeasy@linutronix.de>
-Date: Tue, 4 Jun 2024 17:24:12 +0200
+Date: Tue, 24 Oct 2023 09:38:48 +0200
 Subject: [PATCH 06/15] net/ipv4: Use nested-BH locking for ipv4_tcp_sk.
 
 ipv4_tcp_sk is a per-CPU variable and relies on disabled BH for its
@@ -12,7 +12,6 @@ adds only lockdep coverage and does not alter the functional behaviour
 for !PREEMPT_RT.
 
 Cc: David Ahern <dsahern@kernel.org>
-Link: https://lore.kernel.org/r/20240604154425.878636-6-bigeasy@linutronix.de
 Signed-off-by: Sebastian Andrzej Siewior <bigeasy@linutronix.de>
 ---
  include/net/sock.h  |    5 +++++

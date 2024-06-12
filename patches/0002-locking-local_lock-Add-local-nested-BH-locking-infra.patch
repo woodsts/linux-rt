@@ -1,5 +1,5 @@
 From: Sebastian Andrzej Siewior <bigeasy@linutronix.de>
-Date: Tue, 4 Jun 2024 17:24:08 +0200
+Date: Fri, 18 Aug 2023 15:17:44 +0200
 Subject: [PATCH 02/15] locking/local_lock: Add local nested BH locking
  infrastructure.
 
@@ -26,7 +26,8 @@ the locking scope to what actually needs protecting.
 A side effect is that it also documents the protection scope of the
 per-CPU variables.
 
-Link: https://lore.kernel.org/r/20240604154425.878636-2-bigeasy@linutronix.de
+Acked-by: Peter Zijlstra (Intel) <peterz@infradead.org>
+Reviewed-by: Thomas Gleixner <tglx@linutronix.de>
 Signed-off-by: Sebastian Andrzej Siewior <bigeasy@linutronix.de>
 ---
  include/linux/local_lock.h          |   10 ++++++++++
@@ -106,7 +107,7 @@ Signed-off-by: Sebastian Andrzej Siewior <bigeasy@linutronix.de>
  #endif /* CONFIG_PREEMPT_RT */
 --- a/include/linux/lockdep.h
 +++ b/include/linux/lockdep.h
-@@ -605,6 +605,8 @@ do {									\
+@@ -600,6 +600,8 @@ do {									\
  		     (!in_softirq() || in_irq() || in_nmi()));		\
  } while (0)
  
@@ -115,7 +116,7 @@ Signed-off-by: Sebastian Andrzej Siewior <bigeasy@linutronix.de>
  #else
  # define might_lock(lock) do { } while (0)
  # define might_lock_read(lock) do { } while (0)
-@@ -618,6 +620,7 @@ do {									\
+@@ -613,6 +615,7 @@ do {									\
  # define lockdep_assert_preemption_enabled() do { } while (0)
  # define lockdep_assert_preemption_disabled() do { } while (0)
  # define lockdep_assert_in_softirq() do { } while (0)

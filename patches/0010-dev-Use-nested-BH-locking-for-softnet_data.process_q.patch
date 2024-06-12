@@ -1,5 +1,5 @@
 From: Sebastian Andrzej Siewior <bigeasy@linutronix.de>
-Date: Tue, 4 Jun 2024 17:24:16 +0200
+Date: Tue, 22 Aug 2023 18:15:33 +0200
 Subject: [PATCH 10/15] dev: Use nested-BH locking for
  softnet_data.process_queue.
 
@@ -15,7 +15,6 @@ Add a local_lock_t to softnet_data and use local_lock_nested_bh() for locking
 of process_queue. This change adds only lockdep coverage and does not
 alter the functional behaviour for !PREEMPT_RT.
 
-Link: https://lore.kernel.org/r/20240604154425.878636-10-bigeasy@linutronix.de
 Signed-off-by: Sebastian Andrzej Siewior <bigeasy@linutronix.de>
 ---
  include/linux/netdevice.h |    1 +
@@ -45,7 +44,7 @@ Signed-off-by: Sebastian Andrzej Siewior <bigeasy@linutronix.de>
  EXPORT_PER_CPU_SYMBOL(softnet_data);
  
  /* Page_pool has a lockless array/stack to alloc/recycle pages.
-@@ -5934,6 +5936,7 @@ static void flush_backlog(struct work_st
+@@ -5935,6 +5937,7 @@ static void flush_backlog(struct work_st
  	}
  	backlog_unlock_irq_enable(sd);
  
@@ -53,7 +52,7 @@ Signed-off-by: Sebastian Andrzej Siewior <bigeasy@linutronix.de>
  	skb_queue_walk_safe(&sd->process_queue, skb, tmp) {
  		if (skb->dev->reg_state == NETREG_UNREGISTERING) {
  			__skb_unlink(skb, &sd->process_queue);
-@@ -5941,6 +5944,7 @@ static void flush_backlog(struct work_st
+@@ -5942,6 +5945,7 @@ static void flush_backlog(struct work_st
  			rps_input_queue_head_incr(sd);
  		}
  	}
@@ -61,7 +60,7 @@ Signed-off-by: Sebastian Andrzej Siewior <bigeasy@linutronix.de>
  	local_bh_enable();
  }
  
-@@ -6062,7 +6066,9 @@ static int process_backlog(struct napi_s
+@@ -6063,7 +6067,9 @@ static int process_backlog(struct napi_s
  	while (again) {
  		struct sk_buff *skb;
  
@@ -71,7 +70,7 @@ Signed-off-by: Sebastian Andrzej Siewior <bigeasy@linutronix.de>
  			rcu_read_lock();
  			__netif_receive_skb(skb);
  			rcu_read_unlock();
-@@ -6071,7 +6077,9 @@ static int process_backlog(struct napi_s
+@@ -6072,7 +6078,9 @@ static int process_backlog(struct napi_s
  				return work;
  			}
  
@@ -81,7 +80,7 @@ Signed-off-by: Sebastian Andrzej Siewior <bigeasy@linutronix.de>
  
  		backlog_lock_irq_disable(sd);
  		if (skb_queue_empty(&sd->input_pkt_queue)) {
-@@ -6086,8 +6094,10 @@ static int process_backlog(struct napi_s
+@@ -6087,8 +6095,10 @@ static int process_backlog(struct napi_s
  			napi->state &= NAPIF_STATE_THREADED;
  			again = false;
  		} else {

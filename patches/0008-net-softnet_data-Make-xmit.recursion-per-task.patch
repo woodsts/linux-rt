@@ -1,5 +1,5 @@
 From: Sebastian Andrzej Siewior <bigeasy@linutronix.de>
-Date: Tue, 4 Jun 2024 17:24:14 +0200
+Date: Mon, 21 Aug 2023 11:47:40 +0200
 Subject: [PATCH 08/15] net: softnet_data: Make xmit.recursion per task.
 
 Softirq is preemptible on PREEMPT_RT. Without a per-CPU lock in
@@ -27,7 +27,6 @@ Cc: Mel Gorman <mgorman@suse.de>
 Cc: Steven Rostedt <rostedt@goodmis.org>
 Cc: Valentin Schneider <vschneid@redhat.com>
 Cc: Vincent Guittot <vincent.guittot@linaro.org>
-Link: https://lore.kernel.org/r/20240604154425.878636-8-bigeasy@linutronix.de
 Signed-off-by: Sebastian Andrzej Siewior <bigeasy@linutronix.de>
 ---
  include/linux/netdevice.h |   11 +++++++++++

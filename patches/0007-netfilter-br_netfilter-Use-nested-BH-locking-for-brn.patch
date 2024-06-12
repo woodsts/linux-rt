@@ -1,5 +1,5 @@
 From: Sebastian Andrzej Siewior <bigeasy@linutronix.de>
-Date: Tue, 4 Jun 2024 17:24:13 +0200
+Date: Mon, 21 Aug 2023 09:59:09 +0200
 Subject: [PATCH 07/15] netfilter: br_netfilter: Use nested-BH locking for
  brnf_frag_data_storage.
 
@@ -19,11 +19,10 @@ Cc: Roopa Prabhu <roopa@nvidia.com>
 Cc: bridge@lists.linux.dev
 Cc: coreteam@netfilter.org
 Cc: netfilter-devel@vger.kernel.org
-Link: https://lore.kernel.org/r/20240604154425.878636-7-bigeasy@linutronix.de
 Signed-off-by: Sebastian Andrzej Siewior <bigeasy@linutronix.de>
 ---
- net/bridge/br_netfilter_hooks.c |    7 ++++++-
- 1 file changed, 6 insertions(+), 1 deletion(-)
+ net/bridge/br_netfilter_hooks.c |   20 ++++++++++++++++----
+ 1 file changed, 16 insertions(+), 4 deletions(-)
 
 --- a/net/bridge/br_netfilter_hooks.c
 +++ b/net/bridge/br_netfilter_hooks.c
@@ -46,19 +45,53 @@ Signed-off-by: Sebastian Andrzej Siewior <bigeasy@linutronix.de>
  
  static void nf_bridge_info_free(struct sk_buff *skb)
  {
-@@ -882,6 +885,7 @@ static int br_nf_dev_queue_xmit(struct n
+@@ -850,6 +853,7 @@ static int br_nf_dev_queue_xmit(struct n
+ {
+ 	struct nf_bridge_info *nf_bridge = nf_bridge_info_get(skb);
+ 	unsigned int mtu, mtu_reserved;
++	int ret;
+ 
+ 	mtu_reserved = nf_bridge_mtu_reduction(skb);
+ 	mtu = skb->dev->mtu;
+@@ -882,6 +886,7 @@ static int br_nf_dev_queue_xmit(struct n
  
  		IPCB(skb)->frag_max_size = nf_bridge->frag_max_size;
  
-+		guard(local_lock_nested_bh)(&brnf_frag_data_storage.bh_lock);
++		local_lock_nested_bh(&brnf_frag_data_storage.bh_lock);
  		data = this_cpu_ptr(&brnf_frag_data_storage);
  
  		if (skb_vlan_tag_present(skb)) {
-@@ -909,6 +913,7 @@ static int br_nf_dev_queue_xmit(struct n
+@@ -897,7 +902,9 @@ static int br_nf_dev_queue_xmit(struct n
+ 		skb_copy_from_linear_data_offset(skb, -data->size, data->mac,
+ 						 data->size);
+ 
+-		return br_nf_ip_fragment(net, sk, skb, br_nf_push_frag_xmit);
++		ret = br_nf_ip_fragment(net, sk, skb, br_nf_push_frag_xmit);
++		local_unlock_nested_bh(&brnf_frag_data_storage.bh_lock);
++		return ret;
+ 	}
+ 	if (IS_ENABLED(CONFIG_NF_DEFRAG_IPV6) &&
+ 	    skb->protocol == htons(ETH_P_IPV6)) {
+@@ -909,6 +916,7 @@ static int br_nf_dev_queue_xmit(struct n
  
  		IP6CB(skb)->frag_max_size = nf_bridge->frag_max_size;
  
-+		guard(local_lock_nested_bh)(&brnf_frag_data_storage.bh_lock);
++		local_lock_nested_bh(&brnf_frag_data_storage.bh_lock);
  		data = this_cpu_ptr(&brnf_frag_data_storage);
  		data->encap_size = nf_bridge_encap_header_len(skb);
  		data->size = ETH_HLEN + data->encap_size;
+@@ -916,8 +924,12 @@ static int br_nf_dev_queue_xmit(struct n
+ 		skb_copy_from_linear_data_offset(skb, -data->size, data->mac,
+ 						 data->size);
+ 
+-		if (v6ops)
+-			return v6ops->fragment(net, sk, skb, br_nf_push_frag_xmit);
++		if (v6ops) {
++			ret = v6ops->fragment(net, sk, skb, br_nf_push_frag_xmit);
++			local_unlock_nested_bh(&brnf_frag_data_storage.bh_lock);
++			return ret;
++		}
++		local_unlock_nested_bh(&brnf_frag_data_storage.bh_lock);
+ 
+ 		kfree_skb(skb);
+ 		return -EMSGSIZE;

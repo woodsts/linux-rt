@@ -1,5 +1,5 @@
 From: Sebastian Andrzej Siewior <bigeasy@linutronix.de>
-Date: Tue, 4 Jun 2024 17:24:11 +0200
+Date: Fri, 24 Nov 2023 10:11:03 +0100
 Subject: [PATCH 05/15] net/tcp_sigpool: Use nested-BH locking for
  sigpool_scratch.
 
@@ -13,7 +13,6 @@ adds only lockdep coverage and does not alter the functional behaviour
 for !PREEMPT_RT.
 
 Cc: David Ahern <dsahern@kernel.org>
-Link: https://lore.kernel.org/r/20240604154425.878636-5-bigeasy@linutronix.de
 Signed-off-by: Sebastian Andrzej Siewior <bigeasy@linutronix.de>
 ---
  net/ipv4/tcp_sigpool.c |   17 +++++++++++++----

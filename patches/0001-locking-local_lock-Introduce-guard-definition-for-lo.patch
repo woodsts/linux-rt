@@ -1,12 +1,13 @@
 From: Sebastian Andrzej Siewior <bigeasy@linutronix.de>
-Date: Wed, 29 May 2024 18:02:24 +0200
+Date: Mon, 23 Oct 2023 16:14:09 +0200
 Subject: [PATCH 01/15] locking/local_lock: Introduce guard definition for
  local_lock.
 
 Introduce lock guard definition for local_lock_t. There are no users
 yet.
 
-Link: https://lore.kernel.org/r/20240529162927.403425-2-bigeasy@linutronix.de
+Acked-by: Peter Zijlstra (Intel) <peterz@infradead.org>
+Reviewed-by: Thomas Gleixner <tglx@linutronix.de>
 Signed-off-by: Sebastian Andrzej Siewior <bigeasy@linutronix.de>
 ---
  include/linux/local_lock.h |   11 +++++++++++
