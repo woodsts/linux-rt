@@ -37,7 +37,15 @@ within NET_RX_SOFTIRQ/ net_rx_action which uses bpf_net_ctx_set() and
 NET_TX_SOFTIRQ which does not. Therefore only the first invocations
 updates the pointer.
 Use bpf_net_ctx_get_ri() as a wrapper to retrieve the current struct
-bpf_redirect_info.
+bpf_redirect_info. The returned data structure is zero initialized to
+ensure nothing is leaked from stack. This is done on first usage of the
+struct. bpf_net_ctx_set() sets bpf_redirect_info::kern_flags to 0 to
+note that initialisation is required. First invocation of
+bpf_net_ctx_get_ri() will memset() the data structure and update
+bpf_redirect_info::kern_flags.
+bpf_redirect_info::nh is excluded from memset because it is only used
+once BPF_F_NEIGH is set which also sets the nh member. The kern_flags is
+moved past nh to exclude it from memset.
 
 The pointer to bpf_net_context is saved task's task_struct. Using
 always the bpf_net_context approach has the advantage that there is

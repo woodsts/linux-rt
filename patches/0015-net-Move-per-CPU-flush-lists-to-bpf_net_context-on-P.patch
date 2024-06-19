@@ -12,7 +12,8 @@ same problem as struct bpf_redirect_info.
 
 Add the per-CPU lists cpu_map_flush_list, dev_map_flush_list and
 xskmap_map_flush_list to struct bpf_net_context. Add wrappers for the
-access.
+access. The lists initialized on first usage (similar to
+bpf_net_ctx_get_ri()).
 
 Cc: "Björn Töpel" <bjorn@kernel.org>
 Cc: Alexei Starovoitov <ast@kernel.org>

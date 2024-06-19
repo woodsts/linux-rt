@@ -1,6 +1,6 @@
 From: Mike Galbraith <umgwanakikbuti@gmail.com>
 Date: Sat, 27 Feb 2016 08:09:11 +0100
-Subject: [PATCH 03/10] drm/i915: Use preempt_disable/enable_rt() where
+Subject: [PATCH 1/8] drm/i915: Use preempt_disable/enable_rt() where
  recommended
 
 Mario Kleiner suggest in commit

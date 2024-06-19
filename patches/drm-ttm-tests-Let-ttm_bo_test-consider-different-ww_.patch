@@ -20,6 +20,8 @@ PREEMPT_RT and non-PREEMPT_RT builds.
 
 Fixes: 995279d280d1e ("drm/ttm/tests: Add tests for ttm_bo functions")
 Link: https://lore.kernel.org/r/20240404102534.QTa80QPY@linutronix.de
+Link: https://lore.kernel.org/r/20240613064716.WxAIvb9K@linutronix.de
+Link: https://lore.kernel.org/r/20240619144630.4DliKOmr@linutronix.de
 Signed-off-by: Sebastian Andrzej Siewior <bigeasy@linutronix.de>
 ---
  drivers/gpu/drm/ttm/tests/ttm_bo_test.c |    8 +++++++-

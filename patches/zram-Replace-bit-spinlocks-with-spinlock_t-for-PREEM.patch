@@ -14,6 +14,7 @@ Signed-off-by: Mike Galbraith <umgwanakikbuti@gmail.com>
 Signed-off-by: Sebastian Andrzej Siewior <bigeasy@linutronix.de>
 Link: https://lkml.kernel.org/r/YqIbMuHCPiQk+Ac2@linutronix.de
 Link: https://lore.kernel.org/20230323161830.jFbWCosd@linutronix.de
+Link: https://lore.kernel.org/20240619150814.BRAvaziM@linutronix.de
 ---
  drivers/block/zram/zram_drv.c |   37 +++++++++++++++++++++++++++++++++++++
  drivers/block/zram/zram_drv.h |    3 +++
