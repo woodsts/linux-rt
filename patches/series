@@ -8,11 +8,20 @@
 # Posted
 ###########################################################################
 
-# perf, sigtrap, v3
+# Frederick's
+0001-task_work-s-task_work_cancel-task_work_cancel_func.patch
+0002-task_work-Introduce-task_work_cancel-again.patch
+0003-perf-Fix-event-leak-upon-exit.patch
+0004-perf-Fix-event-leak-upon-exec-and-file-release.patch
+
+# perf, sigtrap, v4
+# https://lore.kernel.org/20240624152732.1231678-1-bigeasy@linutronix.de
 0001-perf-Move-irq_work_queue-where-the-event-is-prepared.patch
 0002-perf-Enqueue-SIGTRAP-always-via-task_work.patch
-0003-perf-Remove-perf_swevent_get_recursion_context-from-.patch
-0004-perf-Split-__perf_pending_irq-out-of-perf_pending_ir.patch
+0003-perf-Shrink-the-size-of-the-recursion-counter.patch
+0004-perf-Move-swevent_htable-recursion-into-task_struct.patch
+0005-perf-Don-t-disable-preemption-in-perf_pending_task.patch
+0006-perf-Split-__perf_pending_irq-out-of-perf_pending_ir.patch
 
 # locking.
 drm-ttm-tests-Let-ttm_bo_test-consider-different-ww_.patch
@@ -69,6 +78,8 @@ pinctrl-renesas-rzg2l-Use-spin_-lock-unlock-_irq-sav.patch
 0046-printk-nbcon-Add-function-for-printers-to-reacquire-.patch
 0047-serial-8250-Switch-to-nbcon-console.patch
 0048-serial-8250-Revert-drop-lockdep-annotation-from-seri.patch
+#
+prinkt-nbcon-Add-a-scheduling-point-to-nbcon_kthread.patch
 
 ###########################################################################
 # Post
@@ -95,7 +106,9 @@ tick-Fix-timer-storm-since-introduction-of-timersd.patch
 softirq-Wake-ktimers-thread-also-in-softirq.patch
 
 # zram
-zram-Replace-bit-spinlocks-with-spinlock_t-for-PREEM.patch
+0001-zram-Replace-bit-spinlocks-with-a-spinlock_t.patch
+0002-zram-Remove-ZRAM_LOCK.patch
+0003-zram-Shrink-zram_table_entry-flags.patch
 
 # Sched
 0001-sched-core-Provide-a-method-to-check-if-a-task-is-PI.patch

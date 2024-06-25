@@ -1,6 +1,6 @@
 From: Sebastian Andrzej Siewior <bigeasy@linutronix.de>
 Date: Tue, 12 Mar 2024 19:01:50 +0100
-Subject: [PATCH 2/4] perf: Enqueue SIGTRAP always via task_work.
+Subject: [PATCH v4 2/6] perf: Enqueue SIGTRAP always via task_work.
 
 A signal is delivered by raising irq_work() which works from any context
 including NMI. irq_work() can be delayed if the architecture does not
@@ -26,12 +26,11 @@ for a dummy interrupt. Remove the task_work if the event is freed.
 Tested-by: Marco Elver <elver@google.com>
 Tested-by: Arnaldo Carvalho de Melo <acme@redhat.com>
 Reported-by: Arnaldo Carvalho de Melo <acme@redhat.com>
-Link: https://lore.kernel.org/r/20240312180814.3373778-3-bigeasy@linutronix.de
 Signed-off-by: Sebastian Andrzej Siewior <bigeasy@linutronix.de>
 ---
- include/linux/perf_event.h |    3 --
- kernel/events/core.c       |   57 +++++++++++++++++++++++++--------------------
- 2 files changed, 33 insertions(+), 27 deletions(-)
+ include/linux/perf_event.h |    3 +--
+ kernel/events/core.c       |   36 +++++++++++++++---------------------
+ 2 files changed, 16 insertions(+), 23 deletions(-)
 
 --- a/include/linux/perf_event.h
 +++ b/include/linux/perf_event.h
@@ -43,7 +42,7 @@ Signed-off-by: Sebastian Andrzej Siewior <bigeasy@linutronix.de>
  	unsigned long			pending_addr;	/* SIGTRAP */
  	struct irq_work			pending_irq;
  	struct callback_head		pending_task;
-@@ -962,7 +961,7 @@ struct perf_event_context {
+@@ -963,7 +962,7 @@ struct perf_event_context {
  	struct rcu_head			rcu_head;
  
  	/*
@@ -54,29 +53,25 @@ Signed-off-by: Sebastian Andrzej Siewior <bigeasy@linutronix.de>
  	 * that until the signal is delivered.
 --- a/kernel/events/core.c
 +++ b/kernel/events/core.c
-@@ -2283,21 +2283,6 @@ event_sched_out(struct perf_event *event
+@@ -2283,17 +2283,6 @@ event_sched_out(struct perf_event *event
  		state = PERF_EVENT_STATE_OFF;
  	}
  
 -	if (event->pending_sigtrap) {
--		bool dec = true;
--
 -		event->pending_sigtrap = 0;
 -		if (state != PERF_EVENT_STATE_OFF &&
--		    !event->pending_work) {
+-		    !event->pending_work &&
+-		    !task_work_add(current, &event->pending_task, TWA_RESUME)) {
 -			event->pending_work = 1;
--			dec = false;
--			WARN_ON_ONCE(!atomic_long_inc_not_zero(&event->refcount));
--			task_work_add(current, &event->pending_task, TWA_RESUME);
--		}
--		if (dec)
+-		} else {
 -			local_dec(&event->ctx->nr_pending);
+-		}
 -	}
 -
  	perf_event_set_state(event, state);
  
  	if (!is_software_event(event))
-@@ -6752,11 +6737,6 @@ static void __perf_pending_irq(struct pe
+@@ -6787,11 +6776,6 @@ static void __perf_pending_irq(struct pe
  	 * Yay, we hit home and are in the context of the event.
  	 */
  	if (cpu == smp_processor_id()) {
@@ -88,18 +83,22 @@ Signed-off-by: Sebastian Andrzej Siewior <bigeasy@linutronix.de>
  		if (event->pending_disable) {
  			event->pending_disable = 0;
  			perf_event_disable_local(event);
-@@ -9696,14 +9676,23 @@ static int __perf_event_overflow(struct
+@@ -9735,18 +9719,28 @@ static int __perf_event_overflow(struct
  
  		if (regs)
  			pending_id = hash32_ptr((void *)instruction_pointer(regs)) ?: 1;
 -		if (!event->pending_sigtrap) {
 -			event->pending_sigtrap = pending_id;
-+		if (!event->pending_work) {
++
++		if (!event->pending_work &&
++		    !task_work_add(current, &event->pending_task, TWA_RESUME)) {
 +			event->pending_work = pending_id;
  			local_inc(&event->ctx->nr_pending);
+ 
+ 			event->pending_addr = 0;
+ 			if (valid_sample && (data->sample_flags & PERF_SAMPLE_ADDR))
+ 				event->pending_addr = data->addr;
 -			irq_work_queue(&event->pending_irq);
-+			WARN_ON_ONCE(!atomic_long_inc_not_zero(&event->refcount));
-+			task_work_add(current, &event->pending_task, TWA_RESUME);
 +			/*
 +			 * The NMI path returns directly to userland. The
 +			 * irq_work is raised as a dummy interrupt to ensure
@@ -108,6 +107,7 @@ Signed-off-by: Sebastian Andrzej Siewior <bigeasy@linutronix.de>
 +			 */
 +			if (in_nmi())
 +				irq_work_queue(&event->pending_irq);
++
  		} else if (event->attr.exclude_kernel && valid_sample) {
  			/*
  			 * Should not be able to return to user space without
@@ -116,44 +116,12 @@ Signed-off-by: Sebastian Andrzej Siewior <bigeasy@linutronix.de>
  			 *
  			 *  1. Where !exclude_kernel, events can overflow again
  			 *     in the kernel without returning to user space.
-@@ -9713,7 +9702,7 @@ static int __perf_event_overflow(struct
+@@ -9756,7 +9750,7 @@ static int __perf_event_overflow(struct
  			 *     To approximate progress (with false negatives),
  			 *     check 32-bit hash of the current IP.
  			 */
 -			WARN_ON_ONCE(event->pending_sigtrap != pending_id);
 +			WARN_ON_ONCE(event->pending_work != pending_id);
  		}
+ 	}
  
- 		event->pending_addr = 0;
-@@ -13060,6 +13049,13 @@ static void sync_child_event(struct perf
- 		     &parent_event->child_total_time_running);
- }
- 
-+static bool task_work_cb_match(struct callback_head *cb, void *data)
-+{
-+	struct perf_event *event = container_of(cb, struct perf_event, pending_task);
-+
-+	return event == data;
-+}
-+
- static void
- perf_event_exit_event(struct perf_event *event, struct perf_event_context *ctx)
- {
-@@ -13099,6 +13095,17 @@ perf_event_exit_event(struct perf_event
- 		 * Kick perf_poll() for is_event_hup();
- 		 */
- 		perf_event_wakeup(parent_event);
-+		/*
-+		 * Cancel pending task_work and update counters if it has not
-+		 * yet been delivered to userland. free_event() expects the
-+		 * reference counter at 1 and keeping the event around until the
-+		 * task return to userland will be a unexpected.
-+		 */
-+		if (event->pending_work &&
-+		    task_work_cancel_match(current, task_work_cb_match, event)) {
-+			put_event(event);
-+			local_dec(&event->ctx->nr_pending);
-+		}
- 		free_event(event);
- 		put_event(parent_event);
- 		return;
