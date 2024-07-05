@@ -35,7 +35,7 @@ Signed-off-by: Sebastian Andrzej Siewior <bigeasy@linutronix.de>
  	.handler        = sysrq_handle_replay_logs,
 --- a/include/linux/printk.h
 +++ b/include/linux/printk.h
-@@ -198,7 +198,7 @@ void show_regs_print_info(const char *lo
+@@ -195,7 +195,7 @@ void show_regs_print_info(const char *lo
  extern asmlinkage void dump_stack_lvl(const char *log_lvl) __cold;
  extern asmlinkage void dump_stack(void) __cold;
  void printk_trigger_flush(void);
@@ -44,7 +44,7 @@ Signed-off-by: Sebastian Andrzej Siewior <bigeasy@linutronix.de>
  void printk_legacy_allow_panic_sync(void);
  extern bool nbcon_device_try_acquire(struct console *con);
  extern void nbcon_device_release(struct console *con);
-@@ -283,7 +283,7 @@ static inline void printk_trigger_flush(
+@@ -280,7 +280,7 @@ static inline void printk_trigger_flush(
  {
  }
  
@@ -55,7 +55,7 @@ Signed-off-by: Sebastian Andrzej Siewior <bigeasy@linutronix.de>
  
 --- a/kernel/printk/printk.c
 +++ b/kernel/printk/printk.c
-@@ -4475,15 +4475,15 @@ void kmsg_dump_rewind(struct kmsg_dump_i
+@@ -4460,15 +4460,15 @@ void kmsg_dump_rewind(struct kmsg_dump_i
  EXPORT_SYMBOL_GPL(kmsg_dump_rewind);
  
  /**

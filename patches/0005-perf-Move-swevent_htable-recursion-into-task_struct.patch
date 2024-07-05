@@ -1,6 +1,6 @@
 From: Sebastian Andrzej Siewior <bigeasy@linutronix.de>
-Date: Fri, 21 Jun 2024 17:57:16 +0200
-Subject: [PATCH v4 4/6] perf: Move swevent_htable::recursion into task_struct.
+Date: Thu, 4 Jul 2024 19:03:39 +0200
+Subject: [PATCH 5/7] perf: Move swevent_htable::recursion into task_struct.
 
 The swevent_htable::recursion counter is used to avoid creating an
 swevent while an event is processed to avoid recursion. The counter is
@@ -17,6 +17,8 @@ recursion lost some weight it fits perfectly.
 
 Move swevent_htable::recursion into task_struct.
 
+Tested-by: Marco Elver <elver@google.com>
+Link: https://lore.kernel.org/r/20240704170424.1466941-6-bigeasy@linutronix.de
 Signed-off-by: Sebastian Andrzej Siewior <bigeasy@linutronix.de>
 ---
  include/linux/perf_event.h |    6 ------
@@ -65,7 +67,7 @@ Signed-off-by: Sebastian Andrzej Siewior <bigeasy@linutronix.de>
  	struct list_head		perf_event_list;
 --- a/kernel/events/core.c
 +++ b/kernel/events/core.c
-@@ -9779,11 +9779,7 @@ struct swevent_htable {
+@@ -9774,11 +9774,7 @@ struct swevent_htable {
  	struct swevent_hlist		*swevent_hlist;
  	struct mutex			hlist_mutex;
  	int				hlist_refcount;
@@ -77,7 +79,7 @@ Signed-off-by: Sebastian Andrzej Siewior <bigeasy@linutronix.de>
  static DEFINE_PER_CPU(struct swevent_htable, swevent_htable);
  
  /*
-@@ -9981,17 +9977,13 @@ DEFINE_PER_CPU(struct pt_regs, __perf_re
+@@ -9976,17 +9972,13 @@ DEFINE_PER_CPU(struct pt_regs, __perf_re
  
  int perf_swevent_get_recursion_context(void)
  {
@@ -97,7 +99,7 @@ Signed-off-by: Sebastian Andrzej Siewior <bigeasy@linutronix.de>
  }
  
  void ___perf_sw_event(u32 event_id, u64 nr, struct pt_regs *regs, u64 addr)
-@@ -13658,6 +13650,7 @@ int perf_event_init_task(struct task_str
+@@ -13653,6 +13645,7 @@ int perf_event_init_task(struct task_str
  {
  	int ret;
  

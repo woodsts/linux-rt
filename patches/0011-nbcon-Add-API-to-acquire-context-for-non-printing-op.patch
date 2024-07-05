@@ -63,7 +63,7 @@ Signed-off-by: Sebastian Andrzej Siewior <bigeasy@linutronix.de>
  extern const char linux_banner[];
  extern const char linux_proc_banner[];
  
-@@ -197,6 +199,8 @@ extern asmlinkage void dump_stack_lvl(co
+@@ -194,6 +196,8 @@ extern asmlinkage void dump_stack_lvl(co
  extern asmlinkage void dump_stack(void) __cold;
  void printk_trigger_flush(void);
  void console_replay_all(void);
@@ -72,7 +72,7 @@ Signed-off-by: Sebastian Andrzej Siewior <bigeasy@linutronix.de>
  #else
  static inline __printf(1, 0)
  int vprintk(const char *s, va_list args)
-@@ -276,9 +280,20 @@ static inline void dump_stack(void)
+@@ -273,9 +277,20 @@ static inline void dump_stack(void)
  static inline void printk_trigger_flush(void)
  {
  }

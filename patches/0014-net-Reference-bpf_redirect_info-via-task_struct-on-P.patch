@@ -195,7 +195,7 @@ Signed-off-by: Sebastian Andrzej Siewior <bigeasy@linutronix.de>
  struct capture_control;
  struct cfs_rq;
  struct fs_struct;
-@@ -1509,6 +1510,8 @@ struct task_struct {
+@@ -1516,6 +1517,8 @@ struct task_struct {
  	/* Used for BPF run context */
  	struct bpf_run_ctx		*bpf_ctx;
  #endif
@@ -488,7 +488,7 @@ Signed-off-by: Sebastian Andrzej Siewior <bigeasy@linutronix.de>
  struct netdev_adjacent {
 --- a/net/core/filter.c
 +++ b/net/core/filter.c
-@@ -2478,9 +2478,6 @@ static const struct bpf_func_proto bpf_c
+@@ -2483,9 +2483,6 @@ static const struct bpf_func_proto bpf_c
  	.arg3_type      = ARG_ANYTHING,
  };
  
@@ -498,7 +498,7 @@ Signed-off-by: Sebastian Andrzej Siewior <bigeasy@linutronix.de>
  static struct net_device *skb_get_peer_dev(struct net_device *dev)
  {
  	const struct net_device_ops *ops = dev->netdev_ops;
-@@ -2493,7 +2490,7 @@ static struct net_device *skb_get_peer_d
+@@ -2498,7 +2495,7 @@ static struct net_device *skb_get_peer_d
  
  int skb_do_redirect(struct sk_buff *skb)
  {
@@ -507,7 +507,7 @@ Signed-off-by: Sebastian Andrzej Siewior <bigeasy@linutronix.de>
  	struct net *net = dev_net(skb->dev);
  	struct net_device *dev;
  	u32 flags = ri->flags;
-@@ -2526,7 +2523,7 @@ int skb_do_redirect(struct sk_buff *skb)
+@@ -2531,7 +2528,7 @@ int skb_do_redirect(struct sk_buff *skb)
  
  BPF_CALL_2(bpf_redirect, u32, ifindex, u64, flags)
  {
@@ -516,7 +516,7 @@ Signed-off-by: Sebastian Andrzej Siewior <bigeasy@linutronix.de>
  
  	if (unlikely(flags & (~(BPF_F_INGRESS) | BPF_F_REDIRECT_INTERNAL)))
  		return TC_ACT_SHOT;
-@@ -2547,7 +2544,7 @@ static const struct bpf_func_proto bpf_r
+@@ -2552,7 +2549,7 @@ static const struct bpf_func_proto bpf_r
  
  BPF_CALL_2(bpf_redirect_peer, u32, ifindex, u64, flags)
  {
@@ -525,7 +525,7 @@ Signed-off-by: Sebastian Andrzej Siewior <bigeasy@linutronix.de>
  
  	if (unlikely(flags))
  		return TC_ACT_SHOT;
-@@ -2569,7 +2566,7 @@ static const struct bpf_func_proto bpf_r
+@@ -2574,7 +2571,7 @@ static const struct bpf_func_proto bpf_r
  BPF_CALL_4(bpf_redirect_neigh, u32, ifindex, struct bpf_redir_neigh *, params,
  	   int, plen, u64, flags)
  {
@@ -534,7 +534,7 @@ Signed-off-by: Sebastian Andrzej Siewior <bigeasy@linutronix.de>
  
  	if (unlikely((plen && plen < sizeof(*params)) || flags))
  		return TC_ACT_SHOT;
-@@ -4295,30 +4292,13 @@ void xdp_do_check_flushed(struct napi_st
+@@ -4300,30 +4297,13 @@ void xdp_do_check_flushed(struct napi_st
  }
  #endif
  
@@ -566,7 +566,7 @@ Signed-off-by: Sebastian Andrzej Siewior <bigeasy@linutronix.de>
  
  	master = netdev_master_upper_dev_get_rcu(xdp->rxq->dev);
  	slave = master->netdev_ops->ndo_xdp_get_xmit_slave(master, xdp);
-@@ -4390,7 +4370,7 @@ static __always_inline int __xdp_do_redi
+@@ -4395,7 +4375,7 @@ static __always_inline int __xdp_do_redi
  			map = READ_ONCE(ri->map);
  
  			/* The map pointer is cleared when the map is being torn
@@ -575,7 +575,7 @@ Signed-off-by: Sebastian Andrzej Siewior <bigeasy@linutronix.de>
  			 */
  			if (unlikely(!map)) {
  				err = -ENOENT;
-@@ -4435,7 +4415,7 @@ static __always_inline int __xdp_do_redi
+@@ -4440,7 +4420,7 @@ static __always_inline int __xdp_do_redi
  int xdp_do_redirect(struct net_device *dev, struct xdp_buff *xdp,
  		    struct bpf_prog *xdp_prog)
  {
@@ -584,7 +584,7 @@ Signed-off-by: Sebastian Andrzej Siewior <bigeasy@linutronix.de>
  	enum bpf_map_type map_type = ri->map_type;
  
  	if (map_type == BPF_MAP_TYPE_XSKMAP)
-@@ -4449,7 +4429,7 @@ EXPORT_SYMBOL_GPL(xdp_do_redirect);
+@@ -4454,7 +4434,7 @@ EXPORT_SYMBOL_GPL(xdp_do_redirect);
  int xdp_do_redirect_frame(struct net_device *dev, struct xdp_buff *xdp,
  			  struct xdp_frame *xdpf, struct bpf_prog *xdp_prog)
  {
@@ -593,7 +593,7 @@ Signed-off-by: Sebastian Andrzej Siewior <bigeasy@linutronix.de>
  	enum bpf_map_type map_type = ri->map_type;
  
  	if (map_type == BPF_MAP_TYPE_XSKMAP)
-@@ -4466,7 +4446,7 @@ static int xdp_do_generic_redirect_map(s
+@@ -4471,7 +4451,7 @@ static int xdp_do_generic_redirect_map(s
  				       enum bpf_map_type map_type, u32 map_id,
  				       u32 flags)
  {
@@ -602,7 +602,7 @@ Signed-off-by: Sebastian Andrzej Siewior <bigeasy@linutronix.de>
  	struct bpf_map *map;
  	int err;
  
-@@ -4478,7 +4458,7 @@ static int xdp_do_generic_redirect_map(s
+@@ -4483,7 +4463,7 @@ static int xdp_do_generic_redirect_map(s
  			map = READ_ONCE(ri->map);
  
  			/* The map pointer is cleared when the map is being torn
@@ -611,7 +611,7 @@ Signed-off-by: Sebastian Andrzej Siewior <bigeasy@linutronix.de>
  			 */
  			if (unlikely(!map)) {
  				err = -ENOENT;
-@@ -4520,7 +4500,7 @@ static int xdp_do_generic_redirect_map(s
+@@ -4525,7 +4505,7 @@ static int xdp_do_generic_redirect_map(s
  int xdp_do_generic_redirect(struct net_device *dev, struct sk_buff *skb,
  			    struct xdp_buff *xdp, struct bpf_prog *xdp_prog)
  {
@@ -620,7 +620,7 @@ Signed-off-by: Sebastian Andrzej Siewior <bigeasy@linutronix.de>
  	enum bpf_map_type map_type = ri->map_type;
  	void *fwd = ri->tgt_value;
  	u32 map_id = ri->map_id;
-@@ -4556,7 +4536,7 @@ int xdp_do_generic_redirect(struct net_d
+@@ -4561,7 +4541,7 @@ int xdp_do_generic_redirect(struct net_d
  
  BPF_CALL_2(bpf_xdp_redirect, u32, ifindex, u64, flags)
  {

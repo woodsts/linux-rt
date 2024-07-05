@@ -1,14 +1,19 @@
 From: Sebastian Andrzej Siewior <bigeasy@linutronix.de>
-Date: Fri, 21 Jun 2024 15:38:48 +0200
-Subject: [PATCH v4 3/6] perf: Shrink the size of the recursion counter.
+Date: Thu, 4 Jul 2024 19:03:38 +0200
+Subject: [PATCH 4/7] perf: Shrink the size of the recursion counter.
 
 There are four recursion counter, one for each context. The type of the
 counter is `int' but the counter is used as `bool' since it is only
 incremented if zero.
+The main goal here is to shrink the whole struct into 32bit int which
+can later be added task_struct into an existing hole.
 
 Reduce the type of the recursion counter to an unsigned char, keep the
 increment/ decrement operation.
 
+Tested-by: Marco Elver <elver@google.com>
+Link: https://lore.kernel.org/20240621091601.18227-1-frederic@kernel.org
+Link: https://lore.kernel.org/r/20240704170424.1466941-5-bigeasy@linutronix.de
 Signed-off-by: Sebastian Andrzej Siewior <bigeasy@linutronix.de>
 ---
  kernel/events/callchain.c |    2 +-
@@ -29,7 +34,7 @@ Signed-off-by: Sebastian Andrzej Siewior <bigeasy@linutronix.de>
  static struct callchain_cpus_entries *callchain_cpus_entries;
 --- a/kernel/events/core.c
 +++ b/kernel/events/core.c
-@@ -9781,7 +9781,7 @@ struct swevent_htable {
+@@ -9776,7 +9776,7 @@ struct swevent_htable {
  	int				hlist_refcount;
  
  	/* Recursion avoidance in each contexts */

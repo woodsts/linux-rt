@@ -1,10 +1,10 @@
 From: Sebastian Andrzej Siewior <bigeasy@linutronix.de>
-Date: Tue, 12 Mar 2024 19:01:52 +0100
-Subject: [PATCH v4 6/6] perf: Split __perf_pending_irq() out of
+Date: Thu, 4 Jul 2024 19:03:41 +0200
+Subject: [PATCH 7/7] perf: Split __perf_pending_irq() out of
  perf_pending_irq()
 
 perf_pending_irq() invokes perf_event_wakeup() and __perf_pending_irq().
-The former is in charge of waking any tasks which wait to be woken up
+The former is in charge of waking any tasks which waits to be woken up
 while the latter disables perf-events.
 
 The irq_work perf_pending_irq(), while this an irq_work, the callback
@@ -22,11 +22,13 @@ PREEMPT_RT. Rename the split out callback to perf_pending_disable().
 Tested-by: Marco Elver <elver@google.com>
 Tested-by: Arnaldo Carvalho de Melo <acme@redhat.com>
 Reported-by: Arnaldo Carvalho de Melo <acme@redhat.com>
+Link: https://lore.kernel.org/all/ZMAtZ2t43GXoF6tM@kernel.org/
+Link: https://lore.kernel.org/r/20240704170424.1466941-8-bigeasy@linutronix.de
 Signed-off-by: Sebastian Andrzej Siewior <bigeasy@linutronix.de>
 ---
  include/linux/perf_event.h |    1 +
- kernel/events/core.c       |   31 +++++++++++++++++++++++--------
- 2 files changed, 24 insertions(+), 8 deletions(-)
+ kernel/events/core.c       |   29 ++++++++++++++++++++++-------
+ 2 files changed, 23 insertions(+), 7 deletions(-)
 
 --- a/include/linux/perf_event.h
 +++ b/include/linux/perf_event.h
@@ -113,16 +115,7 @@ Signed-off-by: Sebastian Andrzej Siewior <bigeasy@linutronix.de>
  	if (rctx >= 0)
  		perf_swevent_put_recursion_context(rctx);
  }
-@@ -9734,7 +9748,7 @@ static int __perf_event_overflow(struct
- 			 * is processed.
- 			 */
- 			if (in_nmi())
--				irq_work_queue(&event->pending_irq);
-+				irq_work_queue(&event->pending_disable_irq);
- 
- 		} else if (event->attr.exclude_kernel && valid_sample) {
- 			/*
-@@ -11972,6 +11986,7 @@ perf_event_alloc(struct perf_event_attr
+@@ -11967,6 +11981,7 @@ perf_event_alloc(struct perf_event_attr
  
  	init_waitqueue_head(&event->waitq);
  	init_irq_work(&event->pending_irq, perf_pending_irq);

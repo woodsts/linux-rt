@@ -19,7 +19,7 @@ Signed-off-by: Sebastian Andrzej Siewior <bigeasy@linutronix.de>
 
 --- a/include/linux/sched.h
 +++ b/include/linux/sched.h
-@@ -1799,6 +1799,7 @@ static inline int dl_task_check_affinity
+@@ -1806,6 +1806,7 @@ static inline int dl_task_check_affinity
  }
  #endif
  

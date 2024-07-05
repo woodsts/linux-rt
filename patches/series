@@ -14,14 +14,14 @@
 0003-perf-Fix-event-leak-upon-exit.patch
 0004-perf-Fix-event-leak-upon-exec-and-file-release.patch
 
-# perf, sigtrap, v4
-# https://lore.kernel.org/20240624152732.1231678-1-bigeasy@linutronix.de
+# perf, sigtrap, v5
 0001-perf-Move-irq_work_queue-where-the-event-is-prepared.patch
-0002-perf-Enqueue-SIGTRAP-always-via-task_work.patch
-0003-perf-Shrink-the-size-of-the-recursion-counter.patch
-0004-perf-Move-swevent_htable-recursion-into-task_struct.patch
-0005-perf-Don-t-disable-preemption-in-perf_pending_task.patch
-0006-perf-Split-__perf_pending_irq-out-of-perf_pending_ir.patch
+0002-task_work-Add-TWA_NMI_CURRENT-as-an-additional-notif.patch
+0003-perf-Enqueue-SIGTRAP-always-via-task_work.patch
+0004-perf-Shrink-the-size-of-the-recursion-counter.patch
+0005-perf-Move-swevent_htable-recursion-into-task_struct.patch
+0006-perf-Don-t-disable-preemption-in-perf_pending_task.patch
+0007-perf-Split-__perf_pending_irq-out-of-perf_pending_ir.patch
 
 # locking.
 drm-ttm-tests-Let-ttm_bo_test-consider-different-ww_.patch
@@ -146,6 +146,12 @@ PREEMPT_AUTO.patch
 0013-net-Use-nested-BH-locking-for-bpf_scratchpad.patch
 0014-net-Reference-bpf_redirect_info-via-task_struct-on-P.patch
 0015-net-Move-per-CPU-flush-lists-to-bpf_net_context-on-P.patch
+# optimisation + fixes
+0001-net-Remove-task_struct-bpf_net_context-init-on-fork.patch
+0002-net-Optimize-xdp_do_flush-with-bpf_net_context-infos.patch
+0003-net-Move-flush-list-retrieval-to-where-it-is-used.patch
+tun-Assign-missing-bpf_net_context.patch
+seg6-Ensure-that-seg6_bpf_srh_states-can-only-be-acc.patch
 # tw_timer
 0001-net-tcp-dccp-prepare-for-tw_timer-un-pinning.patch
 0002-net-tcp-un-pin-the-tw_timer.patch

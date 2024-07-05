@@ -1,6 +1,6 @@
 From: Sebastian Andrzej Siewior <bigeasy@linutronix.de>
-Date: Fri, 21 Jun 2024 18:44:52 +0200
-Subject: [PATCH v4 5/6] perf: Don't disable preemption in perf_pending_task().
+Date: Thu, 4 Jul 2024 19:03:40 +0200
+Subject: [PATCH 6/7] perf: Don't disable preemption in perf_pending_task().
 
 perf_pending_task() is invoked in task context and disables preemption
 because perf_swevent_get_recursion_context() used to access per-CPU
@@ -13,6 +13,8 @@ created explicit.
 
 Replace the preemption-disable section with a explicit RCU-read section.
 
+Tested-by: Marco Elver <elver@google.com>
+Link: https://lore.kernel.org/r/20240704170424.1466941-7-bigeasy@linutronix.de
 Signed-off-by: Sebastian Andrzej Siewior <bigeasy@linutronix.de>
 ---
  kernel/events/core.c |   11 +++++------

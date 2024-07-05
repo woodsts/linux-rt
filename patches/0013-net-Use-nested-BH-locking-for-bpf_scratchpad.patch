@@ -42,7 +42,7 @@ Signed-off-by: Sebastian Andrzej Siewior <bigeasy@linutronix.de>
  
  static inline int __bpf_try_make_writable(struct sk_buff *skb,
  					  unsigned int write_len)
-@@ -2016,6 +2019,7 @@ BPF_CALL_5(bpf_csum_diff, __be32 *, from
+@@ -2021,6 +2024,7 @@ BPF_CALL_5(bpf_csum_diff, __be32 *, from
  	struct bpf_scratchpad *sp = this_cpu_ptr(&bpf_sp);
  	u32 diff_size = from_size + to_size;
  	int i, j = 0;
@@ -50,7 +50,7 @@ Signed-off-by: Sebastian Andrzej Siewior <bigeasy@linutronix.de>
  
  	/* This is quite flexible, some examples:
  	 *
-@@ -2029,12 +2033,15 @@ BPF_CALL_5(bpf_csum_diff, __be32 *, from
+@@ -2034,12 +2038,15 @@ BPF_CALL_5(bpf_csum_diff, __be32 *, from
  		     diff_size > sizeof(sp->diff)))
  		return -EINVAL;
  
