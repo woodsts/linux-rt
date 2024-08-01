@@ -22,6 +22,7 @@
 0005-perf-Move-swevent_htable-recursion-into-task_struct.patch
 0006-perf-Don-t-disable-preemption-in-perf_pending_task.patch
 0007-perf-Split-__perf_pending_irq-out-of-perf_pending_ir.patch
+task_work-make-TWA_NMI_CURRENT-handling-conditional-.patch
 
 # locking.
 drm-ttm-tests-Let-ttm_bo_test-consider-different-ww_.patch
@@ -151,6 +152,7 @@ PREEMPT_AUTO.patch
 0002-net-Optimize-xdp_do_flush-with-bpf_net_context-infos.patch
 0003-net-Move-flush-list-retrieval-to-where-it-is-used.patch
 tun-Assign-missing-bpf_net_context.patch
+tun-Add-missing-bpf_net_ctx_clear-in-do_xdp_generic.patch
 seg6-Ensure-that-seg6_bpf_srh_states-can-only-be-acc.patch
 # tw_timer
 0001-net-tcp-dccp-prepare-for-tw_timer-un-pinning.patch
