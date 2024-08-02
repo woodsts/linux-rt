@@ -413,7 +413,7 @@ Signed-off-by: Sebastian Andrzej Siewior <bigeasy@linutronix.de>
  	}
 --- a/kernel/printk/printk.c
 +++ b/kernel/printk/printk.c
-@@ -2685,6 +2685,8 @@ void suspend_console(void)
+@@ -2755,6 +2755,8 @@ void suspend_console(void)
  void resume_console(void)
  {
  	struct console *con;
@@ -422,7 +422,7 @@ Signed-off-by: Sebastian Andrzej Siewior <bigeasy@linutronix.de>
  
  	if (!console_suspend_enabled)
  		return;
-@@ -2701,6 +2703,14 @@ void resume_console(void)
+@@ -2771,6 +2773,14 @@ void resume_console(void)
  	 */
  	synchronize_srcu(&console_srcu);
  
@@ -437,7 +437,7 @@ Signed-off-by: Sebastian Andrzej Siewior <bigeasy@linutronix.de>
  	pr_flush(1000, true);
  }
  
-@@ -3021,6 +3031,13 @@ static bool console_flush_all(bool do_co
+@@ -3091,6 +3101,13 @@ static bool console_flush_all(bool do_co
  			u64 printk_seq;
  			bool progress;
  
@@ -451,7 +451,7 @@ Signed-off-by: Sebastian Andrzej Siewior <bigeasy@linutronix.de>
  			if (!console_is_usable(con, flags))
  				continue;
  			any_usable = true;
-@@ -3326,9 +3343,26 @@ EXPORT_SYMBOL(console_stop);
+@@ -3396,9 +3413,26 @@ EXPORT_SYMBOL(console_stop);
  
  void console_start(struct console *console)
  {

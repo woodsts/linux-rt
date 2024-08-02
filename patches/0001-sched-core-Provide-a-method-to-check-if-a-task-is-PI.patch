@@ -19,7 +19,7 @@ Signed-off-by: Sebastian Andrzej Siewior <bigeasy@linutronix.de>
 
 --- a/include/linux/sched.h
 +++ b/include/linux/sched.h
-@@ -1806,6 +1806,7 @@ static inline int dl_task_check_affinity
+@@ -1814,6 +1814,7 @@ static inline int dl_task_check_affinity
  }
  #endif
  
@@ -29,9 +29,9 @@ Signed-off-by: Sebastian Andrzej Siewior <bigeasy@linutronix.de>
  extern int task_prio(const struct task_struct *p);
 --- a/kernel/sched/core.c
 +++ b/kernel/sched/core.c
-@@ -8910,6 +8910,21 @@ static inline void preempt_dynamic_init(
+@@ -7362,6 +7362,21 @@ static inline void preempt_dynamic_init(
  
- #endif /* #ifdef CONFIG_PREEMPT_DYNAMIC */
+ #endif /* CONFIG_PREEMPT_DYNAMIC */
  
 +/*
 + * task_is_pi_boosted - Check if task has been PI boosted.
@@ -48,6 +48,6 @@ Signed-off-by: Sebastian Andrzej Siewior <bigeasy@linutronix.de>
 +	return prio != p->normal_prio;
 +}
 +
- /**
-  * yield - yield the current processor to other threads.
-  *
+ int io_schedule_prepare(void)
+ {
+ 	int old_iowait = current->in_iowait;

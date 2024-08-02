@@ -47,7 +47,7 @@ Link: https://lkml.kernel.org/r/20220405010752.1347437-2-frederic@kernel.org
 
 --- a/include/linux/interrupt.h
 +++ b/include/linux/interrupt.h
-@@ -614,9 +614,16 @@ extern void raise_softirq(unsigned int n
+@@ -618,9 +618,16 @@ extern void raise_softirq(unsigned int n
  
  #ifdef CONFIG_PREEMPT_RT
  DECLARE_PER_CPU(struct task_struct *, timersd);
@@ -64,7 +64,7 @@ Link: https://lkml.kernel.org/r/20220405010752.1347437-2-frederic@kernel.org
  #else
  static inline void raise_timer_softirq(void)
  {
-@@ -627,6 +634,11 @@ static inline void raise_hrtimer_softirq
+@@ -631,6 +638,11 @@ static inline void raise_hrtimer_softirq
  {
  	raise_softirq_irqoff(HRTIMER_SOFTIRQ);
  }

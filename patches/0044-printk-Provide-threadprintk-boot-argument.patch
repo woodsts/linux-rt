@@ -34,7 +34,7 @@ Signed-off-by: Sebastian Andrzej Siewior <bigeasy@linutronix.de>
 
 --- a/Documentation/admin-guide/kernel-parameters.txt
 +++ b/Documentation/admin-guide/kernel-parameters.txt
-@@ -6596,6 +6596,18 @@
+@@ -6620,6 +6620,18 @@
  			Force threading of all interrupt handlers except those
  			marked explicitly IRQF_NO_THREAD.
  
@@ -63,7 +63,7 @@ Signed-off-by: Sebastian Andrzej Siewior <bigeasy@linutronix.de>
  #include <linux/percpu.h>
  #include <linux/types.h>
  
-@@ -24,7 +25,8 @@ int devkmsg_sysctl_set_loglvl(struct ctl
+@@ -24,7 +25,8 @@ int devkmsg_sysctl_set_loglvl(const stru
  #ifdef CONFIG_PREEMPT_RT
  # define force_printkthreads()		(true)
  #else
@@ -92,4 +92,4 @@ Signed-off-by: Sebastian Andrzej Siewior <bigeasy@linutronix.de>
 +
  char devkmsg_log_str[DEVKMSG_STR_MAX_SIZE] = "ratelimit";
  #if defined(CONFIG_PRINTK) && defined(CONFIG_SYSCTL)
- int devkmsg_sysctl_set_loglvl(struct ctl_table *table, int write,
+ int devkmsg_sysctl_set_loglvl(const struct ctl_table *table, int write,

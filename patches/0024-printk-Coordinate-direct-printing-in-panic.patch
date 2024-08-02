@@ -27,15 +27,15 @@ Signed-off-by: Sebastian Andrzej Siewior <bigeasy@linutronix.de>
 
 --- a/include/linux/printk.h
 +++ b/include/linux/printk.h
-@@ -196,6 +196,7 @@ extern asmlinkage void dump_stack_lvl(co
+@@ -200,6 +200,7 @@ extern asmlinkage void dump_stack_lvl(co
  extern asmlinkage void dump_stack(void) __cold;
  void printk_trigger_flush(void);
- void console_replay_all(void);
+ void console_try_replay_all(void);
 +void printk_legacy_allow_panic_sync(void);
  extern bool nbcon_device_try_acquire(struct console *con);
  extern void nbcon_device_release(struct console *con);
  void nbcon_atomic_flush_unsafe(void);
-@@ -283,6 +284,10 @@ static inline void console_replay_all(vo
+@@ -287,6 +288,10 @@ static inline void console_try_replay_al
  {
  }
  
@@ -48,7 +48,7 @@ Signed-off-by: Sebastian Andrzej Siewior <bigeasy@linutronix.de>
  	return false;
 --- a/kernel/panic.c
 +++ b/kernel/panic.c
-@@ -367,6 +367,8 @@ void panic(const char *fmt, ...)
+@@ -368,6 +368,8 @@ void panic(const char *fmt, ...)
  
  	panic_other_cpus_shutdown(_crash_kexec_post_notifiers);
  

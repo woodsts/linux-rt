@@ -174,7 +174,7 @@ Signed-off-by: Sebastian Andrzej Siewior <bigeasy@linutronix.de>
  {
  	int waiter;
  
-@@ -2951,13 +2951,20 @@ static bool console_flush_all(bool do_co
+@@ -3021,13 +3021,20 @@ static bool console_flush_all(bool do_co
  		cookie = console_srcu_read_lock();
  		for_each_console_srcu(con) {
  			short flags = console_srcu_read_flags(con);
@@ -196,7 +196,7 @@ Signed-off-by: Sebastian Andrzej Siewior <bigeasy@linutronix.de>
  
  			/*
  			 * If a handover has occurred, the SRCU read lock
-@@ -2967,8 +2974,8 @@ static bool console_flush_all(bool do_co
+@@ -3037,8 +3044,8 @@ static bool console_flush_all(bool do_co
  				return false;
  
  			/* Track the next of the highest seq flushed. */

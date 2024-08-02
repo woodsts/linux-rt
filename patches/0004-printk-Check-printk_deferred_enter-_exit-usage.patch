@@ -17,7 +17,7 @@ Signed-off-by: Sebastian Andrzej Siewior <bigeasy@linutronix.de>
 
 --- a/include/linux/printk.h
 +++ b/include/linux/printk.h
-@@ -157,15 +157,16 @@ int _printk(const char *fmt, ...);
+@@ -161,15 +161,16 @@ int _printk(const char *fmt, ...);
   */
  __printf(1, 2) __cold int _printk_deferred(const char *fmt, ...);
  

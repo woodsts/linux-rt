@@ -107,7 +107,7 @@ Signed-off-by: Sebastian Andrzej Siewior <bigeasy@linutronix.de>
  }
 --- a/kernel/printk/printk.c
 +++ b/kernel/printk/printk.c
-@@ -2868,6 +2868,25 @@ void console_prepend_dropped(struct prin
+@@ -2938,6 +2938,25 @@ void console_prepend_dropped(struct prin
  }
  
  /*

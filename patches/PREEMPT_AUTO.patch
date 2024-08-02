@@ -153,7 +153,7 @@ Signed-off-by: Sebastian Andrzej Siewior <bigeasy@linutronix.de>
  #define _TIF_SPEC_IB		(1 << TIF_SPEC_IB)
 --- a/drivers/acpi/processor_idle.c
 +++ b/drivers/acpi/processor_idle.c
-@@ -108,7 +108,7 @@ static const struct dmi_system_id proces
+@@ -107,7 +107,7 @@ static const struct dmi_system_id proces
   */
  static void __cpuidle acpi_safe_halt(void)
  {
@@ -186,7 +186,7 @@ Signed-off-by: Sebastian Andrzej Siewior <bigeasy@linutronix.de>
  
 --- a/include/linux/sched.h
 +++ b/include/linux/sched.h
-@@ -1949,17 +1949,17 @@ static inline void update_tsk_thread_fla
+@@ -1957,17 +1957,17 @@ static inline void update_tsk_thread_fla
  	update_ti_thread_flag(task_thread_info(tsk), flag, value);
  }
  
@@ -207,7 +207,7 @@ Signed-off-by: Sebastian Andrzej Siewior <bigeasy@linutronix.de>
  {
  	return test_ti_thread_flag(task_thread_info(tsk), flag);
  }
-@@ -1972,9 +1972,11 @@ static inline void set_tsk_need_resched(
+@@ -1980,9 +1980,11 @@ static inline void set_tsk_need_resched(
  static inline void clear_tsk_need_resched(struct task_struct *tsk)
  {
  	clear_tsk_thread_flag(tsk,TIF_NEED_RESCHED);
@@ -220,7 +220,7 @@ Signed-off-by: Sebastian Andrzej Siewior <bigeasy@linutronix.de>
  {
  	return unlikely(test_tsk_thread_flag(tsk,TIF_NEED_RESCHED));
  }
-@@ -2115,7 +2117,7 @@ static inline bool preempt_model_preempt
+@@ -2082,7 +2084,7 @@ extern int __cond_resched_rwlock_write(r
  
  static __always_inline bool need_resched(void)
  {
@@ -620,7 +620,7 @@ Signed-off-by: Sebastian Andrzej Siewior <bigeasy@linutronix.de>
  static void update_curr_fair(struct rq *rq)
  {
  	update_curr(cfs_rq_of(&rq->curr->se));
-@@ -5512,7 +5528,7 @@ entity_tick(struct cfs_rq *cfs_rq, struc
+@@ -5511,7 +5527,7 @@ entity_tick(struct cfs_rq *cfs_rq, struc
  	/*
  	 * Update run-time statistics of the 'current'.
  	 */
@@ -629,7 +629,7 @@ Signed-off-by: Sebastian Andrzej Siewior <bigeasy@linutronix.de>
  
  	/*
  	 * Ensure that runnable average is periodically updated.
-@@ -5526,7 +5542,7 @@ entity_tick(struct cfs_rq *cfs_rq, struc
+@@ -5525,7 +5541,7 @@ entity_tick(struct cfs_rq *cfs_rq, struc
  	 * validating it and just reschedule.
  	 */
  	if (queued) {
@@ -638,7 +638,7 @@ Signed-off-by: Sebastian Andrzej Siewior <bigeasy@linutronix.de>
  		return;
  	}
  	/*
-@@ -5672,7 +5688,7 @@ static void __account_cfs_rq_runtime(str
+@@ -5671,7 +5687,7 @@ static void __account_cfs_rq_runtime(str
  	 * hierarchy can be throttled
  	 */
  	if (!assign_cfs_rq_runtime(cfs_rq) && likely(cfs_rq->curr))
@@ -647,7 +647,7 @@ Signed-off-by: Sebastian Andrzej Siewior <bigeasy@linutronix.de>
  }
  
  static __always_inline
-@@ -5932,7 +5948,7 @@ void unthrottle_cfs_rq(struct cfs_rq *cf
+@@ -5931,7 +5947,7 @@ void unthrottle_cfs_rq(struct cfs_rq *cf
  
  	/* Determine whether we need to wake up potentially idle CPU: */
  	if (rq->curr == rq->idle && rq->cfs.nr_running)
@@ -656,7 +656,7 @@ Signed-off-by: Sebastian Andrzej Siewior <bigeasy@linutronix.de>
  }
  
  #ifdef CONFIG_SMP
-@@ -6647,7 +6663,7 @@ static void hrtick_start_fair(struct rq
+@@ -6646,7 +6662,7 @@ static void hrtick_start_fair(struct rq
  
  		if (delta < 0) {
  			if (task_current(rq, p))
@@ -665,7 +665,7 @@ Signed-off-by: Sebastian Andrzej Siewior <bigeasy@linutronix.de>
  			return;
  		}
  		hrtick_start(rq, delta);
-@@ -8379,7 +8395,7 @@ static void check_preempt_wakeup_fair(st
+@@ -8378,7 +8394,7 @@ static void check_preempt_wakeup_fair(st
  	 * prevents us from potentially nominating it as a false LAST_BUDDY
  	 * below.
  	 */
@@ -674,7 +674,7 @@ Signed-off-by: Sebastian Andrzej Siewior <bigeasy@linutronix.de>
  		return;
  
  	/* Idle tasks are by definition preempted by non-idle tasks. */
-@@ -8421,7 +8437,7 @@ static void check_preempt_wakeup_fair(st
+@@ -8420,7 +8436,7 @@ static void check_preempt_wakeup_fair(st
  	return;
  
  preempt:
@@ -723,8 +723,8 @@ Signed-off-by: Sebastian Andrzej Siewior <bigeasy@linutronix.de>
  
 --- a/kernel/sched/sched.h
 +++ b/kernel/sched/sched.h
-@@ -2466,6 +2466,7 @@ extern void init_sched_fair_class(void);
- extern void reweight_task(struct task_struct *p, int prio);
+@@ -2513,6 +2513,7 @@ extern void init_sched_fair_class(void);
+ extern void reweight_task(struct task_struct *p, const struct load_weight *lw);
  
  extern void resched_curr(struct rq *rq);
 +extern void resched_curr_lazy(struct rq *rq);

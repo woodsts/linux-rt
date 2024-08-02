@@ -29,7 +29,7 @@ Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
 
 --- a/kernel/task_work.c
 +++ b/kernel/task_work.c
-@@ -7,12 +7,14 @@
+@@ -6,12 +6,14 @@
  
  static struct callback_head work_exited; /* all we need is ->next == NULL */
  
@@ -44,7 +44,7 @@ Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
  
  /**
   * task_work_add - ask the @task to execute @work->func()
-@@ -58,6 +60,8 @@ int task_work_add(struct task_struct *ta
+@@ -57,6 +59,8 @@ int task_work_add(struct task_struct *ta
  	if (notify == TWA_NMI_CURRENT) {
  		if (WARN_ON_ONCE(task != current))
  			return -EINVAL;
@@ -53,7 +53,7 @@ Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
  	} else {
  		/* record the work call stack in order to print it in KASAN reports */
  		kasan_record_aux_stack(work);
-@@ -82,9 +86,11 @@ int task_work_add(struct task_struct *ta
+@@ -81,9 +85,11 @@ int task_work_add(struct task_struct *ta
  	case TWA_SIGNAL_NO_IPI:
  		__set_notify_signal(task);
  		break;

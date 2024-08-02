@@ -143,7 +143,7 @@ Signed-off-by: Sebastian Andrzej Siewior <bigeasy@linutronix.de>
  	if (do_trylock_unlock) {
  		/*
  		 * The caller may be holding system-critical or
-@@ -2708,6 +2710,10 @@ void resume_console(void)
+@@ -2778,6 +2780,10 @@ void resume_console(void)
  	 */
  	synchronize_srcu(&console_srcu);
  
@@ -154,7 +154,7 @@ Signed-off-by: Sebastian Andrzej Siewior <bigeasy@linutronix.de>
  	cookie = console_srcu_read_lock();
  	for_each_console_srcu(con) {
  		flags = console_srcu_read_flags(con);
-@@ -4178,6 +4184,7 @@ void defer_console_output(void)
+@@ -4251,6 +4257,7 @@ void defer_console_output(void)
  
  void printk_trigger_flush(void)
  {
@@ -162,7 +162,7 @@ Signed-off-by: Sebastian Andrzej Siewior <bigeasy@linutronix.de>
  	defer_console_output();
  }
  
-@@ -4513,6 +4520,7 @@ void console_try_replay_all(void)
+@@ -4586,6 +4593,7 @@ void console_try_replay_all(void)
  {
  	if (console_trylock()) {
  		__console_rewind_all();

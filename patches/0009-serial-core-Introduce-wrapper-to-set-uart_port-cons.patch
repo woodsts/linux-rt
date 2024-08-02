@@ -26,7 +26,7 @@ Signed-off-by: Sebastian Andrzej Siewior <bigeasy@linutronix.de>
 
 --- a/drivers/tty/serial/8250/8250_core.c
 +++ b/drivers/tty/serial/8250/8250_core.c
-@@ -624,11 +624,11 @@ static int univ8250_console_setup(struct
+@@ -423,11 +423,11 @@ static int univ8250_console_setup(struct
  
  	port = &serial8250_ports[co->index].port;
  	/* link port to console */
@@ -40,7 +40,7 @@ Signed-off-by: Sebastian Andrzej Siewior <bigeasy@linutronix.de>
  	return retval;
  }
  
-@@ -686,7 +686,7 @@ static int univ8250_console_match(struct
+@@ -485,7 +485,7 @@ static int univ8250_console_match(struct
  			continue;
  
  		co->index = i;

@@ -108,7 +108,7 @@ Signed-off-by: Sebastian Andrzej Siewior <bigeasy@linutronix.de>
  		    (system_state > SYSTEM_RUNNING)) {
  			nbcon_atomic_flush_pending();
  		}
-@@ -3742,6 +3746,7 @@ EXPORT_SYMBOL(register_console);
+@@ -3815,6 +3819,7 @@ EXPORT_SYMBOL(register_console);
  static int unregister_console_locked(struct console *console)
  {
  	bool use_device_lock = (console->flags & CON_NBCON) && console->write_atomic;
@@ -116,7 +116,7 @@ Signed-off-by: Sebastian Andrzej Siewior <bigeasy@linutronix.de>
  	bool found_legacy_con = false;
  	bool found_nbcon_con = false;
  	bool found_boot_con = false;
-@@ -3824,6 +3829,15 @@ static int unregister_console_locked(str
+@@ -3897,6 +3902,15 @@ static int unregister_console_locked(str
  	if (!found_nbcon_con)
  		have_nbcon_console = found_nbcon_con;
  
