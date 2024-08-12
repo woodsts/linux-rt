@@ -1,5 +1,4 @@
 # Applied upstream
-task_work-make-TWA_NMI_CURRENT-handling-conditional-.patch
 
 ###########################################################################
 # Posted and applied
@@ -112,10 +111,6 @@ softirq-Wake-ktimers-thread-also-in-softirq.patch
 
 # Lazy preemption
 PREEMPT_AUTO.patch
-
-# BH series
-# optimisation + fixes
-tun-Add-missing-bpf_net_ctx_clear-in-do_xdp_generic.patch
 
 ###########################################################################
 # ARM
