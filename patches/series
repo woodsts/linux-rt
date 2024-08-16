@@ -7,7 +7,7 @@
 ###########################################################################
 # Posted
 ###########################################################################
-crypto-x86-aes-gcm-Disable-FPU-around-skcipher_walk_.patch
+crypto-x86-aes-gcm-fix-PREEMPT_RT-issue-in-gcm_crypt.patch
 
 ###########################################################################
 # John's printk queue
@@ -79,6 +79,14 @@ riscv-allow-to-enable-RT.patch
 ###########################################################################
 # Posted
 sched-rt-Don-t-try-push-tasks-if-there-are-none.patch
+
+# sparse
+0001-locking-rt-Add-sparse-annotation-PREEMPT_RT-s-sleepi.patch
+0002-locking-rt-Remove-one-__cond_lock-in-RT-s-spin_trylo.patch
+0003-locking-rt-Add-sparse-annotation-for-RCU.patch
+0004-locking-rt-Annotate-unlock-followed-by-lock-for-spar.patch
+0001-timers-Add-sparse-annotation-for-timer_sync_wait_run.patch
+0002-hrtimer-Annotate-hrtimer_cpu_base_.-_expiry-for-spar.patch
 
 # Needs discussion first.
 softirq-Use-a-dedicated-thread-for-timer-wakeups.patch
