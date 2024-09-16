@@ -170,7 +170,7 @@ Signed-off-by: Sebastian Andrzej Siewior <bigeasy@linutronix.de>
  		defer_console_output();
  	else
  		wake_up_klogd();
-@@ -3292,7 +3331,9 @@ void console_flush_on_panic(enum con_flu
+@@ -3293,7 +3332,9 @@ void console_flush_on_panic(enum con_flu
  	if (!have_boot_console)
  		nbcon_atomic_flush_pending();
  

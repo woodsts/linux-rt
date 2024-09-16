@@ -24,7 +24,7 @@ Signed-off-by: Sebastian Andrzej Siewior <bigeasy@linutronix.de>
  {
  	struct rt_mutex *rtm = container_of(lock, struct rt_mutex, rtmutex);
  	struct task_struct *owner;
-@@ -1804,6 +1805,7 @@ static __always_inline int __rt_mutex_lo
+@@ -1805,6 +1806,7 @@ static __always_inline int __rt_mutex_lo
   * @lock:	The underlying RT mutex
   */
  static void __sched rtlock_slowlock_locked(struct rt_mutex_base *lock)

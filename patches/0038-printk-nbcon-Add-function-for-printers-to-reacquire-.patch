@@ -1,6 +1,6 @@
 From: John Ogness <john.ogness@linutronix.de>
-Date: Fri, 20 Oct 2023 10:01:58 +0000
-Subject: [PATCH 36/54] printk: nbcon: Add function for printers to reacquire
+Date: Wed, 4 Sep 2024 14:11:20 +0206
+Subject: [PATCH 38/54] printk: nbcon: Add function for printers to reacquire
  ownership
 
 Since ownership can be lost at any time due to handover or
@@ -24,6 +24,9 @@ will have no output buffer because that has been lost. This
 function cannot be used to resume printing.
 
 Signed-off-by: John Ogness <john.ogness@linutronix.de>
+Reviewed-by: Petr Mladek <pmladek@suse.com>
+Link: https://lore.kernel.org/r/20240904120536.115780-2-john.ogness@linutronix.de
+Signed-off-by: Petr Mladek <pmladek@suse.com>
 Signed-off-by: Sebastian Andrzej Siewior <bigeasy@linutronix.de>
 ---
  include/linux/console.h |    6 +++

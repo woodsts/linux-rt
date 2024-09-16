@@ -288,7 +288,7 @@ Signed-off-by: Sebastian Andrzej Siewior <bigeasy@linutronix.de>
  		defer_console_output();
  	else
  		wake_up_klogd();
-@@ -2777,10 +2759,16 @@ void resume_console(void)
+@@ -2778,10 +2760,16 @@ void resume_console(void)
   */
  static int console_cpu_notify(unsigned int cpu)
  {
@@ -309,7 +309,7 @@ Signed-off-by: Sebastian Andrzej Siewior <bigeasy@linutronix.de>
  	}
  	return 0;
  }
-@@ -3305,6 +3293,7 @@ static void __console_rewind_all(void)
+@@ -3306,6 +3294,7 @@ static void __console_rewind_all(void)
   */
  void console_flush_on_panic(enum con_flush_mode mode)
  {
@@ -317,7 +317,7 @@ Signed-off-by: Sebastian Andrzej Siewior <bigeasy@linutronix.de>
  	bool handover;
  	u64 next_seq;
  
-@@ -3328,7 +3317,8 @@ void console_flush_on_panic(enum con_flu
+@@ -3329,7 +3318,8 @@ void console_flush_on_panic(enum con_flu
  	if (mode == CONSOLE_REPLAY_ALL)
  		__console_rewind_all();
  
@@ -327,7 +327,7 @@ Signed-off-by: Sebastian Andrzej Siewior <bigeasy@linutronix.de>
  		nbcon_atomic_flush_pending();
  
  	/* Flush legacy consoles once allowed, even when dangerous. */
-@@ -3992,6 +3982,7 @@ static bool __pr_flush(struct console *c
+@@ -3993,6 +3983,7 @@ static bool __pr_flush(struct console *c
  {
  	unsigned long timeout_jiffies = msecs_to_jiffies(timeout_ms);
  	unsigned long remaining_jiffies = timeout_jiffies;
@@ -335,7 +335,7 @@ Signed-off-by: Sebastian Andrzej Siewior <bigeasy@linutronix.de>
  	struct console *c;
  	u64 last_diff = 0;
  	u64 printk_seq;
-@@ -4005,7 +3996,8 @@ static bool __pr_flush(struct console *c
+@@ -4006,7 +3997,8 @@ static bool __pr_flush(struct console *c
  	seq = prb_next_reserve_seq(prb);
  
  	/* Flush the consoles so that records up to @seq are printed. */

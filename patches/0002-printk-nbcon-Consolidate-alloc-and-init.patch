@@ -97,7 +97,7 @@ Signed-off-by: Sebastian Andrzej Siewior <bigeasy@linutronix.de>
   */
 --- a/kernel/printk/printk.c
 +++ b/kernel/printk/printk.c
-@@ -3618,7 +3618,7 @@ void register_console(struct console *ne
+@@ -3619,7 +3619,7 @@ void register_console(struct console *ne
  	console_init_seq(newcon, bootcon_registered);
  
  	if (newcon->flags & CON_NBCON)
