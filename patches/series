@@ -22,8 +22,6 @@
 ###########################################################################
 # For later, not essencial
 ###########################################################################
-# Posted
-sched-rt-Don-t-try-push-tasks-if-there-are-none.patch
 
 # sparse
 0001-locking-rt-Add-sparse-annotation-PREEMPT_RT-s-sleepi.patch
@@ -36,11 +34,6 @@ softirq-Use-a-dedicated-thread-for-timer-wakeups.patch
 rcutorture-Also-force-sched-priority-to-timersd-on-b.patch
 tick-Fix-timer-storm-since-introduction-of-timersd.patch
 softirq-Wake-ktimers-thread-also-in-softirq.patch
-
-# Sched
-0001-sched-core-Provide-a-method-to-check-if-a-task-is-PI.patch
-0002-softirq-Add-function-to-preempt-serving-softirqs.patch
-0003-time-Allow-to-preempt-after-a-callback.patch
 
 ###########################################################################
 # DRM:
