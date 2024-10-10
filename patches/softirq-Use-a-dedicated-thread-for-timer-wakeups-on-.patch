@@ -1,8 +1,9 @@
 From: Sebastian Andrzej Siewior <bigeasy@linutronix.de>
 Date: Wed, 1 Dec 2021 17:41:09 +0100
-Subject: [PATCH] softirq: Use a dedicated thread for timer wakeups.
+Subject: [PATCH] softirq: Use a dedicated thread for timer wakeups on
+ PREEMPT_RT.
 
-A timer/hrtimer softirq is raised in-IRQ context. With threaded
+A timer/ hrtimer softirq is raised in-IRQ context. With threaded
 interrupts enabled or on PREEMPT_RT this leads to waking the ksoftirqd
 for the processing of the softirq.
 Once the ksoftirqd is marked as pending (or is running) it will collect
@@ -15,7 +16,7 @@ especially if the system is not overloaded by the softirqs.
 
 Split the TIMER_SOFTIRQ and HRTIMER_SOFTIRQ processing into a dedicated
 timers thread and let it run at the lowest SCHED_FIFO priority.
-RT tasks are are woken up from hardirq context so only timer_list timers
+Wake-ups for RT tasks happen from hardirq context so only timer_list timers
 and hrtimers for "regular" tasks are processed here. The higher priority
 ensures that wakeups are performed before scheduling SCHED_OTHER tasks.
 
@@ -23,35 +24,48 @@ Using a dedicated variable to store the pending softirq bits values
 ensure that the timer are not accidentally picked up by ksoftirqd and
 other threaded interrupts.
 It shouldn't be picked up by ksoftirqd since it runs at lower priority.
-However if the timer bits are ORed while a threaded interrupt is
-running, then the timer softirq would be performed at higher priority.
-The new timer thread will block on the softirq lock before it starts
-softirq work. This "race window" isn't closed because while timer thread
-is performing the softirq it can get PI-boosted via the softirq lock by
-a random force-threaded thread.
+However if ksoftirqd is already running while a timer fires, then
+ksoftird will be PI-boosted due to the BH-lock to ktimer's priority.
+Ideally we try to avoid having ksoftirqd running.
+
 The timer thread can pick up pending softirqs from ksoftirqd but only
 if the softirq load is high. It is not be desired that the picked up
 softirqs are processed at SCHED_FIFO priority under high softirq load
 but this can already happen by a PI-boost by a force-threaded interrupt.
 
-Reported-by: kernel test robot <lkp@intel.com> [ static timer_threads ]
+[ frederic@kernel.org: rcutorture.c fixes, storm fix by introduction of
+  local_pending_timers() for tick_nohz_next_event() ]
+
+[ junxiao.chang@intel.com: Ensure ktimersd gets woken up even if a
+  softirq is currently served. ]
+
 Signed-off-by: Sebastian Andrzej Siewior <bigeasy@linutronix.de>
 ---
- include/linux/interrupt.h |   16 ++++++++
- kernel/softirq.c          |   92 ++++++++++++++++++++++++++++++++++++++++++++--
+ include/linux/interrupt.h |   29 ++++++++++++++++
+ kernel/rcu/rcutorture.c   |    6 +++
+ kernel/softirq.c          |   82 +++++++++++++++++++++++++++++++++++++++++++++-
  kernel/time/hrtimer.c     |    4 +-
+ kernel/time/tick-sched.c  |    2 -
  kernel/time/timer.c       |    2 -
- 4 files changed, 108 insertions(+), 6 deletions(-)
+ 6 files changed, 120 insertions(+), 5 deletions(-)
 
 --- a/include/linux/interrupt.h
 +++ b/include/linux/interrupt.h
-@@ -616,6 +616,22 @@ extern void __raise_softirq_irqoff(unsig
+@@ -616,6 +616,35 @@ extern void __raise_softirq_irqoff(unsig
  extern void raise_softirq_irqoff(unsigned int nr);
  extern void raise_softirq(unsigned int nr);
  
 +#ifdef CONFIG_PREEMPT_RT
++DECLARE_PER_CPU(struct task_struct *, timersd);
++DECLARE_PER_CPU(unsigned long, pending_timer_softirq);
++
 +extern void raise_timer_softirq(void);
 +extern void raise_hrtimer_softirq(void);
++
++static inline unsigned int local_pending_timers(void)
++{
++	return __this_cpu_read(pending_timer_softirq);
++}
 +
 +#else
 +static inline void raise_timer_softirq(void)
@@ -63,32 +77,47 @@ Signed-off-by: Sebastian Andrzej Siewior <bigeasy@linutronix.de>
 +{
 +	raise_softirq_irqoff(HRTIMER_SOFTIRQ);
 +}
++
++static inline unsigned int local_pending_timers(void)
++{
++	return local_softirq_pending();
++}
 +#endif
 +
  DECLARE_PER_CPU(struct task_struct *, ksoftirqd);
  
  static inline struct task_struct *this_cpu_ksoftirqd(void)
+--- a/kernel/rcu/rcutorture.c
++++ b/kernel/rcu/rcutorture.c
+@@ -2440,6 +2440,12 @@ static int rcutorture_booster_init(unsig
+ 		WARN_ON_ONCE(!t);
+ 		sp.sched_priority = 2;
+ 		sched_setscheduler_nocheck(t, SCHED_FIFO, &sp);
++#ifdef CONFIG_PREEMPT_RT
++		t = per_cpu(timersd, cpu);
++		WARN_ON_ONCE(!t);
++		sp.sched_priority = 2;
++		sched_setscheduler_nocheck(t, SCHED_FIFO, &sp);
++#endif
+ 	}
+ 
+ 	/* Don't allow time recalculation while creating a new task. */
 --- a/kernel/softirq.c
 +++ b/kernel/softirq.c
-@@ -624,6 +624,29 @@ static inline void tick_irq_exit(void)
+@@ -624,6 +624,24 @@ static inline void tick_irq_exit(void)
  #endif
  }
  
 +#ifdef CONFIG_PREEMPT_RT
-+static DEFINE_PER_CPU(struct task_struct *, timersd);
-+static DEFINE_PER_CPU(unsigned long, pending_timer_softirq);
-+
-+static unsigned int local_pending_timers(void)
-+{
-+        return __this_cpu_read(pending_timer_softirq);
-+}
++DEFINE_PER_CPU(struct task_struct *, timersd);
++DEFINE_PER_CPU(unsigned long, pending_timer_softirq);
 +
 +static void wake_timersd(void)
 +{
-+        struct task_struct *tsk = __this_cpu_read(timersd);
++	struct task_struct *tsk = __this_cpu_read(timersd);
 +
-+        if (tsk)
-+                wake_up_process(tsk);
++	if (tsk)
++		wake_up_process(tsk);
 +}
 +
 +#else
@@ -100,35 +129,30 @@ Signed-off-by: Sebastian Andrzej Siewior <bigeasy@linutronix.de>
  static inline void __irq_exit_rcu(void)
  {
  #ifndef __ARCH_IRQ_EXIT_IRQS_DISABLED
-@@ -633,8 +656,13 @@ static inline void __irq_exit_rcu(void)
- #endif
- 	account_hardirq_exit(current);
- 	preempt_count_sub(HARDIRQ_OFFSET);
--	if (!in_interrupt() && local_softirq_pending())
--		invoke_softirq();
-+	if (!in_interrupt()) {
-+		if (local_softirq_pending())
-+			invoke_softirq();
-+
-+		if (IS_ENABLED(CONFIG_PREEMPT_RT) && local_pending_timers())
-+			wake_timersd();
-+	}
+@@ -636,6 +654,10 @@ static inline void __irq_exit_rcu(void)
+ 	if (!in_interrupt() && local_softirq_pending())
+ 		invoke_softirq();
  
++	if (IS_ENABLED(CONFIG_PREEMPT_RT) && local_pending_timers() &&
++	    !(in_nmi() | in_hardirq()))
++		wake_timersd();
++
  	tick_irq_exit();
  }
-@@ -971,12 +999,70 @@ static struct smp_hotplug_thread softirq
+ 
+@@ -971,12 +993,70 @@ static struct smp_hotplug_thread softirq
  	.thread_comm		= "ksoftirqd/%u",
  };
  
 +#ifdef CONFIG_PREEMPT_RT
 +static void timersd_setup(unsigned int cpu)
 +{
-+        sched_set_fifo_low(current);
++	sched_set_fifo_low(current);
 +}
 +
 +static int timersd_should_run(unsigned int cpu)
 +{
-+        return local_pending_timers();
++	return local_pending_timers();
 +}
 +
 +static void run_timersd(unsigned int cpu)
@@ -168,11 +192,11 @@ Signed-off-by: Sebastian Andrzej Siewior <bigeasy@linutronix.de>
 +}
 +
 +static struct smp_hotplug_thread timer_threads = {
-+        .store                  = &timersd,
-+        .setup                  = timersd_setup,
-+        .thread_should_run      = timersd_should_run,
-+        .thread_fn              = run_timersd,
-+        .thread_comm            = "ktimers/%u",
++	.store			= &timersd,
++	.setup			= timersd_setup,
++	.thread_should_run	= timersd_should_run,
++	.thread_fn		= run_timersd,
++	.thread_comm		= "ktimers/%u",
 +};
 +#endif
 +
@@ -208,6 +232,17 @@ Signed-off-by: Sebastian Andrzej Siewior <bigeasy@linutronix.de>
  	}
  
  	__hrtimer_run_queues(cpu_base, now, flags, HRTIMER_ACTIVE_HARD);
+--- a/kernel/time/tick-sched.c
++++ b/kernel/time/tick-sched.c
+@@ -859,7 +859,7 @@ static void tick_nohz_restart(struct tic
+ 
+ static inline bool local_timer_softirq_pending(void)
+ {
+-	return local_softirq_pending() & BIT(TIMER_SOFTIRQ);
++	return local_pending_timers() & BIT(TIMER_SOFTIRQ);
+ }
+ 
+ /*
 --- a/kernel/time/timer.c
 +++ b/kernel/time/timer.c
 @@ -2499,7 +2499,7 @@ static void run_local_timers(void)
