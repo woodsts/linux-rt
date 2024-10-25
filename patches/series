@@ -7,7 +7,9 @@
 ###########################################################################
 # Posted
 ###########################################################################
-softirq-Use-a-dedicated-thread-for-timer-wakeups-on-.patch
+0001-hrtimer-Use-__raise_softirq_irqoff-to-raise-the-soft.patch
+0002-timers-Use-__raise_softirq_irqoff-to-raise-the-softi.patch
+0003-softirq-Use-a-dedicated-thread-for-timer-wakeups-on-.patch
 
 ###########################################################################
 # John's printk queue
@@ -49,8 +51,9 @@ softirq-Use-a-dedicated-thread-for-timer-wakeups-on-.patch
 0003-sched-Enable-PREEMPT_DYNAMIC-for-PREEMPT_RT.patch
 0004-sched-x86-Enable-Lazy-preemption.patch
 0005-sched-Add-laziest-preempt-model.patch
+sched-Fixup-the-IS_ENABLED-check-for-PREEMPT_LAZY.patch
 #
-0001-tracing-Replace-TRACE_FLAG_IRQS_NOSUPPORT-with-its-c.patch
+tracing-Remove-TRACE_FLAG_IRQS_NOSUPPORT.patch
 0002-tracing-Record-task-flag-NEED_RESCHED_LAZY.patch
 0003-riscv-add-PREEMPT_LAZY-support.patch
 
