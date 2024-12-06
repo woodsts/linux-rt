@@ -38,7 +38,7 @@ Signed-off-by: Sebastian Andrzej Siewior <bigeasy@linutronix.de>
 
 --- a/drivers/gpu/drm/i915/display/intel_crtc.c
 +++ b/drivers/gpu/drm/i915/display/intel_crtc.c
-@@ -521,7 +521,8 @@ void intel_pipe_update_start(struct inte
+@@ -555,7 +555,8 @@ void intel_pipe_update_start(struct inte
  	 */
  	intel_psr_wait_for_idle_locked(new_crtc_state);
  
@@ -48,7 +48,7 @@ Signed-off-by: Sebastian Andrzej Siewior <bigeasy@linutronix.de>
  
  	crtc->debug.min_vbl = evade.min;
  	crtc->debug.max_vbl = evade.max;
-@@ -539,7 +540,8 @@ void intel_pipe_update_start(struct inte
+@@ -573,7 +574,8 @@ void intel_pipe_update_start(struct inte
  	return;
  
  irq_disable:
@@ -58,7 +58,7 @@ Signed-off-by: Sebastian Andrzej Siewior <bigeasy@linutronix.de>
  }
  
  #if IS_ENABLED(CONFIG_DRM_I915_DEBUG_VBLANK_EVADE)
-@@ -668,7 +670,8 @@ void intel_pipe_update_end(struct intel_
+@@ -715,7 +717,8 @@ void intel_pipe_update_end(struct intel_
  	 */
  	intel_vrr_send_push(new_crtc_state);
  
@@ -70,7 +70,7 @@ Signed-off-by: Sebastian Andrzej Siewior <bigeasy@linutronix.de>
  		goto out;
 --- a/drivers/gpu/drm/i915/display/intel_cursor.c
 +++ b/drivers/gpu/drm/i915/display/intel_cursor.c
-@@ -895,13 +895,15 @@ intel_legacy_cursor_update(struct drm_pl
+@@ -901,13 +901,15 @@ intel_legacy_cursor_update(struct drm_pl
  		 */
  		intel_psr_wait_for_idle_locked(crtc_state);
  
@@ -88,8 +88,8 @@ Signed-off-by: Sebastian Andrzej Siewior <bigeasy@linutronix.de>
  	}
  
  	if (new_plane_state->uapi.visible) {
-@@ -911,7 +913,8 @@ intel_legacy_cursor_update(struct drm_pl
- 		intel_plane_disable_arm(plane, crtc_state);
+@@ -917,7 +919,8 @@ intel_legacy_cursor_update(struct drm_pl
+ 		intel_plane_disable_arm(NULL, plane, crtc_state);
  	}
  
 -	local_irq_enable();
@@ -100,7 +100,7 @@ Signed-off-by: Sebastian Andrzej Siewior <bigeasy@linutronix.de>
  
 --- a/drivers/gpu/drm/i915/display/intel_vblank.c
 +++ b/drivers/gpu/drm/i915/display/intel_vblank.c
-@@ -705,11 +705,13 @@ int intel_vblank_evade(struct intel_vbla
+@@ -712,11 +712,13 @@ int intel_vblank_evade(struct intel_vbla
  			break;
  		}
  
