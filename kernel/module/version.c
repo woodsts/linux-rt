@@ -62,16 +62,17 @@ int check_modstruct_version(const struct load_info *info,
 		.name	= "module_layout",
 		.gplok	= true,
 	};
+	bool have_symbol;
 
 	/*
 	 * Since this should be found in kernel (which can't be removed), no
 	 * locking is necessary. Regardless use a RCU read section to keep
 	 * lockdep happy.
 	 */
-	scoped_guard(rcu) {
-		if (!find_symbol(&fsa))
-			BUG();
-	}
+	scoped_guard(rcu)
+		have_symbol = find_symbol(&fsa);
+	BUG_ON(!have_symbol);
+
 	return check_version(info, "module_layout", mod, fsa.crc);
 }
 

@@ -331,7 +331,7 @@ static bool find_exported_symbol_in_section(const struct symsearch *syms,
 
 /*
  * Find an exported symbol and return it, along with, (optional) crc and
- * (optional) module which owns it.  Needs RCU or module_mutex.
+ * (optional) module which owns it. Needs RCU or module_mutex.
  */
 bool find_symbol(struct find_symbol_arg *fsa)
 {
@@ -821,6 +821,10 @@ void symbol_put_addr(void *addr)
 	if (core_kernel_text(a))
 		return;
 
+	/*
+	 * Even though we hold a reference on the module; we still need to
+	 * RCU read section in order to safely traverse the data structure.
+	 */
 	guard(rcu)();
 	modaddr = __module_text_address(a);
 	BUG_ON(!modaddr);
@@ -1357,16 +1361,17 @@ void *__symbol_get(const char *symbol)
 		.warn	= true,
 	};
 
-	guard(rcu)();
-	if (!find_symbol(&fsa))
-		return NULL;
-	if (fsa.license != GPL_ONLY) {
-		pr_warn("failing symbol_get of non-GPLONLY symbol %s.\n",
-			symbol);
-		return NULL;
+	scoped_guard(rcu) {
+		if (!find_symbol(&fsa))
+			return NULL;
+		if (fsa.license != GPL_ONLY) {
+			pr_warn("failing symbol_get of non-GPLONLY symbol %s.\n",
+				symbol);
+			return NULL;
+		}
+		if (strong_try_module_get(fsa.owner))
+			return NULL;
 	}
-	if (strong_try_module_get(fsa.owner))
-		return NULL;
 	return (void *)kernel_symbol_value(fsa.sym);
 }
 EXPORT_SYMBOL_GPL(__symbol_get);
@@ -3615,26 +3620,23 @@ out:
 /* Given an address, look for it in the module exception tables. */
 const struct exception_table_entry *search_module_extables(unsigned long addr)
 {
-	const struct exception_table_entry *e = NULL;
 	struct module *mod;
 
 	guard(rcu)();
 	mod = __module_address(addr);
 	if (!mod)
-		goto out;
+		return NULL;
 
 	if (!mod->num_exentries)
-		goto out;
-
-	e = search_extable(mod->extable,
-			   mod->num_exentries,
-			   addr);
-out:
+		return NULL;
 	/*
-	 * Now, if we found one, we are running inside it now, hence
-	 * we cannot unload the module, hence no refcnt needed.
+	 * The address passed here belongs to a module that is currently
+	 * invoked (we are running inside it). Therefore its module::refcnt
+	 * needs already be >0 to ensure that it is not removed at this stage.
+	 * All other user need to invoke this function within a RCU read
+	 * section.
 	 */
-	return e;
+	return search_extable(mod->extable, mod->num_exentries, addr);
 }
 
 /**
@@ -3646,12 +3648,8 @@ out:
  */
 bool is_module_address(unsigned long addr)
 {
-	bool ret;
-
 	guard(rcu)();
-	ret = __module_address(addr) != NULL;
-
-	return ret;
+	return __module_address(addr) != NULL;
 }
 
 /**
@@ -3695,12 +3693,8 @@ lookup:
  */
 bool is_module_text_address(unsigned long addr)
 {
-	bool ret;
-
 	guard(rcu)();
-	ret = __module_text_address(addr) != NULL;
-
-	return ret;
+	return __module_text_address(addr) != NULL;
 }
 
 /**
@@ -3729,6 +3723,7 @@ void print_modules(void)
 	char buf[MODULE_FLAGS_BUF_SIZE];
 
 	printk(KERN_DEFAULT "Modules linked in:");
+	/* Most callers should already have preempt disabled, but make sure */
 	guard(rcu)();
 	list_for_each_entry_rcu(mod, &modules, list) {
 		if (mod->state == MODULE_STATE_UNFORMED)
