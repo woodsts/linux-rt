@@ -205,7 +205,8 @@ void nfs_local_probe(struct nfs_client *clp)
 		nfs_local_disable(clp);
 	}
 
-	nfs_uuid_begin(&clp->cl_uuid);
+	if (!nfs_uuid_begin(&clp->cl_uuid))
+		return;
 	if (nfs_server_uuid_is_local(clp))
 		nfs_local_enable(clp);
 	nfs_uuid_end(&clp->cl_uuid);
@@ -352,6 +353,12 @@ nfs_local_read_done(struct nfs_local_kiocb *iocb, long status)
 	struct file *filp = iocb->kiocb.ki_filp;
 
 	nfs_local_pgio_done(hdr, status);
+
+	/*
+	 * Must clear replen otherwise NFSv3 data corruption will occur
+	 * if/when switching from LOCALIO back to using normal RPC.
+	 */
+	hdr->res.replen = 0;
 
 	if (hdr->res.count != hdr->args.count ||
 	    hdr->args.offset + hdr->res.count >= i_size_read(file_inode(filp)))

@@ -1714,6 +1714,13 @@ static const struct drm_edid *tc_edid_read(struct drm_bridge *bridge,
 					   struct drm_connector *connector)
 {
 	struct tc_data *tc = bridge_to_tc(bridge);
+	int ret;
+
+	ret = tc_get_display_props(tc);
+	if (ret < 0) {
+		dev_err(tc->dev, "failed to read display props: %d\n", ret);
+		return 0;
+	}
 
 	return drm_edid_read_ddc(connector, &tc->aux.ddc);
 }
@@ -2391,6 +2398,7 @@ static int tc_probe_bridge_endpoint(struct tc_data *tc)
 			if (tc->pre_emphasis[0] < 0 || tc->pre_emphasis[0] > 2 ||
 			    tc->pre_emphasis[1] < 0 || tc->pre_emphasis[1] > 2) {
 				dev_err(dev, "Incorrect Pre-Emphasis setting, use either 0=0dB 1=3.5dB 2=6dB\n");
+				of_node_put(node);
 				return -EINVAL;
 			}
 		}
