@@ -1,0 +1,35 @@
+From: Sebastian Andrzej Siewior <bigeasy@linutronix.de>
+Date: Wed, 8 Jan 2025 10:04:45 +0100
+Subject: [PATCH 16/28] ARM: module: Use RCU in all users of
+ __module_text_address().
+
+__module_text_address() can be invoked within a RCU section, there is no
+requirement to have preemption disabled.
+
+Replace the preempt_disable() section around __module_text_address()
+with RCU.
+
+Cc: Russell King <linux@armlinux.org.uk>
+Cc: linux-arm-kernel@lists.infradead.org
+Acked-by: Peter Zijlstra (Intel) <peterz@infradead.org>
+Link: https://lore.kernel.org/r/20250108090457.512198-17-bigeasy@linutronix.de
+Signed-off-by: Sebastian Andrzej Siewior <bigeasy@linutronix.de>
+---
+ arch/arm/kernel/module-plts.c |    4 +---
+ 1 file changed, 1 insertion(+), 3 deletions(-)
+
+--- a/arch/arm/kernel/module-plts.c
++++ b/arch/arm/kernel/module-plts.c
+@@ -285,11 +285,9 @@ bool in_module_plt(unsigned long loc)
+ 	struct module *mod;
+ 	bool ret;
+ 
+-	preempt_disable();
++	guard(rcu)();
+ 	mod = __module_text_address(loc);
+ 	ret = mod && (loc - (u32)mod->arch.core.plt_ent < mod->arch.core.plt_count * PLT_ENT_SIZE ||
+ 		      loc - (u32)mod->arch.init.plt_ent < mod->arch.init.plt_count * PLT_ENT_SIZE);
+-	preempt_enable();
+-
+ 	return ret;
+ }

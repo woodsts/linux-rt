@@ -1,0 +1,59 @@
+From: Sebastian Andrzej Siewior <bigeasy@linutronix.de>
+Date: Wed, 8 Jan 2025 10:04:49 +0100
+Subject: [PATCH 20/28] powerpc/ftrace: Use RCU in all users of
+ __module_text_address().
+
+__module_text_address() can be invoked within a RCU section, there is no
+requirement to have preemption disabled.
+
+Replace the preempt_disable() section around __module_text_address()
+with RCU.
+
+Cc: Christophe Leroy <christophe.leroy@csgroup.eu>
+Cc: Madhavan Srinivasan <maddy@linux.ibm.com>
+Cc: Mark Rutland <mark.rutland@arm.com>
+Cc: Masami Hiramatsu <mhiramat@kernel.org>
+Cc: Michael Ellerman <mpe@ellerman.id.au>
+Cc: Naveen N Rao <naveen@kernel.org>
+Cc: Nicholas Piggin <npiggin@gmail.com>
+Cc: Steven Rostedt <rostedt@goodmis.org>
+Cc: linux-trace-kernel@vger.kernel.org
+Cc: linuxppc-dev@lists.ozlabs.org
+Acked-by: Peter Zijlstra (Intel) <peterz@infradead.org>
+Link: https://lore.kernel.org/r/20250108090457.512198-21-bigeasy@linutronix.de
+Signed-off-by: Sebastian Andrzej Siewior <bigeasy@linutronix.de>
+---
+ arch/powerpc/kernel/trace/ftrace.c       |    6 ++----
+ arch/powerpc/kernel/trace/ftrace_64_pg.c |    6 ++----
+ 2 files changed, 4 insertions(+), 8 deletions(-)
+
+--- a/arch/powerpc/kernel/trace/ftrace.c
++++ b/arch/powerpc/kernel/trace/ftrace.c
+@@ -115,10 +115,8 @@ static unsigned long ftrace_lookup_modul
+ {
+ 	struct module *mod = NULL;
+ 
+-	preempt_disable();
+-	mod = __module_text_address(ip);
+-	preempt_enable();
+-
++	scoped_guard(rcu)
++		mod = __module_text_address(ip);
+ 	if (!mod)
+ 		pr_err("No module loaded at addr=%lx\n", ip);
+ 
+--- a/arch/powerpc/kernel/trace/ftrace_64_pg.c
++++ b/arch/powerpc/kernel/trace/ftrace_64_pg.c
+@@ -120,10 +120,8 @@ static struct module *ftrace_lookup_modu
+ {
+ 	struct module *mod;
+ 
+-	preempt_disable();
+-	mod = __module_text_address(rec->ip);
+-	preempt_enable();
+-
++	scoped_guard(rcu)
++		mod = __module_text_address(rec->ip);
+ 	if (!mod)
+ 		pr_err("No module loaded at addr=%lx\n", rec->ip);
+ 

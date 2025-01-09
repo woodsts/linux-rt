@@ -1,0 +1,40 @@
+From: Sebastian Andrzej Siewior <bigeasy@linutronix.de>
+Date: Wed, 8 Jan 2025 10:04:56 +0100
+Subject: [PATCH 27/28] static_call: Use RCU in all users of
+ __module_text_address().
+
+__module_text_address() can be invoked within a RCU section, there is no
+requirement to have preemption disabled.
+
+Replace the preempt_disable() section around __module_text_address()
+with RCU.
+
+Acked-by: Peter Zijlstra (Intel) <peterz@infradead.org>
+Link: https://lore.kernel.org/r/20250108090457.512198-28-bigeasy@linutronix.de
+Signed-off-by: Sebastian Andrzej Siewior <bigeasy@linutronix.de>
+---
+ kernel/static_call_inline.c |   13 ++++++-------
+ 1 file changed, 6 insertions(+), 7 deletions(-)
+
+--- a/kernel/static_call_inline.c
++++ b/kernel/static_call_inline.c
+@@ -325,13 +325,12 @@ static int __static_call_mod_text_reserv
+ 	struct module *mod;
+ 	int ret;
+ 
+-	preempt_disable();
+-	mod = __module_text_address((unsigned long)start);
+-	WARN_ON_ONCE(__module_text_address((unsigned long)end) != mod);
+-	if (!try_module_get(mod))
+-		mod = NULL;
+-	preempt_enable();
+-
++	scoped_guard(rcu) {
++		mod = __module_text_address((unsigned long)start);
++		WARN_ON_ONCE(__module_text_address((unsigned long)end) != mod);
++		if (!try_module_get(mod))
++			mod = NULL;
++	}
+ 	if (!mod)
+ 		return 0;
+ 

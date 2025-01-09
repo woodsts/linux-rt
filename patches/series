@@ -3,6 +3,8 @@
 ###########################################################################
 # Posted and applied
 ###########################################################################
+0001-powerpc-Add-preempt-lazy-support.patch
+0002-powerpc-Large-user-copy-aware-of-full-rt-lazy-preemp.patch
 
 ###########################################################################
 # Posted
@@ -22,8 +24,37 @@
 ###########################################################################
 # For later, not essencial
 ###########################################################################
-module-Use-complete-RCU-protection-instead-a-mix-of-.patch
 preempt-Add-a-generic-function-to-return-the-preempt.patch
+
+# Module cleanup, v3
+0001-module-Extend-the-preempt-disabled-section-in-derefe.patch
+0002-module-Begin-to-move-from-RCU-sched-to-RCU.patch
+0003-module-Use-proper-RCU-assignment-in-add_kallsyms.patch
+0004-module-Use-RCU-in-find_kallsyms_symbol.patch
+0005-module-Use-RCU-in-module_get_kallsym.patch
+0006-module-Use-RCU-in-find_module_all.patch
+0007-module-Use-RCU-in-__find_kallsyms_symbol_value.patch
+0008-module-Use-RCU-in-module_kallsyms_on_each_symbol.patch
+0009-module-Remove-module_assert_mutex_or_preempt-from-tr.patch
+0010-module-Use-RCU-in-find_symbol.patch
+0011-module-Use-RCU-in-__is_module_percpu_address.patch
+0012-module-Allow-__module_address-to-be-called-from-RCU-.patch
+0013-module-Use-RCU-in-search_module_extables.patch
+0014-module-Use-RCU-in-all-users-of-__module_address.patch
+0015-module-Use-RCU-in-all-users-of-__module_text_address.patch
+0016-ARM-module-Use-RCU-in-all-users-of-__module_text_add.patch
+0017-arm64-module-Use-RCU-in-all-users-of-__module_text_a.patch
+0018-LoongArch-orc-Use-RCU-in-all-users-of-__module_addre.patch
+0019-LoongArch-ftrace-Use-RCU-in-all-users-of-__module_te.patch
+0020-powerpc-ftrace-Use-RCU-in-all-users-of-__module_text.patch
+0021-cfi-Use-RCU-while-invoking-__module_address.patch
+0022-x86-Use-RCU-in-all-users-of-__module_address.patch
+0023-jump_label-Use-RCU-in-all-users-of-__module_address.patch
+0024-jump_label-Use-RCU-in-all-users-of-__module_text_add.patch
+0025-bpf-Use-RCU-in-all-users-of-__module_text_address.patch
+0026-kprobes-Use-RCU-in-all-users-of-__module_text_addres.patch
+0027-static_call-Use-RCU-in-all-users-of-__module_text_ad.patch
+0028-bug-Use-RCU-instead-RCU-sched-to-protect-module_bug_.patch
 
 ###########################################################################
 # DRM:

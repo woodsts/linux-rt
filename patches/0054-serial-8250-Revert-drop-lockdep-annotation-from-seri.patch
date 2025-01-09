@@ -16,7 +16,7 @@ Signed-off-by: Sebastian Andrzej Siewior <bigeasy@linutronix.de>
 
 --- a/drivers/tty/serial/8250/8250_port.c
 +++ b/drivers/tty/serial/8250/8250_port.c
-@@ -712,6 +712,9 @@ static void __serial8250_clear_IER(struc
+@@ -732,6 +732,9 @@ static void __serial8250_clear_IER(struc
  
  static inline void serial8250_clear_IER(struct uart_8250_port *up)
  {
