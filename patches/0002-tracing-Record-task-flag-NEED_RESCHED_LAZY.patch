@@ -48,7 +48,7 @@ Signed-off-by: Sebastian Andrzej Siewior <bigeasy@linutronix.de>
  	TRACE_FLAG_SOFTIRQ		= 0x10,
 --- a/kernel/trace/trace.c
 +++ b/kernel/trace/trace.c
-@@ -2544,6 +2544,8 @@ unsigned int tracing_gen_ctx_irq_test(un
+@@ -2565,6 +2565,8 @@ unsigned int tracing_gen_ctx_irq_test(un
  		trace_flags |= TRACE_FLAG_NEED_RESCHED;
  	if (test_preempt_need_resched())
  		trace_flags |= TRACE_FLAG_PREEMPT_RESCHED;
@@ -59,7 +59,7 @@ Signed-off-by: Sebastian Andrzej Siewior <bigeasy@linutronix.de>
  }
 --- a/kernel/trace/trace_output.c
 +++ b/kernel/trace/trace_output.c
-@@ -462,17 +462,29 @@ int trace_print_lat_fmt(struct trace_seq
+@@ -466,17 +466,29 @@ int trace_print_lat_fmt(struct trace_seq
  		bh_off ? 'b' :
  		'.';
  

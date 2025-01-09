@@ -23,7 +23,7 @@ Signed-off-by: Sebastian Andrzej Siewior <bigeasy@linutronix.de>
 
 --- a/arch/arm/Kconfig
 +++ b/arch/arm/Kconfig
-@@ -102,7 +102,7 @@ config ARM
+@@ -103,7 +103,7 @@ config ARM
  	select HAVE_DYNAMIC_FTRACE_WITH_REGS if HAVE_DYNAMIC_FTRACE
  	select HAVE_EFFICIENT_UNALIGNED_ACCESS if (CPU_V6 || CPU_V6K || CPU_V7) && MMU
  	select HAVE_EXIT_THREAD

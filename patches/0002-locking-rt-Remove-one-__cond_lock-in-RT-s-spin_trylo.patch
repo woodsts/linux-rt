@@ -22,7 +22,7 @@ Signed-off-by: Sebastian Andrzej Siewior <bigeasy@linutronix.de>
 
 --- a/include/linux/spinlock_rt.h
 +++ b/include/linux/spinlock_rt.h
-@@ -132,7 +132,7 @@ static __always_inline void spin_unlock_
+@@ -131,7 +131,7 @@ static __always_inline void spin_unlock_
  #define spin_trylock_irq(lock)				\
  	__cond_lock(lock, rt_spin_trylock(lock))
  
@@ -31,7 +31,7 @@ Signed-off-by: Sebastian Andrzej Siewior <bigeasy@linutronix.de>
  ({							\
  	int __locked;					\
  							\
-@@ -142,9 +142,6 @@ static __always_inline void spin_unlock_
+@@ -141,9 +141,6 @@ static __always_inline void spin_unlock_
  	__locked;					\
  })
  

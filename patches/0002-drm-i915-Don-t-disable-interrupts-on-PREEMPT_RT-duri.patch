@@ -100,7 +100,7 @@ Signed-off-by: Sebastian Andrzej Siewior <bigeasy@linutronix.de>
  
 --- a/drivers/gpu/drm/i915/display/intel_vblank.c
 +++ b/drivers/gpu/drm/i915/display/intel_vblank.c
-@@ -705,11 +705,13 @@ int intel_vblank_evade(struct intel_vbla
+@@ -711,11 +711,13 @@ int intel_vblank_evade(struct intel_vbla
  			break;
  		}
  

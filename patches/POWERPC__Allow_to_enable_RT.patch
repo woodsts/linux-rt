@@ -16,7 +16,7 @@ Signed-off-by: Thomas Gleixner <tglx@linutronix.de>
 ---
 --- a/arch/powerpc/Kconfig
 +++ b/arch/powerpc/Kconfig
-@@ -168,6 +168,7 @@ config PPC
+@@ -169,6 +169,7 @@ config PPC
  	select ARCH_STACKWALK
  	select ARCH_SUPPORTS_ATOMIC_RMW
  	select ARCH_SUPPORTS_DEBUG_PAGEALLOC	if PPC_BOOK3S || PPC_8xx
@@ -24,7 +24,7 @@ Signed-off-by: Thomas Gleixner <tglx@linutronix.de>
  	select ARCH_USE_BUILTIN_BSWAP
  	select ARCH_USE_CMPXCHG_LOCKREF		if PPC64
  	select ARCH_USE_MEMTEST
-@@ -269,6 +270,7 @@ config PPC
+@@ -270,6 +271,7 @@ config PPC
  	select HAVE_PERF_EVENTS_NMI		if PPC64
  	select HAVE_PERF_REGS
  	select HAVE_PERF_USER_STACK_DUMP
