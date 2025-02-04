@@ -83,7 +83,7 @@ Signed-off-by: Sebastian Andrzej Siewior <bigeasy@linutronix.de>
  
 --- a/kernel/module/version.c
 +++ b/kernel/module/version.c
-@@ -62,17 +62,17 @@ int check_modstruct_version(const struct
+@@ -79,17 +79,17 @@ int check_modstruct_version(const struct
  		.name	= "module_layout",
  		.gplok	= true,
  	};

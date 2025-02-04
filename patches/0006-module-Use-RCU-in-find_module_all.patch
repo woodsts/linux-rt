@@ -95,7 +95,7 @@ Signed-off-by: Sebastian Andrzej Siewior <bigeasy@linutronix.de>
  		if (!even_unformed && mod->state == MODULE_STATE_UNFORMED)
 --- a/kernel/trace/trace_kprobe.c
 +++ b/kernel/trace/trace_kprobe.c
-@@ -123,9 +123,8 @@ static nokprobe_inline bool trace_kprobe
+@@ -124,9 +124,8 @@ static nokprobe_inline bool trace_kprobe
  	if (!p)
  		return true;
  	*p = '\0';
@@ -107,7 +107,7 @@ Signed-off-by: Sebastian Andrzej Siewior <bigeasy@linutronix.de>
  	*p = ':';
  
  	return ret;
-@@ -800,12 +799,10 @@ static struct module *try_module_get_by_
+@@ -796,12 +795,10 @@ static struct module *try_module_get_by_
  {
  	struct module *mod;
  

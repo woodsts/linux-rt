@@ -63,7 +63,7 @@ Signed-off-by: Sebastian Andrzej Siewior <bigeasy@linutronix.de>
  
 --- a/kernel/module/main.c
 +++ b/kernel/module/main.c
-@@ -3649,13 +3649,8 @@ const struct exception_table_entry *sear
+@@ -3731,13 +3731,8 @@ const struct exception_table_entry *sear
   */
  bool is_module_address(unsigned long addr)
  {

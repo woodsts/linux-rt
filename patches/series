@@ -3,8 +3,6 @@
 ###########################################################################
 # Posted and applied
 ###########################################################################
-0001-powerpc-Add-preempt-lazy-support.patch
-0002-powerpc-Large-user-copy-aware-of-full-rt-lazy-preemp.patch
 
 ###########################################################################
 # Posted
@@ -14,8 +12,8 @@
 # John's printk queue
 ###########################################################################
 # Atomic console
-0053-serial-8250-Switch-to-nbcon-console.patch
-0054-serial-8250-Revert-drop-lockdep-annotation-from-seri.patch
+Reapply-serial-8250-Switch-to-nbcon-console.patch
+Reapply-serial-8250-Revert-drop-lockdep-annotation-f.patch
 
 ###########################################################################
 # Post
@@ -27,7 +25,6 @@
 preempt-Add-a-generic-function-to-return-the-preempt.patch
 
 # Module cleanup, v3
-0001-module-Extend-the-preempt-disabled-section-in-derefe.patch
 0002-module-Begin-to-move-from-RCU-sched-to-RCU.patch
 0003-module-Use-proper-RCU-assignment-in-add_kallsyms.patch
 0004-module-Use-RCU-in-find_kallsyms_symbol.patch

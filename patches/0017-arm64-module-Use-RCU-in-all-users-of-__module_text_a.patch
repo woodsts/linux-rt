@@ -25,7 +25,7 @@ Signed-off-by: Sebastian Andrzej Siewior <bigeasy@linutronix.de>
 
 --- a/arch/arm64/kernel/ftrace.c
 +++ b/arch/arm64/kernel/ftrace.c
-@@ -257,14 +257,13 @@ static bool ftrace_find_callable_addr(st
+@@ -320,14 +320,13 @@ static bool ftrace_find_callable_addr(st
  	 * dealing with an out-of-range condition, we can assume it
  	 * is due to a module being loaded far away from the kernel.
  	 *

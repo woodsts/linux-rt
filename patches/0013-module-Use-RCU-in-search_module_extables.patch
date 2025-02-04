@@ -29,7 +29,7 @@ Signed-off-by: Sebastian Andrzej Siewior <bigeasy@linutronix.de>
 
 --- a/kernel/module/main.c
 +++ b/kernel/module/main.c
-@@ -3621,28 +3621,23 @@ char *module_flags(struct module *mod, c
+@@ -3703,28 +3703,23 @@ char *module_flags(struct module *mod, c
  /* Given an address, look for it in the module exception tables. */
  const struct exception_table_entry *search_module_extables(unsigned long addr)
  {

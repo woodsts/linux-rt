@@ -21,7 +21,7 @@ Signed-off-by: Sebastian Andrzej Siewior <bigeasy@linutronix.de>
 
 --- a/kernel/module/internal.h
 +++ b/kernel/module/internal.h
-@@ -122,17 +122,6 @@ char *module_next_tag_pair(char *string,
+@@ -124,17 +124,6 @@ char *module_next_tag_pair(char *string,
  #define for_each_modinfo_entry(entry, info, name) \
  	for (entry = get_modinfo(info, name); entry; entry = get_next_modinfo(info, name, entry))
  
@@ -41,7 +41,7 @@ Signed-off-by: Sebastian Andrzej Siewior <bigeasy@linutronix.de>
  #ifdef CONFIG_HAVE_ARCH_PREL32_RELOCATIONS
 --- a/kernel/module/main.c
 +++ b/kernel/module/main.c
-@@ -3667,7 +3667,7 @@ bool is_module_address(unsigned long add
+@@ -3749,7 +3749,7 @@ bool is_module_address(unsigned long add
   * __module_address() - get the module which contains an address.
   * @addr: the address.
   *
@@ -50,7 +50,7 @@ Signed-off-by: Sebastian Andrzej Siewior <bigeasy@linutronix.de>
   * module doesn't get freed during this.
   */
  struct module *__module_address(unsigned long addr)
-@@ -3685,8 +3685,6 @@ struct module *__module_address(unsigned
+@@ -3767,8 +3767,6 @@ struct module *__module_address(unsigned
  	return NULL;
  
  lookup:

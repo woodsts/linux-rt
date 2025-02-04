@@ -59,7 +59,7 @@ Signed-off-by: Sebastian Andrzej Siewior <bigeasy@linutronix.de>
  	synchronize_rcu();
  	if (try_add_tainted_module(mod))
  		pr_err("%s: adding tainted module to the unloaded tainted modules list failed.\n",
-@@ -2965,7 +2965,7 @@ static noinline int do_init_module(struc
+@@ -3049,7 +3049,7 @@ static noinline int do_init_module(struc
  #endif
  	/*
  	 * We want to free module_init, but be aware that kallsyms may be
@@ -68,7 +68,7 @@ Signed-off-by: Sebastian Andrzej Siewior <bigeasy@linutronix.de>
  	 * call synchronize_rcu(), but we don't want to slow down the success
  	 * path. execmem_free() cannot be called in an interrupt, so do the
  	 * work and call synchronize_rcu() in a work queue.
-@@ -3754,7 +3754,7 @@ void print_modules(void)
+@@ -3836,7 +3836,7 @@ void print_modules(void)
  
  	printk(KERN_DEFAULT "Modules linked in:");
  	/* Most callers should already have preempt disabled, but make sure */
@@ -77,7 +77,7 @@ Signed-off-by: Sebastian Andrzej Siewior <bigeasy@linutronix.de>
  	list_for_each_entry_rcu(mod, &modules, list) {
  		if (mod->state == MODULE_STATE_UNFORMED)
  			continue;
-@@ -3762,7 +3762,6 @@ void print_modules(void)
+@@ -3844,7 +3844,6 @@ void print_modules(void)
  	}
  
  	print_unloaded_tainted_modules();

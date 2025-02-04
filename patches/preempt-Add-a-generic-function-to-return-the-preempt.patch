@@ -173,7 +173,7 @@ Signed-off-by: Sebastian Andrzej Siewior <bigeasy@linutronix.de>
   *
 --- a/kernel/sched/core.c
 +++ b/kernel/sched/core.c
-@@ -7642,6 +7642,30 @@ static inline void preempt_dynamic_init(
+@@ -7650,6 +7650,30 @@ static inline void preempt_dynamic_init(
  
  #endif /* CONFIG_PREEMPT_DYNAMIC */
  
@@ -206,7 +206,7 @@ Signed-off-by: Sebastian Andrzej Siewior <bigeasy@linutronix.de>
  	int old_iowait = current->in_iowait;
 --- a/kernel/trace/trace.c
 +++ b/kernel/trace/trace.c
-@@ -4119,12 +4119,7 @@ print_trace_header(struct seq_file *m, s
+@@ -4100,12 +4100,7 @@ print_trace_header(struct seq_file *m, s
  		   entries,
  		   total,
  		   buf->cpu,
