@@ -22,7 +22,16 @@ Reapply-serial-8250-Revert-drop-lockdep-annotation-f.patch
 ###########################################################################
 # For later, not essencial
 ###########################################################################
-preempt-Add-a-generic-function-to-return-the-preempt.patch
+0001-sched-Add-a-generic-function-to-return-the-preemptio.patch
+0002-lib-dump_stack-Use-preempt_model_str.patch
+0003-arm-Rely-on-generic-printing-of-preemption-model.patch
+0004-arm64-Rely-on-generic-printing-of-preemption-model.patch
+0005-powerpc-Rely-on-generic-printing-of-preemption-model.patch
+0006-s390-Rely-on-generic-printing-of-preemption-model.patch
+0007-x86-Rely-on-generic-printing-of-preemption-model.patch
+0008-xtensa-Rely-on-generic-printing-of-preemption-model.patch
+0009-tracing-Use-preempt_model_str.patch
+arm64-enable-PREEMPT_LAZY.patch
 
 # Module cleanup, v3
 0002-module-Begin-to-move-from-RCU-sched-to-RCU.patch

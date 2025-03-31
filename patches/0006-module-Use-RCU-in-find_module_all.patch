@@ -33,7 +33,7 @@ Signed-off-by: Sebastian Andrzej Siewior <bigeasy@linutronix.de>
 
 --- a/include/linux/module.h
 +++ b/include/linux/module.h
-@@ -663,7 +663,7 @@ static inline bool within_module(unsigne
+@@ -666,7 +666,7 @@ static inline bool within_module(unsigne
  	return within_module_init(addr, mod) || within_module_core(addr, mod);
  }
  
