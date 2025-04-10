@@ -38,7 +38,7 @@ Signed-off-by: Sebastian Andrzej Siewior <bigeasy@linutronix.de>
 
 --- a/drivers/gpu/drm/i915/display/intel_crtc.c
 +++ b/drivers/gpu/drm/i915/display/intel_crtc.c
-@@ -556,7 +556,8 @@ void intel_pipe_update_start(struct inte
+@@ -560,7 +560,8 @@ void intel_pipe_update_start(struct inte
  	 */
  	intel_psr_wait_for_idle_locked(new_crtc_state);
  
@@ -48,7 +48,7 @@ Signed-off-by: Sebastian Andrzej Siewior <bigeasy@linutronix.de>
  
  	crtc->debug.min_vbl = evade.min;
  	crtc->debug.max_vbl = evade.max;
-@@ -574,7 +575,8 @@ void intel_pipe_update_start(struct inte
+@@ -578,7 +579,8 @@ void intel_pipe_update_start(struct inte
  	return;
  
  irq_disable:
@@ -58,9 +58,9 @@ Signed-off-by: Sebastian Andrzej Siewior <bigeasy@linutronix.de>
  }
  
  #if IS_ENABLED(CONFIG_DRM_I915_DEBUG_VBLANK_EVADE)
-@@ -716,7 +718,8 @@ void intel_pipe_update_end(struct intel_
- 	 */
- 	intel_vrr_send_push(new_crtc_state);
+@@ -724,7 +726,8 @@ void intel_pipe_update_end(struct intel_
+ 	if (!state->base.legacy_cursor_update)
+ 		intel_vrr_send_push(NULL, new_crtc_state);
  
 -	local_irq_enable();
 +	if (!IS_ENABLED(CONFIG_PREEMPT_RT))
@@ -70,7 +70,7 @@ Signed-off-by: Sebastian Andrzej Siewior <bigeasy@linutronix.de>
  		goto out;
 --- a/drivers/gpu/drm/i915/display/intel_cursor.c
 +++ b/drivers/gpu/drm/i915/display/intel_cursor.c
-@@ -901,13 +901,15 @@ intel_legacy_cursor_update(struct drm_pl
+@@ -929,13 +929,15 @@ intel_legacy_cursor_update(struct drm_pl
  		 */
  		intel_psr_wait_for_idle_locked(crtc_state);
  
@@ -88,7 +88,7 @@ Signed-off-by: Sebastian Andrzej Siewior <bigeasy@linutronix.de>
  	}
  
  	if (new_plane_state->uapi.visible) {
-@@ -917,7 +919,8 @@ intel_legacy_cursor_update(struct drm_pl
+@@ -945,7 +947,8 @@ intel_legacy_cursor_update(struct drm_pl
  		intel_plane_disable_arm(NULL, plane, crtc_state);
  	}
  
@@ -100,7 +100,7 @@ Signed-off-by: Sebastian Andrzej Siewior <bigeasy@linutronix.de>
  
 --- a/drivers/gpu/drm/i915/display/intel_vblank.c
 +++ b/drivers/gpu/drm/i915/display/intel_vblank.c
-@@ -712,11 +712,13 @@ int intel_vblank_evade(struct intel_vbla
+@@ -750,11 +750,13 @@ int intel_vblank_evade(struct intel_vbla
  			break;
  		}
  
