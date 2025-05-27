@@ -167,7 +167,7 @@ Signed-off-by: Sebastian Andrzej Siewior <bigeasy@linutronix.de>
  	return true;
  }
  
-@@ -1078,28 +1077,37 @@ void wake_up_q(struct wake_q_head *head)
+@@ -1079,28 +1078,37 @@ void wake_up_q(struct wake_q_head *head)
   * might also involve a cross-CPU call to trigger the scheduler on
   * the target CPU.
   */
@@ -212,7 +212,7 @@ Signed-off-by: Sebastian Andrzej Siewior <bigeasy@linutronix.de>
  }
  
  void resched_cpu(int cpu)
-@@ -1194,7 +1202,7 @@ static void wake_up_idle_cpu(int cpu)
+@@ -1195,7 +1203,7 @@ static void wake_up_idle_cpu(int cpu)
  	 * and testing of the above solutions didn't appear to report
  	 * much benefits.
  	 */
