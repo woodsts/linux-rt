@@ -34,6 +34,7 @@ Reapply-serial-8250-Revert-drop-lockdep-annotation-f.patch
 0005-drm-i915-gt-Use-spin_lock_irq-instead-of-local_irq_d.patch
 0006-drm-i915-Drop-the-irqs_disabled-check.patch
 0007-drm-i915-guc-Consider-also-RCU-depth-in-busy-loop.patch
+drm-i915-Consider-RCU-read-section-as-atomic.patch
 0008-Revert-drm-i915-Depend-on-PREEMPT_RT.patch
 
 ###########################################################################

@@ -71,7 +71,7 @@ Signed-off-by: Sebastian Andrzej Siewior <bigeasy@linutronix.de>
  };
 --- a/drivers/tty/serial/8250/8250_port.c
 +++ b/drivers/tty/serial/8250/8250_port.c
-@@ -709,7 +709,12 @@ static void serial8250_set_sleep(struct
+@@ -705,7 +705,12 @@ static void serial8250_set_sleep(struct
  	serial8250_rpm_put(p);
  }
  
@@ -85,7 +85,7 @@ Signed-off-by: Sebastian Andrzej Siewior <bigeasy@linutronix.de>
  {
  	if (up->capabilities & UART_CAP_UUE)
  		serial_out(up, UART_IER, UART_IER_UUE);
-@@ -717,6 +722,11 @@ static void serial8250_clear_IER(struct
+@@ -713,6 +718,11 @@ static void serial8250_clear_IER(struct
  		serial_out(up, UART_IER, 0);
  }
  
@@ -97,7 +97,7 @@ Signed-off-by: Sebastian Andrzej Siewior <bigeasy@linutronix.de>
  #ifdef CONFIG_SERIAL_8250_RSA
  /*
   * Attempts to turn on the RSA FIFO.  Returns zero on failure.
-@@ -1404,9 +1414,6 @@ void serial8250_em485_stop_tx(struct uar
+@@ -1400,9 +1410,6 @@ void serial8250_em485_stop_tx(struct uar
  {
  	unsigned char mcr = serial8250_in_MCR(p);
  
@@ -107,7 +107,7 @@ Signed-off-by: Sebastian Andrzej Siewior <bigeasy@linutronix.de>
  	if (p->port.rs485.flags & SER_RS485_RTS_AFTER_SEND)
  		mcr |= UART_MCR_RTS;
  	else
-@@ -1422,6 +1429,16 @@ void serial8250_em485_stop_tx(struct uar
+@@ -1418,6 +1425,16 @@ void serial8250_em485_stop_tx(struct uar
  		serial8250_clear_and_reinit_fifos(p);
  
  		if (toggle_ier) {
