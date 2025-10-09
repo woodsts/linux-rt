@@ -4258,11 +4258,10 @@ static bool __flush_work(struct work_struct *work, bool from_cancel)
 				if (IS_ENABLED(CONFIG_PREEMPT_RT)) {
 					struct worker_pool *pool;
 
-					mutex_lock(&wq_pool_mutex);
+					guard(rcu)();
 					pool = get_work_pool(work);
 					if (pool)
 						workqueue_callback_cancel_wait_running(pool);
-					mutex_unlock(&wq_pool_mutex);
 				} else {
 					cpu_relax();
 				}
