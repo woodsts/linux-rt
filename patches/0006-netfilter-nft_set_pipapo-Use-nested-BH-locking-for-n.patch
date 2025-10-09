@@ -54,7 +54,7 @@ Signed-off-by: Sebastian Andrzej Siewior <bigeasy@linutronix.de>
  out:
  	local_bh_enable();
  	return NULL;
-@@ -1215,6 +1219,7 @@ static int pipapo_realloc_scratch(struct
+@@ -1231,6 +1235,7 @@ static int pipapo_realloc_scratch(struct
  		}
  
  		pipapo_free_scratch(clone, i);

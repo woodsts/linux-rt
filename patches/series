@@ -10,6 +10,8 @@
 0004-netfilter-nft_set_pipapo-use-avx2-algorithm-for-inse.patch
 0005-netfilter-nft_set_pipapo-Store-real-pointer-adjust-l.patch
 0006-netfilter-nft_set_pipapo-Use-nested-BH-locking-for-n.patch
+netfilter-nft_set_pipapo-use-0-genmask-for-packetpat.patch
+netfilter-nft_set_pipapo_avx2-fix-skip-of-expired-en.patch
 
 ###########################################################################
 # Posted
@@ -18,6 +20,7 @@
 0001-workqueue-Provide-a-handshake-for-canceling-BH-worke.patch
 0002-softirq-Provide-a-handshake-for-canceling-tasklets-v.patch
 0003-softirq-Allow-to-drop-the-softirq-BKL-lock-on-PREEMP.patch
+net-gro_cells-Use-nested-BH-locking-for-gro_cell.patch
 
 ###########################################################################
 # John's printk queue

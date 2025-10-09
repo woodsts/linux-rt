@@ -18,7 +18,7 @@ Signed-off-by: Sebastian Andrzej Siewior <bigeasy@linutronix.de>
 
 --- a/net/netfilter/nft_set_pipapo_avx2.c
 +++ b/net/netfilter/nft_set_pipapo_avx2.c
-@@ -1171,9 +1171,7 @@ nft_pipapo_avx2_lookup(const struct net
+@@ -1170,9 +1170,7 @@ nft_pipapo_avx2_lookup(const struct net
  
  	m = rcu_dereference(priv->match);
  
