@@ -47,7 +47,7 @@ Signed-off-by: Sebastian Andrzej Siewior <bigeasy@linutronix.de>
  
  	pipapo_resmap_init(m, res_map);
  
-@@ -1171,22 +1172,17 @@ static void pipapo_map(struct nft_pipapo
+@@ -1187,22 +1188,17 @@ static void pipapo_map(struct nft_pipapo
  }
  
  /**
@@ -72,7 +72,7 @@ Signed-off-by: Sebastian Andrzej Siewior <bigeasy@linutronix.de>
  }
  
  /**
-@@ -1203,11 +1199,8 @@ static int pipapo_realloc_scratch(struct
+@@ -1219,11 +1215,8 @@ static int pipapo_realloc_scratch(struct
  
  	for_each_possible_cpu(i) {
  		struct nft_pipapo_scratch *scratch;
@@ -86,7 +86,7 @@ Signed-off-by: Sebastian Andrzej Siewior <bigeasy@linutronix.de>
  					NFT_PIPAPO_ALIGN_HEADROOM,
  					GFP_KERNEL_ACCOUNT, cpu_to_node(i));
  		if (!scratch) {
-@@ -1222,23 +1215,6 @@ static int pipapo_realloc_scratch(struct
+@@ -1238,23 +1231,6 @@ static int pipapo_realloc_scratch(struct
  		}
  
  		pipapo_free_scratch(clone, i);

@@ -13,12 +13,12 @@ Reviewed-by: Stefano Brivio <sbrivio@redhat.com>
 Signed-off-by: Florian Westphal <fw@strlen.de>
 Signed-off-by: Sebastian Andrzej Siewior <bigeasy@linutronix.de>
 ---
- net/netfilter/nft_set_pipapo_avx2.c |  126 ++++++++++++++++++++++--------------
- 1 file changed, 77 insertions(+), 49 deletions(-)
+ net/netfilter/nft_set_pipapo_avx2.c |  123 ++++++++++++++++++++++--------------
+ 1 file changed, 76 insertions(+), 47 deletions(-)
 
 --- a/net/netfilter/nft_set_pipapo_avx2.c
 +++ b/net/netfilter/nft_set_pipapo_avx2.c
-@@ -1133,56 +1133,35 @@ static inline void pipapo_resmap_init_av
+@@ -1133,55 +1133,35 @@ static inline void pipapo_resmap_init_av
  }
  
  /**
@@ -53,7 +53,6 @@ Signed-off-by: Sebastian Andrzej Siewior <bigeasy@linutronix.de>
 -	struct nft_pipapo *priv = nft_set_priv(set);
 -	const struct nft_set_ext *ext = NULL;
  	struct nft_pipapo_scratch *scratch;
--	u8 genmask = nft_genmask_cur(net);
 -	const struct nft_pipapo_match *m;
  	const struct nft_pipapo_field *f;
 -	const u8 *rp = (const u8 *)key;
@@ -88,7 +87,7 @@ Signed-off-by: Sebastian Andrzej Siewior <bigeasy@linutronix.de>
  
  	map_index = scratch->map_index;
  
-@@ -1191,6 +1170,12 @@ nft_pipapo_avx2_lookup(const struct net
+@@ -1190,6 +1170,12 @@ nft_pipapo_avx2_lookup(const struct net
  
  	pipapo_resmap_init_avx2(m, res);
  
@@ -101,7 +100,7 @@ Signed-off-by: Sebastian Andrzej Siewior <bigeasy@linutronix.de>
  	nft_pipapo_avx2_prepare();
  
  next_match:
-@@ -1200,7 +1185,7 @@ nft_pipapo_avx2_lookup(const struct net
+@@ -1199,7 +1185,7 @@ nft_pipapo_avx2_lookup(const struct net
  
  #define NFT_SET_PIPAPO_AVX2_LOOKUP(b, n)				\
  		(ret = nft_pipapo_avx2_lookup_##b##b_##n(res, fill, f,	\
@@ -110,7 +109,7 @@ Signed-off-by: Sebastian Andrzej Siewior <bigeasy@linutronix.de>
  							 first, last))
  
  		if (likely(f->bb == 8)) {
-@@ -1216,7 +1201,7 @@ nft_pipapo_avx2_lookup(const struct net
+@@ -1215,7 +1201,7 @@ nft_pipapo_avx2_lookup(const struct net
  				NFT_SET_PIPAPO_AVX2_LOOKUP(8, 16);
  			} else {
  				ret = nft_pipapo_avx2_lookup_slow(m, res, fill, f,
@@ -119,7 +118,7 @@ Signed-off-by: Sebastian Andrzej Siewior <bigeasy@linutronix.de>
  								  first, last);
  			}
  		} else {
-@@ -1232,7 +1217,7 @@ nft_pipapo_avx2_lookup(const struct net
+@@ -1231,7 +1217,7 @@ nft_pipapo_avx2_lookup(const struct net
  				NFT_SET_PIPAPO_AVX2_LOOKUP(4, 32);
  			} else {
  				ret = nft_pipapo_avx2_lookup_slow(m, res, fill, f,
@@ -128,7 +127,7 @@ Signed-off-by: Sebastian Andrzej Siewior <bigeasy@linutronix.de>
  								  first, last);
  			}
  		}
-@@ -1240,29 +1225,72 @@ nft_pipapo_avx2_lookup(const struct net
+@@ -1239,28 +1225,71 @@ nft_pipapo_avx2_lookup(const struct net
  
  #undef NFT_SET_PIPAPO_AVX2_LOOKUP
  
@@ -144,8 +143,7 @@ Signed-off-by: Sebastian Andrzej Siewior <bigeasy@linutronix.de>
 -			const struct nft_set_ext *e = &f->mt[ret].e->ext;
 +			struct nft_pipapo_elem *e;
  
--			if (unlikely(nft_set_elem_expired(e) ||
--				     !nft_set_elem_active(e, genmask)))
+-			if (unlikely(nft_set_elem_expired(e)))
 +			e = f->mt[ret].e;
 +			if (unlikely(__nft_set_elem_expired(&e->ext, tstamp) ||
 +				     !nft_set_elem_active(&e->ext, genmask)))
@@ -189,7 +187,6 @@ Signed-off-by: Sebastian Andrzej Siewior <bigeasy@linutronix.de>
 +		       const u32 *key)
 +{
 +	struct nft_pipapo *priv = nft_set_priv(set);
-+	u8 genmask = nft_genmask_cur(net);
 +	const struct nft_pipapo_match *m;
 +	const u8 *rp = (const u8 *)key;
 +	const struct nft_pipapo_elem *e;
@@ -207,7 +204,7 @@ Signed-off-by: Sebastian Andrzej Siewior <bigeasy@linutronix.de>
 +
 +	m = rcu_dereference(priv->match);
 +
-+	e = pipapo_get_avx2(m, rp, genmask, get_jiffies_64());
++	e = pipapo_get_avx2(m, rp, 0, get_jiffies_64());
  	local_bh_enable();
  
 -	return ext;

@@ -112,12 +112,12 @@ Signed-off-by: Sebastian Andrzej Siewior <bigeasy@linutronix.de>
   * nft_pipapo_lookup() - Dataplane fronted for main lookup function
   * @net:	Network namespace
   * @set:	nftables API set representation
-@@ -523,7 +558,7 @@ nft_pipapo_lookup(const struct net *net,
+@@ -539,7 +574,7 @@ nft_pipapo_lookup(const struct net *net,
  	const struct nft_pipapo_elem *e;
  
  	m = rcu_dereference(priv->match);
--	e = pipapo_get(m, (const u8 *)key, genmask, get_jiffies_64());
-+	e = pipapo_get_slow(m, (const u8 *)key, genmask, get_jiffies_64());
+-	e = pipapo_get(m, (const u8 *)key, NFT_GENMASK_ANY, get_jiffies_64());
++	e = pipapo_get_slow(m, (const u8 *)key, NFT_GENMASK_ANY, get_jiffies_64());
  
  	return e ? &e->ext : NULL;
  }

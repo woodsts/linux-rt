@@ -11,9 +11,6 @@
 0005-netfilter-nft_set_pipapo-Store-real-pointer-adjust-l.patch
 0006-netfilter-nft_set_pipapo-Use-nested-BH-locking-for-n.patch
 
-# Futex free fixup, -tip
-futex-Move-futex_hash_free-back-to-__mmput.patch
-
 ###########################################################################
 # Posted
 ###########################################################################
