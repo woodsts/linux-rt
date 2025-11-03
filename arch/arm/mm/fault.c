@@ -183,9 +183,6 @@ __do_user_fault(unsigned long addr, unsigned int fsr, unsigned int sig,
 {
 	struct task_struct *tsk = current;
 
-	if (addr > TASK_SIZE)
-		harden_branch_predictor();
-
 #ifdef CONFIG_DEBUG_USER
 	if (((user_debug & UDBG_SEGV) && (sig == SIGSEGV)) ||
 	    ((user_debug & UDBG_BUS)  && (sig == SIGBUS))) {
@@ -218,10 +215,14 @@ void do_bad_area(unsigned long addr, unsigned int fsr, struct pt_regs *regs)
 	 * If we are in kernel mode at this point, we
 	 * have no context to handle this fault with.
 	 */
-	if (user_mode(regs))
+	if (user_mode(regs)) {
+		if (addr >= TASK_SIZE)
+			harden_branch_predictor();
+		local_irq_enable();
 		__do_user_fault(addr, fsr, SIGSEGV, SEGV_MAPERR, regs);
-	else
+	} else {
 		__do_kernel_fault(mm, addr, fsr, regs);
+	}
 }
 
 #ifdef CONFIG_MMU
@@ -274,8 +275,11 @@ do_page_fault(unsigned long addr, unsigned int fsr, struct pt_regs *regs)
 
 
 	/* Enable interrupts if they were enabled in the parent context. */
-	if (interrupts_enabled(regs))
+	if (interrupts_enabled(regs)) {
+		if (user_mode(regs) && addr >= TASK_SIZE)
+			harden_branch_predictor();
 		local_irq_enable();
+	}
 
 	/*
 	 * If we're in an interrupt or have no user
@@ -473,9 +477,6 @@ do_translation_fault(unsigned long addr, unsigned int fsr,
 	if (addr < TASK_SIZE)
 		return do_page_fault(addr, fsr, regs);
 
-	if (interrupts_enabled(regs))
-		local_irq_enable();
-
 	if (user_mode(regs))
 		goto bad_area;
 
@@ -546,9 +547,6 @@ do_translation_fault(unsigned long addr, unsigned int fsr,
 static int
 do_sect_fault(unsigned long addr, unsigned int fsr, struct pt_regs *regs)
 {
-	if (interrupts_enabled(regs))
-		local_irq_enable();
-
 	do_bad_area(addr, fsr, regs);
 	return 0;
 }
