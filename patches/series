@@ -39,10 +39,11 @@ drm-i915-Consider-RCU-read-section-as-atomic.patch
 ###########################################################################
 # ARM
 ###########################################################################
-0001-arm-Disable-jump-label-on-PREEMPT_RT.patch
-ARM__enable_irq_in_translation_section_permission_fault_handlers.patch
-arm-Disable-FAST_GUP-on-PREEMPT_RT-if-HIGHPTE-is-als.patch
-ARM__Allow_to_enable_RT.patch
+0001-ARM-mm-fault-Move-harden_branch_predictor-before-int.patch
+0002-ARM-mm-fault-Enable-interrupts-before-invoking-__do_.patch
+0003-ARM-Disable-jump-label-on-PREEMPT_RT.patch
+0004-ARM-Disable-HIGHPTE-on-PREEMPT_RT-kernels.patch
+0005-ARM-Allow-to-enable-RT.patch
 
 ###########################################################################
 # POWERPC

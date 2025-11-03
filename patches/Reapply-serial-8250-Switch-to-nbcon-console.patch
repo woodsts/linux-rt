@@ -13,7 +13,7 @@ Signed-off-by: Sebastian Andrzej Siewior <bigeasy@linutronix.de>
 
 --- a/drivers/tty/serial/8250/8250_core.c
 +++ b/drivers/tty/serial/8250/8250_core.c
-@@ -391,12 +391,34 @@ void __init serial8250_register_ports(st
+@@ -386,12 +386,34 @@ void __init serial8250_register_ports(st
  
  #ifdef CONFIG_SERIAL_8250_CONSOLE
  
@@ -51,7 +51,7 @@ Signed-off-by: Sebastian Andrzej Siewior <bigeasy@linutronix.de>
  }
  
  static int univ8250_console_setup(struct console *co, char *options)
-@@ -497,12 +519,15 @@ static int univ8250_console_match(struct
+@@ -492,12 +514,15 @@ static int univ8250_console_match(struct
  
  static struct console univ8250_console = {
  	.name		= "ttyS",
@@ -71,7 +71,7 @@ Signed-off-by: Sebastian Andrzej Siewior <bigeasy@linutronix.de>
  };
 --- a/drivers/tty/serial/8250/8250_port.c
 +++ b/drivers/tty/serial/8250/8250_port.c
-@@ -705,7 +705,12 @@ static void serial8250_clear_interrupts(
+@@ -706,7 +706,12 @@ static void serial8250_clear_interrupts(
  	serial_port_in(port, UART_MSR);
  }
  
@@ -85,7 +85,7 @@ Signed-off-by: Sebastian Andrzej Siewior <bigeasy@linutronix.de>
  {
  	if (up->capabilities & UART_CAP_UUE)
  		serial_out(up, UART_IER, UART_IER_UUE);
-@@ -713,6 +718,11 @@ static void serial8250_clear_IER(struct
+@@ -714,6 +719,11 @@ static void serial8250_clear_IER(struct
  		serial_out(up, UART_IER, 0);
  }
  
@@ -97,7 +97,7 @@ Signed-off-by: Sebastian Andrzej Siewior <bigeasy@linutronix.de>
  /*
   * This is a quickie test to see how big the FIFO is.
   * It doesn't work at all the time, more's the pity.
-@@ -1290,9 +1300,6 @@ void serial8250_em485_stop_tx(struct uar
+@@ -1286,9 +1296,6 @@ void serial8250_em485_stop_tx(struct uar
  {
  	unsigned char mcr = serial8250_in_MCR(p);
  
@@ -107,7 +107,7 @@ Signed-off-by: Sebastian Andrzej Siewior <bigeasy@linutronix.de>
  	if (p->port.rs485.flags & SER_RS485_RTS_AFTER_SEND)
  		mcr |= UART_MCR_RTS;
  	else
-@@ -1308,6 +1315,16 @@ void serial8250_em485_stop_tx(struct uar
+@@ -1304,6 +1311,16 @@ void serial8250_em485_stop_tx(struct uar
  		serial8250_clear_and_reinit_fifos(p);
  
  		if (toggle_ier) {
@@ -124,7 +124,7 @@ Signed-off-by: Sebastian Andrzej Siewior <bigeasy@linutronix.de>
  			p->ier |= UART_IER_RLSI | UART_IER_RDI;
  			serial_port_out(&p->port, UART_IER, p->ier);
  		}
-@@ -3243,7 +3260,11 @@ EXPORT_SYMBOL_GPL(serial8250_set_default
+@@ -3189,7 +3206,11 @@ EXPORT_SYMBOL_GPL(serial8250_set_default
  
  static void serial8250_console_putchar(struct uart_port *port, unsigned char ch)
  {
@@ -136,7 +136,7 @@ Signed-off-by: Sebastian Andrzej Siewior <bigeasy@linutronix.de>
  }
  
  static void serial8250_console_wait_putchar(struct uart_port *port, unsigned char ch)
-@@ -3280,11 +3301,22 @@ static void serial8250_console_restore(s
+@@ -3226,11 +3247,22 @@ static void serial8250_console_restore(s
  	serial8250_out_MCR(up, up->mcr | UART_MCR_DTR | UART_MCR_RTS);
  }
  
@@ -160,7 +160,7 @@ Signed-off-by: Sebastian Andrzej Siewior <bigeasy@linutronix.de>
  		if (wait_for_lsr(up, UART_LSR_THRE))
  			return;
  	}
-@@ -3297,20 +3329,29 @@ static void fifo_wait_for_lsr(struct uar
+@@ -3243,20 +3275,29 @@ static void fifo_wait_for_lsr(struct uar
   * to get empty.
   */
  static void serial8250_console_fifo_write(struct uart_8250_port *up,
@@ -193,7 +193,7 @@ Signed-off-by: Sebastian Andrzej Siewior <bigeasy@linutronix.de>
  			if (*s == '\n' && !cr_sent) {
  				serial8250_console_putchar(port, '\r');
  				cr_sent = true;
-@@ -3318,6 +3359,8 @@ static void serial8250_console_fifo_writ
+@@ -3264,6 +3305,8 @@ static void serial8250_console_fifo_writ
  				serial8250_console_putchar(port, *s++);
  				cr_sent = false;
  			}
@@ -202,7 +202,7 @@ Signed-off-by: Sebastian Andrzej Siewior <bigeasy@linutronix.de>
  		}
  		tx_count = i;
  	}
-@@ -3326,39 +3369,57 @@ static void serial8250_console_fifo_writ
+@@ -3272,39 +3315,57 @@ static void serial8250_console_fifo_writ
  	 * Allow timeout for each byte written since the caller will only wait
  	 * for UART_LSR_BOTH_EMPTY using the timeout of a single character
  	 */
@@ -280,7 +280,7 @@ Signed-off-by: Sebastian Andrzej Siewior <bigeasy@linutronix.de>
  
  	/* check scratch reg to see if port powered off during system sleep */
  	if (up->canary && (up->canary != serial_port_in(port, UART_SCR))) {
-@@ -3372,6 +3433,18 @@ void serial8250_console_write(struct uar
+@@ -3318,6 +3379,18 @@ void serial8250_console_write(struct uar
  		mdelay(port->rs485.delay_rts_before_send);
  	}
  
@@ -299,7 +299,7 @@ Signed-off-by: Sebastian Andrzej Siewior <bigeasy@linutronix.de>
  	use_fifo = (up->capabilities & UART_CAP_FIFO) &&
  		/*
  		 * BCM283x requires to check the fifo
-@@ -3392,10 +3465,23 @@ void serial8250_console_write(struct uar
+@@ -3338,10 +3411,23 @@ void serial8250_console_write(struct uar
  		 */
  		!(up->port.flags & UPF_CONS_FLOW);
  
@@ -325,7 +325,7 @@ Signed-off-by: Sebastian Andrzej Siewior <bigeasy@linutronix.de>
  
  	/*
  	 *	Finally, wait for transmitter to become empty
-@@ -3418,11 +3504,18 @@ void serial8250_console_write(struct uar
+@@ -3364,11 +3450,18 @@ void serial8250_console_write(struct uar
  	 *	call it if we have saved something in the saved flags
  	 *	while processing with interrupts off.
  	 */
@@ -348,7 +348,7 @@ Signed-off-by: Sebastian Andrzej Siewior <bigeasy@linutronix.de>
  }
  
  static unsigned int probe_baud(struct uart_port *port)
-@@ -3440,8 +3533,24 @@ static unsigned int probe_baud(struct ua
+@@ -3386,8 +3479,24 @@ static unsigned int probe_baud(struct ua
  	return (port->uartclk / 16) / quot;
  }
  
@@ -373,7 +373,7 @@ Signed-off-by: Sebastian Andrzej Siewior <bigeasy@linutronix.de>
  	int baud = 9600;
  	int bits = 8;
  	int parity = 'n';
-@@ -3451,6 +3560,9 @@ int serial8250_console_setup(struct uart
+@@ -3397,6 +3506,9 @@ int serial8250_console_setup(struct uart
  	if (!port->iobase && !port->membase)
  		return -ENODEV;
  
