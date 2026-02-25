@@ -1,0 +1,50 @@
+From: "Yadi.hu" <yadi.hu@windriver.com>
+Date: Mon, 3 Nov 2025 11:15:42 +0100
+Subject: [PATCH] ARM: mm: fault: Enable interrupts before invoking
+ __do_user_fault()
+
+A page fault from userland for a kernel address originates from from
+do_sect_fault() (!LPAE) or do_page_fault() and ends in __do_user_fault()
+by sending a signal.
+
+Sending a signal requires to acquire sighand_struct::siglock which is a
+spinlock_t. On PREEMPT_RT spinlock_t becomes a sleeping spin lock which
+requires interrupts to be enabled. Since the calling context is user
+land, interrupts must have been enabled so it is fine to enable them in
+this case.
+
+Enable interrupts in do_kernel_address_page_fault() unconditional in the
+user_mode case().
+Enable interrupts in do_sect_fault() if they were previously enabled.
+
+[bigeasy: Initial patch/ report by Yadi. Maintained the patch and redid
+          the patch description since]
+
+Signed-off-by: Yadi.hu <yadi.hu@windriver.com>
+Acked-by: Linus Walleij <linus.walleij@linaro.org>
+Reviewed-by: Arnd Bergmann <arnd@arndb.de>
+Signed-off-by: Sebastian Andrzej Siewior <bigeasy@linutronix.de>
+---
+ arch/arm/mm/fault.c |    4 ++++
+ 1 file changed, 4 insertions(+)
+
+--- a/arch/arm/mm/fault.c
++++ b/arch/arm/mm/fault.c
+@@ -270,6 +270,7 @@ do_kernel_address_page_fault(struct mm_s
+ 		 * while interrupts are still disabled, then send a SIGSEGV.
+ 		 */
+ 		harden_branch_predictor();
++		local_irq_enable();
+ 		__do_user_fault(addr, fsr, SIGSEGV, SEGV_MAPERR, regs);
+ 	} else {
+ 		/*
+@@ -592,6 +593,9 @@ do_sect_fault(unsigned long addr, unsign
+ 	if (addr >= TASK_SIZE && user_mode(regs))
+ 		harden_branch_predictor();
+ 
++	if (interrupts_enabled(regs))
++		local_irq_enable();
++
+ 	do_bad_area(addr, fsr, regs);
+ 
+ 	return 0;

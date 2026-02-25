@@ -39,9 +39,7 @@ drm-i915-Consider-RCU-read-section-as-atomic.patch
 ###########################################################################
 # ARM
 ###########################################################################
-0001-ARM-mm-fault-Move-harden_branch_predictor-before-int.patch
-0002-ARM-mm-fault-Enable-interrupts-before-invoking-__do_.patch
-0003-ARM-Disable-jump-label-on-PREEMPT_RT.patch
+ARM-mm-fault-Enable-interrupts-before-invoking-__do_.patch
 0005-ARM-Allow-to-enable-RT.patch
 
 ###########################################################################

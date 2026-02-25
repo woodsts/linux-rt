@@ -13,7 +13,7 @@ Signed-off-by: Sebastian Andrzej Siewior <bigeasy@linutronix.de>
 
 --- a/drivers/tty/serial/8250/8250_core.c
 +++ b/drivers/tty/serial/8250/8250_core.c
-@@ -386,12 +386,34 @@ void __init serial8250_register_ports(st
+@@ -390,12 +390,34 @@ void __init serial8250_register_ports(st
  
  #ifdef CONFIG_SERIAL_8250_CONSOLE
  
@@ -51,7 +51,7 @@ Signed-off-by: Sebastian Andrzej Siewior <bigeasy@linutronix.de>
  }
  
  static int univ8250_console_setup(struct console *co, char *options)
-@@ -492,12 +514,15 @@ static int univ8250_console_match(struct
+@@ -496,12 +518,15 @@ static int univ8250_console_match(struct
  
  static struct console univ8250_console = {
  	.name		= "ttyS",
