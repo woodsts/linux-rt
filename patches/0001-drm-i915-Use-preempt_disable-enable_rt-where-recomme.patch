@@ -28,33 +28,34 @@ Signed-off-by: Mike Galbraith <umgwanakikbuti@gmail.com>
 Signed-off-by: Thomas Gleixner <tglx@linutronix.de>
 Signed-off-by: Sebastian Andrzej Siewior <bigeasy@linutronix.de>
 ---
- drivers/gpu/drm/i915/display/intel_vblank.c |   43 +++++++++++++++++++++-------
- 1 file changed, 33 insertions(+), 10 deletions(-)
+ drivers/gpu/drm/i915/display/intel_vblank.c |   44 +++++++++++++++++++++-------
+ 1 file changed, 34 insertions(+), 10 deletions(-)
 
 --- a/drivers/gpu/drm/i915/display/intel_vblank.c
 +++ b/drivers/gpu/drm/i915/display/intel_vblank.c
-@@ -317,6 +317,20 @@ static void intel_vblank_section_exit(st
- 	struct drm_i915_private *i915 = to_i915(display->drm);
- 	spin_unlock(&i915->uncore.lock);
+@@ -316,6 +316,21 @@ static void intel_vblank_section_exit(st
+ 	struct intel_uncore *uncore = to_intel_uncore(display->drm);
+ 	spin_unlock(&uncore->lock);
  }
 +
 +static void intel_vblank_section_enter_irqf(struct intel_display *display, unsigned long *flags)
-+	__acquires(i915->uncore.lock)
++__acquires(i915->uncore.lock)
 +{
-+	struct drm_i915_private *i915 = to_i915(display->drm);
-+	spin_lock_irqsave(&i915->uncore.lock, *flags);
++	struct intel_uncore *uncore = to_intel_uncore(display->drm);
++	spin_lock_irqsave(&uncore->lock, *flags);
 +}
 +
 +static void intel_vblank_section_exit_irqf(struct intel_display *display, unsigned long flags)
-+	__releases(i915->uncore.lock)
++__releases(i915->uncore.lock)
 +{
-+	struct drm_i915_private *i915 = to_i915(display->drm);
-+	spin_unlock_irqrestore(&i915->uncore.lock, flags);
++	struct intel_uncore *uncore = to_intel_uncore(display->drm);
++	spin_unlock_irqrestore(&uncore->lock, flags);
 +}
++
  #else
  static void intel_vblank_section_enter(struct intel_display *display)
  {
-@@ -325,6 +339,17 @@ static void intel_vblank_section_enter(s
+@@ -324,6 +339,17 @@ static void intel_vblank_section_enter(s
  static void intel_vblank_section_exit(struct intel_display *display)
  {
  }
@@ -72,7 +73,7 @@ Signed-off-by: Sebastian Andrzej Siewior <bigeasy@linutronix.de>
  #endif
  
  static bool i915_get_crtc_scanoutpos(struct drm_crtc *_crtc,
-@@ -361,10 +386,10 @@ static bool i915_get_crtc_scanoutpos(str
+@@ -360,10 +386,10 @@ static bool i915_get_crtc_scanoutpos(str
  	 * timing critical raw register reads, potentially with
  	 * preemption disabled, so the following code must not block.
  	 */
@@ -86,7 +87,7 @@ Signed-off-by: Sebastian Andrzej Siewior <bigeasy@linutronix.de>
  
  	/* Get optional system timestamp before query. */
  	if (stime)
-@@ -428,10 +453,10 @@ static bool i915_get_crtc_scanoutpos(str
+@@ -427,10 +453,10 @@ static bool i915_get_crtc_scanoutpos(str
  	if (etime)
  		*etime = ktime_get();
  
@@ -100,7 +101,7 @@ Signed-off-by: Sebastian Andrzej Siewior <bigeasy@linutronix.de>
  
  	/*
  	 * While in vblank, position will be negative
-@@ -469,13 +494,11 @@ int intel_get_crtc_scanline(struct intel
+@@ -468,13 +494,11 @@ int intel_get_crtc_scanline(struct intel
  	unsigned long irqflags;
  	int position;
  

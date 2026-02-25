@@ -38,7 +38,7 @@ Signed-off-by: Sebastian Andrzej Siewior <bigeasy@linutronix.de>
 
 --- a/drivers/gpu/drm/i915/display/intel_crtc.c
 +++ b/drivers/gpu/drm/i915/display/intel_crtc.c
-@@ -571,7 +571,8 @@ void intel_pipe_update_start(struct inte
+@@ -587,7 +587,8 @@ void intel_pipe_update_start(struct inte
  	 */
  	intel_psr_wait_for_idle_locked(new_crtc_state);
  
@@ -48,7 +48,7 @@ Signed-off-by: Sebastian Andrzej Siewior <bigeasy@linutronix.de>
  
  	crtc->debug.min_vbl = evade.min;
  	crtc->debug.max_vbl = evade.max;
-@@ -589,7 +590,8 @@ void intel_pipe_update_start(struct inte
+@@ -605,7 +606,8 @@ void intel_pipe_update_start(struct inte
  	return;
  
  irq_disable:
@@ -58,7 +58,7 @@ Signed-off-by: Sebastian Andrzej Siewior <bigeasy@linutronix.de>
  }
  
  #if IS_ENABLED(CONFIG_DRM_I915_DEBUG_VBLANK_EVADE)
-@@ -735,7 +737,8 @@ void intel_pipe_update_end(struct intel_
+@@ -750,7 +752,8 @@ void intel_pipe_update_end(struct intel_
  	if (!state->base.legacy_cursor_update)
  		intel_vrr_send_push(NULL, new_crtc_state);
  
@@ -66,7 +66,7 @@ Signed-off-by: Sebastian Andrzej Siewior <bigeasy@linutronix.de>
 +	if (!IS_ENABLED(CONFIG_PREEMPT_RT))
 +		local_irq_enable();
  
- 	if (intel_vgpu_active(dev_priv))
+ 	if (intel_parent_vgpu_active(display))
  		goto out;
 --- a/drivers/gpu/drm/i915/display/intel_cursor.c
 +++ b/drivers/gpu/drm/i915/display/intel_cursor.c
@@ -100,7 +100,7 @@ Signed-off-by: Sebastian Andrzej Siewior <bigeasy@linutronix.de>
  
 --- a/drivers/gpu/drm/i915/display/intel_vblank.c
 +++ b/drivers/gpu/drm/i915/display/intel_vblank.c
-@@ -763,11 +763,13 @@ int intel_vblank_evade(struct intel_vbla
+@@ -788,11 +788,13 @@ int intel_vblank_evade(struct intel_vbla
  			break;
  		}
  
