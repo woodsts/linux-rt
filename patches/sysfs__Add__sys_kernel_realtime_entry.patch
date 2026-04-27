@@ -24,7 +24,7 @@ Signed-off-by: Thomas Gleixner <tglx@linutronix.de>
 ---
 --- a/kernel/ksysfs.c
 +++ b/kernel/ksysfs.c
-@@ -132,6 +132,15 @@ KERNEL_ATTR_RO(vmcoreinfo);
+@@ -133,6 +133,15 @@ KERNEL_ATTR_RO(vmcoreinfo);
  
  #endif /* CONFIG_VMCORE_INFO */
  
@@ -40,7 +40,7 @@ Signed-off-by: Thomas Gleixner <tglx@linutronix.de>
  /* whether file capabilities are enabled */
  static ssize_t fscaps_show(struct kobject *kobj,
  				  struct kobj_attribute *attr, char *buf)
-@@ -206,6 +215,9 @@ static struct attribute * kernel_attrs[]
+@@ -207,6 +216,9 @@ static struct attribute * kernel_attrs[]
  	&rcu_expedited_attr.attr,
  	&rcu_normal_attr.attr,
  #endif

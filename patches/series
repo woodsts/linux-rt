@@ -37,12 +37,6 @@ drm-i915-Consider-RCU-read-section-as-atomic.patch
 0008-Revert-drm-i915-Depend-on-PREEMPT_RT.patch
 
 ###########################################################################
-# ARM
-###########################################################################
-ARM-mm-fault-Enable-interrupts-before-invoking-__do_.patch
-0005-ARM-Allow-to-enable-RT.patch
-
-###########################################################################
 # POWERPC
 ###########################################################################
 powerpc_pseries_iommu__Use_a_locallock_instead_local_irq_save.patch
