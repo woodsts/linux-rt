@@ -1,17 +1,44 @@
-From: Sebastian Andrzej Siewior <bigeasy@linutronix.de>
-Date: Tue, 4 Feb 2025 12:30:26 +0100
-Subject: [PATCH] Reapply "serial: 8250: Switch to nbcon console"
+From: John Ogness <john.ogness@linutronix.de>
+Date: Mon, 20 Jul 2026 12:38:35 +0206
+Subject: [PATCH 1/2] serial: 8250: Switch to nbcon console, take 2
 
-This reverts commit f79b163c42314a1f46f4bcc40a19c8a75cf1e7a3.
+Implement the necessary callbacks to switch the 8250 console driver
+to perform as an nbcon console.
 
+Add implementations for the nbcon console callbacks:
+
+  ->write_atomic()
+  ->write_thread()
+  ->device_lock()
+  ->device_unlock()
+
+and add CON_NBCON to the initial @flags.
+
+All hardware access in the callbacks is within unsafe sections.
+The ->write_atomic() and ->write_thread() callbacks allow safe
+handover/takeover per byte and add a preceding newline if they
+take over from another context mid-line.
+
+For the ->write_atomic() callback, a new irq_work is used to defer
+modem control since it may be called from a context that does not
+allow waking up tasks. During suspend/resume the irq_work is not
+used as this has been shown to cause suspend problems for some
+hardware. Upon resume, any pending modem control is performed.
+
+Note: A new __serial8250_clear_IER() is introduced for direct
+clearing of UART_IER during console writing (which may not be
+holding the port lock for atomic printing). This allows restoring
+a lockdep check to serial8250_clear_IER() in a follow-up commit.
+
+Signed-off-by: John Ogness <john.ogness@linutronix.de>
 Signed-off-by: Sebastian Andrzej Siewior <bigeasy@linutronix.de>
 ---
  drivers/tty/serial/8250/8250.h      |    4 
- drivers/tty/serial/8250/8250_core.c |   35 ++++++-
+ drivers/tty/serial/8250/8250_core.c |   44 +++++++-
  drivers/tty/serial/8250/8250_dw.c   |    2 
- drivers/tty/serial/8250/8250_port.c |  180 +++++++++++++++++++++++++++++-------
- include/linux/serial_8250.h         |   13 ++
- 5 files changed, 191 insertions(+), 43 deletions(-)
+ drivers/tty/serial/8250/8250_port.c |  190 +++++++++++++++++++++++++++++-------
+ include/linux/serial_8250.h         |   16 ++-
+ 5 files changed, 213 insertions(+), 43 deletions(-)
 
 --- a/drivers/tty/serial/8250/8250.h
 +++ b/drivers/tty/serial/8250/8250.h
@@ -84,6 +111,29 @@ Signed-off-by: Sebastian Andrzej Siewior <bigeasy@linutronix.de>
  	.index		= -1,
  	.data		= &serial8250_reg,
  };
+@@ -584,6 +609,9 @@ void serial8250_suspend_port(int line)
+ 	struct uart_8250_port *up = &serial8250_ports[line];
+ 	struct uart_port *port = &up->port;
+ 
++	/* No irq_work may be queued when suspending. */
++	up->avoid_modem_status_work = true;
++
+ 	if (!console_suspend_enabled && uart_console(port) &&
+ 	    port->type != PORT_8250) {
+ 		unsigned char canary = 0xa5;
+@@ -620,6 +648,12 @@ void serial8250_resume_port(int line)
+ 		port->uartclk = 921600*16;
+ 	}
+ 	uart_resume_port(&serial8250_reg, port);
++
++	/* irq_work allowed again. Handle MSR now if pending. */
++	up->avoid_modem_status_work = false;
++	guard(uart_port_lock_irqsave)(port);
++	if (uart_console(port) && up->msr_saved_flags)
++		serial8250_modem_status(up);
+ }
+ EXPORT_SYMBOL(serial8250_resume_port);
+ 
 --- a/drivers/tty/serial/8250/8250_dw.c
 +++ b/drivers/tty/serial/8250/8250_dw.c
 @@ -156,7 +156,7 @@ static int dw8250_idle_enter(struct uart
@@ -150,7 +200,7 @@ Signed-off-by: Sebastian Andrzej Siewior <bigeasy@linutronix.de>
  			p->ier |= UART_IER_RLSI | UART_IER_RDI;
  			serial_port_out(&p->port, UART_IER, p->ier);
  		}
-@@ -3221,11 +3238,22 @@ void serial8250_set_defaults(struct uart
+@@ -3227,11 +3244,22 @@ void serial8250_set_defaults(struct uart
  }
  EXPORT_SYMBOL_GPL(serial8250_set_defaults);
  
@@ -168,13 +218,13 @@ Signed-off-by: Sebastian Andrzej Siewior <bigeasy@linutronix.de>
 +		 * the ownership might timeout. The new owner will wait
 +		 * for UART_LSR_THRE before reusing the fifo.
 +		 */
-+               if (wctxt && !nbcon_can_proceed(wctxt))
-+                       return;
++		if (wctxt && !nbcon_can_proceed(wctxt))
++			return;
 +
  		if (wait_for_lsr(up, UART_LSR_THRE))
  			return;
  	}
-@@ -3236,7 +3264,11 @@ EXPORT_SYMBOL_NS_GPL(serial8250_fifo_wai
+@@ -3242,7 +3270,11 @@ EXPORT_SYMBOL_NS_GPL(serial8250_fifo_wai
  
  static void serial8250_console_putchar(struct uart_port *port, unsigned char ch)
  {
@@ -186,7 +236,7 @@ Signed-off-by: Sebastian Andrzej Siewior <bigeasy@linutronix.de>
  }
  
  static void serial8250_console_wait_putchar(struct uart_port *port, unsigned char ch)
-@@ -3280,20 +3312,29 @@ static void serial8250_console_restore(s
+@@ -3286,20 +3318,29 @@ static void serial8250_console_restore(s
   * to get empty.
   */
  static void serial8250_console_fifo_write(struct uart_8250_port *up,
@@ -219,7 +269,7 @@ Signed-off-by: Sebastian Andrzej Siewior <bigeasy@linutronix.de>
  			if (*s == '\n' && !cr_sent) {
  				serial8250_console_putchar(port, '\r');
  				cr_sent = true;
-@@ -3301,6 +3342,8 @@ static void serial8250_console_fifo_writ
+@@ -3307,6 +3348,8 @@ static void serial8250_console_fifo_writ
  				serial8250_console_putchar(port, *s++);
  				cr_sent = false;
  			}
@@ -228,7 +278,7 @@ Signed-off-by: Sebastian Andrzej Siewior <bigeasy@linutronix.de>
  		}
  		tx_count = i;
  	}
-@@ -3309,39 +3352,57 @@ static void serial8250_console_fifo_writ
+@@ -3315,39 +3358,57 @@ static void serial8250_console_fifo_writ
  	 * Allow timeout for each byte written since the caller will only wait
  	 * for UART_LSR_BOTH_EMPTY using the timeout of a single character
  	 */
@@ -306,7 +356,7 @@ Signed-off-by: Sebastian Andrzej Siewior <bigeasy@linutronix.de>
  
  	/* check scratch reg to see if port powered off during system sleep */
  	if (up->canary && (up->canary != serial_port_in(port, UART_SCR))) {
-@@ -3355,6 +3416,18 @@ void serial8250_console_write(struct uar
+@@ -3361,6 +3422,18 @@ void serial8250_console_write(struct uar
  		mdelay(port->rs485.delay_rts_before_send);
  	}
  
@@ -325,7 +375,7 @@ Signed-off-by: Sebastian Andrzej Siewior <bigeasy@linutronix.de>
  	use_fifo = (up->capabilities & UART_CAP_FIFO) &&
  		/*
  		 * BCM283x requires to check the fifo
-@@ -3375,10 +3448,23 @@ void serial8250_console_write(struct uar
+@@ -3381,10 +3454,23 @@ void serial8250_console_write(struct uar
  		 */
  		!uart_console_hwflow_active(&up->port);
  
@@ -351,7 +401,7 @@ Signed-off-by: Sebastian Andrzej Siewior <bigeasy@linutronix.de>
  
  	/*
  	 *	Finally, wait for transmitter to become empty
-@@ -3401,11 +3487,18 @@ void serial8250_console_write(struct uar
+@@ -3407,11 +3493,29 @@ void serial8250_console_write(struct uar
  	 *	call it if we have saved something in the saved flags
  	 *	while processing with interrupts off.
  	 */
@@ -362,10 +412,21 @@ Signed-off-by: Sebastian Andrzej Siewior <bigeasy@linutronix.de>
 +		 * For atomic, it must be deferred to irq_work because this
 +		 * may be a context that does not permit waking up tasks.
 +		 */
-+		if (is_atomic)
-+			irq_work_queue(&up->modem_status_work);
-+		else
++		if (is_atomic) {
++			/*
++			 * For atomic, MSR handling must be deferred to
++			 * irq_work because this may be a context that does
++			 * not permit waking up tasks.
++			 *
++			 * But no irq_work may be queued when suspending.
++			 * In that case, the MSR handling will occur during
++			 * resume in serial8250_resume_port().
++			 */
++			if (!up->avoid_modem_status_work)
++				irq_work_queue(&up->modem_status_work);
++		} else {
 +			serial8250_modem_status(up);
++		}
 +	}
  
 -	if (locked)
@@ -374,7 +435,7 @@ Signed-off-by: Sebastian Andrzej Siewior <bigeasy@linutronix.de>
  }
  
  static unsigned int probe_baud(struct uart_port *port)
-@@ -3423,8 +3516,24 @@ static unsigned int probe_baud(struct ua
+@@ -3429,8 +3533,23 @@ static unsigned int probe_baud(struct ua
  	return (port->uartclk / 16) / quot;
  }
  
@@ -388,9 +449,8 @@ Signed-off-by: Sebastian Andrzej Siewior <bigeasy@linutronix.de>
 +	struct uart_8250_port *up = container_of(iwp, struct uart_8250_port, modem_status_work);
 +	struct uart_port *port = &up->port;
 +
-+	uart_port_lock(port);
++	guard(uart_port_lock)(port);
 +	serial8250_modem_status(up);
-+	uart_port_unlock(port);
 +}
 +
  int serial8250_console_setup(struct uart_port *port, char *options, bool probe)
@@ -399,7 +459,7 @@ Signed-off-by: Sebastian Andrzej Siewior <bigeasy@linutronix.de>
  	int baud = 9600;
  	int bits = 8;
  	int parity = 'n';
-@@ -3434,6 +3543,9 @@ int serial8250_console_setup(struct uart
+@@ -3440,6 +3559,9 @@ int serial8250_console_setup(struct uart
  	if (!port->iobase && !port->membase)
  		return -ENODEV;
  
@@ -411,7 +471,7 @@ Signed-off-by: Sebastian Andrzej Siewior <bigeasy@linutronix.de>
  	else if (probe)
 --- a/include/linux/serial_8250.h
 +++ b/include/linux/serial_8250.h
-@@ -150,8 +150,17 @@ struct uart_8250_port {
+@@ -150,8 +150,20 @@ struct uart_8250_port {
  #define LSR_SAVE_FLAGS UART_LSR_BRK_ERROR_BITS
  	u16			lsr_saved_flags;
  	u16			lsr_save_mask;
@@ -423,13 +483,16 @@ Signed-off-by: Sebastian Andrzej Siewior <bigeasy@linutronix.de>
 +	 */
 +	bool			console_line_ended;
 +
++	/* Do not queue irq_work for MSR handling when suspending. */
++	bool			avoid_modem_status_work;
++
  #define MSR_SAVE_FLAGS UART_MSR_ANY_DELTA
  	unsigned char		msr_saved_flags;
 +	struct irq_work		modem_status_work;
  
  	struct uart_8250_dma	*dma;
  	const struct uart_8250_ops *ops;
-@@ -203,8 +212,8 @@ void serial8250_tx_chars(struct uart_825
+@@ -203,8 +215,8 @@ void serial8250_tx_chars(struct uart_825
  unsigned int serial8250_modem_status(struct uart_8250_port *up);
  void serial8250_init_port(struct uart_8250_port *up);
  void serial8250_set_defaults(struct uart_8250_port *up);

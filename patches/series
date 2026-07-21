@@ -7,13 +7,15 @@
 ###########################################################################
 # Posted
 ###########################################################################
+0001-ARM-enable-interrupts-when-arm_notify_die-is-handlin.patch
+0002-ARM-select-HAVE_POSIX_CPU_TIMERS_TASK_WORK.patch
 
 ###########################################################################
 # John's printk queue
 ###########################################################################
 # Atomic console
-Reapply-serial-8250-Switch-to-nbcon-console.patch
-Reapply-serial-8250-Revert-drop-lockdep-annotation-f.patch
+0001-serial-8250-Switch-to-nbcon-console-take-2.patch
+0002-serial-8250-Revert-drop-lockdep-annotation-from-seri.patch
 
 ###########################################################################
 # Post
