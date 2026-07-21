@@ -3260,8 +3260,8 @@ void serial8250_fifo_wait_for_lsr_thre(struct uart_8250_port *up,
 		 * the ownership might timeout. The new owner will wait
 		 * for UART_LSR_THRE before reusing the fifo.
 		 */
-               if (wctxt && !nbcon_can_proceed(wctxt))
-                       return;
+		if (wctxt && !nbcon_can_proceed(wctxt))
+			return;
 
 		if (wait_for_lsr(up, UART_LSR_THRE))
 			return;
@@ -3501,10 +3501,21 @@ skip_write:
 		 * For atomic, it must be deferred to irq_work because this
 		 * may be a context that does not permit waking up tasks.
 		 */
-		if (is_atomic)
-			irq_work_queue(&up->modem_status_work);
-		else
+		if (is_atomic) {
+			/*
+			 * For atomic, MSR handling must be deferred to
+			 * irq_work because this may be a context that does
+			 * not permit waking up tasks.
+			 *
+			 * But no irq_work may be queued when suspending.
+			 * In that case, the MSR handling will occur during
+			 * resume in serial8250_resume_port().
+			 */
+			if (!up->avoid_modem_status_work)
+				irq_work_queue(&up->modem_status_work);
+		} else {
 			serial8250_modem_status(up);
+		}
 	}
 
 	nbcon_exit_unsafe(wctxt);
@@ -3535,9 +3546,8 @@ static void modem_status_handler(struct irq_work *iwp)
 	struct uart_8250_port *up = container_of(iwp, struct uart_8250_port, modem_status_work);
 	struct uart_port *port = &up->port;
 
-	uart_port_lock(port);
+	guard(uart_port_lock)(port);
 	serial8250_modem_status(up);
-	uart_port_unlock(port);
 }
 
 int serial8250_console_setup(struct uart_port *port, char *options, bool probe)

@@ -158,6 +158,9 @@ struct uart_8250_port {
 	 */
 	bool			console_line_ended;
 
+	/* Do not queue irq_work for MSR handling when suspending. */
+	bool			avoid_modem_status_work;
+
 #define MSR_SAVE_FLAGS UART_MSR_ANY_DELTA
 	unsigned char		msr_saved_flags;
 	struct irq_work		modem_status_work;

@@ -609,6 +609,9 @@ void serial8250_suspend_port(int line)
 	struct uart_8250_port *up = &serial8250_ports[line];
 	struct uart_port *port = &up->port;
 
+	/* No irq_work may be queued when suspending. */
+	up->avoid_modem_status_work = true;
+
 	if (!console_suspend_enabled && uart_console(port) &&
 	    port->type != PORT_8250) {
 		unsigned char canary = 0xa5;
@@ -645,6 +648,12 @@ void serial8250_resume_port(int line)
 		port->uartclk = 921600*16;
 	}
 	uart_resume_port(&serial8250_reg, port);
+
+	/* irq_work allowed again. Handle MSR now if pending. */
+	up->avoid_modem_status_work = false;
+	guard(uart_port_lock_irqsave)(port);
+	if (uart_console(port) && up->msr_saved_flags)
+		serial8250_modem_status(up);
 }
 EXPORT_SYMBOL(serial8250_resume_port);
 
