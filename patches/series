@@ -7,15 +7,6 @@
 ###########################################################################
 # Posted
 ###########################################################################
-0001-ARM-9483-1-select-HAVE_POSIX_CPU_TIMERS_TASK_WORK.patch
-0002-ARM-9484-1-enable-interrupts-when-unhandled-user-fau.patch
-
-###########################################################################
-# John's printk queue
-###########################################################################
-# Atomic console
-0001-serial-8250-Switch-to-nbcon-console-take-2.patch
-0002-Revert-serial-8250-drop-lockdep-annotation-from-seri.patch
 
 ###########################################################################
 # Post
@@ -42,7 +33,6 @@ drm-i915-Consider-RCU-read-section-as-atomic.patch
 # POWERPC
 ###########################################################################
 powerpc_pseries_iommu__Use_a_locallock_instead_local_irq_save.patch
-powerpc-pseries-Select-the-generic-memory-allocator.patch
 powerpc_kvm__Disable_in-kernel_MPIC_emulation_for_PREEMPT_RT.patch
 powerpc_stackprotector__work_around_stack-guard_init_from_atomic.patch
 POWERPC__Allow_to_enable_RT.patch

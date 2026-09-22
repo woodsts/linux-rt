@@ -11,8 +11,8 @@ Signed-off-by: Thomas Gleixner <tglx@linutronix.de>
 
 
 ---
- arch/powerpc/Kconfig |    2 ++
- 1 file changed, 2 insertions(+)
+ arch/powerpc/Kconfig |    1 +
+ 1 file changed, 1 insertion(+)
 ---
 --- a/arch/powerpc/Kconfig
 +++ b/arch/powerpc/Kconfig
@@ -24,11 +24,3 @@ Signed-off-by: Thomas Gleixner <tglx@linutronix.de>
  	select ARCH_SUPPORTS_SCHED_MC		if SMP
  	select ARCH_SUPPORTS_SCHED_SMT		if PPC64 && SMP
  	select SCHED_MC				if ARCH_SUPPORTS_SCHED_MC
-@@ -280,6 +281,7 @@ config PPC
- 	select HAVE_PERF_EVENTS_NMI		if PPC64
- 	select HAVE_PERF_REGS
- 	select HAVE_PERF_USER_STACK_DUMP
-+	select HAVE_POSIX_CPU_TIMERS_TASK_WORK	if !KVM
- 	select HAVE_PREEMPT_DYNAMIC_KEY
- 	select HAVE_RETHOOK			if KPROBES
- 	select HAVE_REGS_AND_STACK_ACCESS_API
