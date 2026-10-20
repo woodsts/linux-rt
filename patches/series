@@ -1,4 +1,5 @@
 # Applied upstream
+printk-Postpone-kthread-startup.patch
 
 ###########################################################################
 # Posted and applied
